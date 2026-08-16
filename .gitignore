@@ -1,0 +1,26 @@
+# data and artifacts (large, regenerable)
+outputs/
+runs/
+wandb/
+data/raw/
+*.pt
+*.pkl
+*.hdf5
+*.npz
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# latex build
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.synctex.gz
+
+# os
+.DS_Store

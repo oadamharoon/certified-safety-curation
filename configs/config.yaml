@@ -1,0 +1,1087 @@
+# =====================================================================
+# Safety-VLM-CPL pipeline configuration
+# Currently configured for SafetyPointGoal1 (DSRL offline dataset)
+# =====================================================================
+
+# ---- Reproducibility ----
+seed: 0
+# ---- Paths ----
+raw_npz: "safety_point_goal_dsrl.npz"          # produced by data_collect.ipynb
+data_pickle: "data/trajectories_pointgoal1.pkl" # default task: pointgoal1
+output_dir: "outputs/pointgoal1"
+prompt_template: "prompts/safety_pointgoal.txt" # change per task
+
+# ---- Environment ----
+# Offline (BC/CPL training data): "OfflinePointGoal1Gymnasium-v0"
+# Online (rendering + evaluation): "SafetyPointGoal1Gymnasium-v0"
+env_name: "SafetyPointGoal1Gymnasium-v0"
+offline_env_name: "OfflinePointGoal1Gymnasium-v0"
+
+# ---- Segmentation ----
+segment_length: 30
+segment_stride: 30          # non-overlapping segments
+
+# ---- Filtering ----
+# PointGoal obs is 60-dim lidar; we cannot use obs-based xy displacement.
+# Instead filter on a minimum sum-of-rewards (positive progress).
+min_total_reward: 0.05      # at least some forward progress over the segment
+drop_zero_segments: true    # drop segments with both ~0 reward and ~0 cost
+
+# ---- Pair sampling ----
+num_pairs: 3000             # scaled up for full run
+cost_safe_threshold: 0.0
+cost_contrast_min: 1.0
+max_active_segments: 100000
+
+# ---- Rendering ----
+frames_per_segment: 5       # more frames helps small open-source VLMs
+render_image_size: 256      # passed to safety-gymnasium where supported
+
+# ---- VLM ----
+# Backend: "openai" | "openrouter" | "hf" (local Hugging Face).
+vlm_backend: "hf"
+
+# Model id depends on backend.
+#
+# === backend == "openai" ===
+#   gpt-4o-mini          # cheap, fast, good multi-image
+#   gpt-4o               # strongest OpenAI multimodal
+#   gpt-4.1-mini         # newer cheap tier
+#   gpt-4.1
+#
+# === backend == "openrouter" ===  (full list: https://openrouter.ai/models?modality=image)
+#   openai/gpt-4o-mini                       # ~$0.15 / 1M in
+#   openai/gpt-4o
+#   anthropic/claude-3.5-sonnet              # very strong on multi-image
+#   anthropic/claude-3-haiku                 # cheap claude
+#   google/gemini-2.0-flash-001              # cheap, fast, native multi-image
+#   google/gemini-2.5-pro                    # premium
+#   meta-llama/llama-3.2-90b-vision-instruct # open-weight via OR
+#   qwen/qwen2.5-vl-72b-instruct             # open-weight via OR
+#   mistralai/pixtral-12b
+#
+# === backend == "hf" (local) ===
+#   Qwen/Qwen2-VL-7B-Instruct                # ~16 GB VRAM
+#   openbmb/MiniCPM-V-2_6                    # ~17 GB VRAM
+#   HuggingFaceTB/SmolVLM-Instruct           # ~5 GB
+vlm_model: "Qwen/Qwen2.5-VL-7B-Instruct"
+
+# --- Auth ---
+openai_api_key: ""            # backend==openai (else OPENAI_API_KEY env var)
+openrouter_api_key: ""        # backend==openrouter (else OPENROUTER_API_KEY env var)
+openrouter_base_url: "https://openrouter.ai/api/v1"
+openrouter_referer: ""        # optional: your project URL (for OpenRouter analytics)
+openrouter_app_title: "safety-vlm-cpl"
+
+max_tokens: 500
+temperature: 0.2
+vlm_retries: 3
+vlm_strategy: "pairwise"     # "pairwise" (original) or "rating" (ERL-VLM-style absolute Likert)
+rating_scale: 5              # only used when vlm_strategy=="rating"; integer ratings in [0, scale-1]
+
+# ---- CPL training ----
+bc_pretrain_epochs: 50
+cpl_epochs: 300
+batch_size: 512
+learning_rate: 0.0003
+lambda_bc: 0.1              # auxiliary BC weight during CPL phase
+temperature_cpl: 1.0        # softmax temperature (acts as 1/beta)
+hidden_dim: 256
+cpl_dropout: 0.0             # 0 = original behavior; PLARE uses 0.25 for VLM-label noise mitigation
+log_every: 5
+
+# ---- Evaluation ----
+eval_episodes: 100
+bc_only_epochs: 100
+cost_limit: 25              # episode-level cost budget; matches DSRL convention
+deterministic: true
+
+# ---- W&B logging ----
+use_wandb: true
+wandb_project: "safety-vlm-cpl"
+wandb_run_name: "pointgoal_v2_200k"
+wandb_entity: null          # set to your W&B entity, or leave null
+
+# =====================================================================
+# TASK REGISTRY
+# Usage:  python scripts/01_segment_and_filter.py --task cargoal1
+#
+# Each task entry overrides only the keys that differ from the defaults
+# above. Everything else (VLM settings, training hyperparams, etc.)
+# is inherited from the shared defaults.
+#
+# data_source:
+#   "dsrl"   – use env.get_dataset() (offline expert data, no seeds stored)
+#   "online" – use 00_collect_online_data.py (seeds stored, replay matches)
+#
+# Three environment families available:
+#   1. Safety-Gymnasium (Point/Car/Ant robot): has DSRL offline data
+#   2. Bullet-Safety-Gym (Ball/Car/Ant/Drone): FSRL only, online collection
+#   3. MuJoCo Velocity (HalfCheetah/Ant/etc): cost = velocity limit violation
+# =====================================================================
+tasks:
+
+  # ==================================================================
+  # Track-camera variants — same trajectories as their parent tasks but
+  # rendered with camera_id=3 (top-down following) instead of the default
+  # vision camera (egocentric). Output dirs are separate so the
+  # vision-camera results stay intact.
+  # ==================================================================
+  pointgoal1_track:
+    seed: 0
+    env_name: "SafetyPointGoal1Gymnasium-v0"
+    offline_env_name: "OfflinePointGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_pointgoal1.pkl"
+    output_dir: "outputs/pointgoal1_track"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointgoal1_track_camera"
+    data_source: "online"
+    render_camera_id: 3
+    collect:
+      n_episodes: 500
+      max_steps_per_episode: 1000
+      action_momentum: 0.7
+      forward_bias: 0.3
+      seed_offset: 200000
+      use_bc_policy: true
+      bc_action_noise: 0.1
+
+  cargoal1_track:
+    seed: 42
+    env_name: "SafetyCarGoal1Gymnasium-v0"
+    offline_env_name: "OfflineCarGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_cargoal1.pkl"
+    output_dir: "outputs/cargoal1_track"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "cargoal1_track_camera"
+    data_source: "online"
+    render_camera_id: 3
+    collect:
+      n_episodes: 500
+      max_steps_per_episode: 1000
+      action_momentum: 0.7
+      forward_bias: 0.3
+      seed_offset: 200000
+      use_bc_policy: true
+      bc_action_noise: 0.1
+
+  # ==================================================================
+  # Cost-aware frame-selection variants — same trajectories as their parent
+  # tasks but rendered with the vision camera (default) and cost-aware
+  # frame selection: within each segment, frames are sampled at
+  # equally-spaced percentiles of that segment's cost distribution so
+  # the VLM sees a mix of safe and contact frames.
+  # Output dirs are separate so the original results stay intact.
+  # ==================================================================
+  pointgoal1_cost_aware:
+    seed: 0
+    env_name: "SafetyPointGoal1Gymnasium-v0"
+    offline_env_name: "OfflinePointGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_pointgoal1.pkl"
+    output_dir: "outputs/pointgoal1_cost_aware"
+    prompt_template: "prompts/safety_pointgoal_rating.txt"
+    wandb_run_name: "pointgoal1_cost_aware"
+    data_source: "online"
+    frame_selection: "cost_aware"
+    vlm_strategy: "rating"
+    cpl_dropout: 0.25
+    collect:
+      n_episodes: 500
+      max_steps_per_episode: 1000
+      action_momentum: 0.7
+      forward_bias: 0.3
+      seed_offset: 200000
+      use_bc_policy: true
+      bc_action_noise: 0.1
+
+  cargoal1_cost_aware:
+    seed: 42
+    env_name: "SafetyCarGoal1Gymnasium-v0"
+    offline_env_name: "OfflineCarGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_cargoal1.pkl"
+    output_dir: "outputs/cargoal1_cost_aware"
+    prompt_template: "prompts/safety_cargoal_rating.txt"
+    wandb_run_name: "cargoal1_cost_aware"
+    data_source: "online"
+    frame_selection: "cost_aware"
+    vlm_strategy: "rating"
+    cpl_dropout: 0.25
+    collect:
+      n_episodes: 500
+      max_steps_per_episode: 1000
+      action_momentum: 0.7
+      forward_bias: 0.3
+      seed_offset: 200000
+      use_bc_policy: true
+      bc_action_noise: 0.1
+
+  # Track-camera variants of the cost_aware tasks — same trajectories /
+  # segments / pipeline as cargoal1_cost_aware and pointgoal1_cost_aware
+  # but rendered with the top-down "track" camera (camera_id=3) instead of
+  # the default egocentric vision camera. Separate output dirs so the
+  # default-vision results stay intact.
+  pointgoal1_cost_aware_track:
+    seed: 0
+    env_name: "SafetyPointGoal1Gymnasium-v0"
+    offline_env_name: "OfflinePointGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_pointgoal1.pkl"
+    output_dir: "outputs/pointgoal1_cost_aware_track"
+    prompt_template: "prompts/safety_pointgoal_rating.txt"
+    wandb_run_name: "pointgoal1_cost_aware_track"
+    data_source: "online"
+    frame_selection: "cost_aware"
+    vlm_strategy: "rating"
+    cpl_dropout: 0.0      # ablation: was 0.25; testing whether dropout hurts at our label SNR
+    render_camera_id: 3
+
+  cargoal1_cost_aware_track:
+    seed: 42
+    env_name: "SafetyCarGoal1Gymnasium-v0"
+    offline_env_name: "OfflineCarGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_cargoal1.pkl"
+    output_dir: "outputs/cargoal1_cost_aware_track"
+    prompt_template: "prompts/safety_cargoal_rating.txt"
+    wandb_run_name: "cargoal1_cost_aware_track"
+    data_source: "online"
+    frame_selection: "cost_aware"
+    vlm_strategy: "rating"
+    cpl_dropout: 0.0      # ablation: was 0.25; testing whether dropout hurts at our label SNR
+    render_camera_id: 3
+
+  carpush1_cost_aware:
+    seed: 42
+    env_name: "SafetyCarPush1Gymnasium-v0"
+    offline_env_name: "OfflineCarPush1Gymnasium-v0"
+    data_pickle: "data/trajectories_carpush1.pkl"
+    output_dir: "outputs/carpush1_cost_aware"
+    prompt_template: "prompts/safety_carpush.txt"
+    wandb_run_name: "carpush1_cost_aware"
+    data_source: "online"
+    frame_selection: "cost_aware"
+    collect:
+      n_episodes: 500
+      max_steps_per_episode: 1000
+      action_momentum: 0.7
+      forward_bias: 0.3
+      seed_offset: 200000
+      use_bc_policy: true
+      bc_action_noise: 0.1
+
+  carbutton1_cost_aware:
+    seed: 42
+    env_name: "SafetyCarButton1Gymnasium-v0"
+    offline_env_name: "OfflineCarButton1Gymnasium-v0"
+    data_pickle: "data/trajectories_carbutton1.pkl"
+    output_dir: "outputs/carbutton1_cost_aware"
+    prompt_template: "prompts/safety_carbutton.txt"
+    wandb_run_name: "carbutton1_cost_aware"
+    data_source: "online"
+    frame_selection: "cost_aware"
+    collect:
+      n_episodes: 500
+      max_steps_per_episode: 1000
+      action_momentum: 0.7
+      forward_bias: 0.3
+      seed_offset: 200000
+      use_bc_policy: true
+      bc_action_noise: 0.1
+
+  # ==================================================================
+  # SAFETY-GYMNASIUM: Point robot
+  # Online collection (seeds stored → rendering matches collection exactly).
+  # ==================================================================
+  pointgoal1:
+    seed: 0
+    env_name: "SafetyPointGoal1Gymnasium-v0"
+    offline_env_name: "OfflinePointGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_pointgoal1.pkl"
+    output_dir: "outputs/pointgoal1"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointgoal1_online_seed_matched"
+    data_source: "online"
+    collect:
+      n_episodes: 500
+      max_steps_per_episode: 1000
+      action_momentum: 0.7
+      forward_bias: 0.3
+      seed_offset: 200000
+      use_bc_policy: true
+      bc_action_noise: 0.1
+
+  pointgoal2:
+    env_name: "SafetyPointGoal2Gymnasium-v0"
+    offline_env_name: "OfflinePointGoal2Gymnasium-v0"
+    data_pickle: "data/trajectories_pointgoal2.pkl"
+    output_dir: "outputs/pointgoal2"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointgoal2_dsrl"
+    data_source: "dsrl"
+
+    traj_safe_max_cost: 25.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 123.0
+  pointcircle1:
+    env_name: "SafetyPointCircle1Gymnasium-v0"
+    offline_env_name: "OfflinePointCircle1Gymnasium-v0"
+    data_pickle: "data/trajectories_pointcircle1.pkl"
+    output_dir: "outputs/pointcircle1"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointcircle1_dsrl"
+    data_source: "dsrl"
+
+    traj_safe_max_cost: 57.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 168.0
+  pointcircle2:
+    env_name: "SafetyPointCircle2Gymnasium-v0"
+    offline_env_name: "OfflinePointCircle2Gymnasium-v0"
+    data_pickle: "data/trajectories_pointcircle2.pkl"
+    output_dir: "outputs/pointcircle2"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointcircle2_dsrl"
+    data_source: "dsrl"
+
+    traj_safe_max_cost: 45.5
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 181.0
+  pointbutton1:
+    env_name: "SafetyPointButton1Gymnasium-v0"
+    offline_env_name: "OfflinePointButton1Gymnasium-v0"
+    data_pickle: "data/trajectories_pointbutton1.pkl"
+    output_dir: "outputs/pointbutton1"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointbutton1_dsrl"
+    data_source: "dsrl"
+
+    traj_safe_max_cost: 24.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 122.0
+  pointpush1:
+    env_name: "SafetyPointPush1Gymnasium-v0"
+    offline_env_name: "OfflinePointPush1Gymnasium-v0"
+    data_pickle: "data/trajectories_pointpush1.pkl"
+    output_dir: "outputs/pointpush1"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointpush1_dsrl"
+    data_source: "dsrl"
+
+  # ==================================================================
+  # SAFETY-GYMNASIUM: Car robot
+  # Online collection preferred (DSRL exists but seeds not stored)
+  # ==================================================================
+  cargoal1:
+    seed: 42
+    env_name: "SafetyCarGoal1Gymnasium-v0"
+    offline_env_name: "OfflineCarGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_cargoal1.pkl"
+    output_dir: "outputs/cargoal1"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "cargoal1_online_seed_matched"
+    data_source: "online"
+    collect:
+      n_episodes: 500
+      max_steps_per_episode: 1000
+      action_momentum: 0.7
+      forward_bias: 0.3
+      seed_offset: 200000
+      use_bc_policy: true
+      bc_action_noise: 0.1
+
+  ant_velocity:
+    # Phase 12e-14: AntVelocity. PReSa + PREFINE benchmark.
+    # 2249 trajs, 2.1M trans. obs_dim=27, act_dim=8.
+    # MAX_R=2976, MAX_C=250. p25=25, p75=191. 20% safe at thr=20.
+    env_name: "SafetyAntVelocityGymnasium-v1"
+    offline_env_name: "OfflineAntVelocityGymnasium-v1"
+    data_pickle: "data/trajectories_ant_velocity.pkl"
+    output_dir: "outputs/ant_velocity"
+    wandb_run_name: "ant_velocity_dsrl"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 20
+    traj_safe_max_cost: 25.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 191.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  hopper_velocity:
+    # Phase 12e-14: HopperVelocity. PReSa + PREFINE benchmark.
+    # 2240 trajs, 1.3M trans. obs_dim=11, act_dim=3.
+    # MAX_R=1911, MAX_C=250. p25=50, p75=186. 11% safe at thr=20.
+    # Variable-length trajectories (med=551, max=1000) — hopper terminates on fall.
+    env_name: "SafetyHopperVelocityGymnasium-v1"
+    offline_env_name: "OfflineHopperVelocityGymnasium-v1"
+    data_pickle: "data/trajectories_hopper_velocity.pkl"
+    output_dir: "outputs/hopper_velocity"
+    wandb_run_name: "hopper_velocity_dsrl"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 20
+    traj_safe_max_cost: 50.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 186.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  walker2d_velocity:
+    # Phase 12e-14: Walker2dVelocity. PReSa + PREFINE + PbCRL (triple coverage).
+    # 2729 trajs, 2.1M trans. obs_dim=17, act_dim=6.
+    # MAX_R=3418, MAX_C=300. p25=14, p75=162. 28% safe at thr=20.
+    env_name: "SafetyWalker2dVelocityGymnasium-v1"
+    offline_env_name: "OfflineWalker2dVelocityGymnasium-v1"
+    data_pickle: "data/trajectories_walker2d_velocity.pkl"
+    output_dir: "outputs/walker2d_velocity"
+    wandb_run_name: "walker2d_velocity_dsrl"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 20
+    traj_safe_max_cost: 14.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 162.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  swimmer_velocity:
+    # Phase 12e-14: SwimmerVelocity. PReSa + PREFINE benchmark.
+    # 1686 trajs, 1.7M trans. obs_dim=8, act_dim=2.
+    # MAX_R=239, MAX_C=200. p25=40, p75=138. 14% safe at thr=20.
+    env_name: "SafetySwimmerVelocityGymnasium-v1"
+    offline_env_name: "OfflineSwimmerVelocityGymnasium-v1"
+    data_pickle: "data/trajectories_swimmer_velocity.pkl"
+    output_dir: "outputs/swimmer_velocity"
+    wandb_run_name: "swimmer_velocity_dsrl"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 20
+    traj_safe_max_cost: 40.25
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 138.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  halfcheetah_velocity:
+    # Phase 12e-6: HalfCheetahVelocity. Locomotion task with velocity-threshold
+    # cost (very different from collision-based goal tasks). Tested by PReSa,
+    # PREFINE, and PbCRL. 2495 trajs, 2.5M transitions.
+    # MAX_R=2807, MAX_C=250. Action dim 6, obs dim 17 (small obs, big action).
+    # 18% safe at threshold 20.
+    env_name: "SafetyHalfCheetahVelocityGymnasium-v1"
+    offline_env_name: "OfflineHalfCheetahVelocityGymnasium-v1"
+    data_pickle: "data/trajectories_halfcheetah_velocity.pkl"
+    output_dir: "outputs/halfcheetah_velocity"
+    wandb_run_name: "halfcheetah_velocity_dsrl"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 20                          # DSRL "Velocity" task standard
+    traj_safe_max_cost: 35.0                # placeholder; runner overrides
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 184.0             # placeholder; runner overrides
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  cargoal1_dsrl:
+    # Phase 12e-3: CarGoal1 standard DSRL benchmark. Tested by both PReSa
+    # AND PREFINE. Data from DSRL hdf5 (1671 trajectories, 1.7M trans).
+    # Cost distribution: 20% safe at threshold 10, 40% at 25, 54% at 40.
+    # MAX_R=39.91, MAX_C=120. p25 cost=13, p75 cost=69.
+    env_name: "SafetyCarGoal1Gymnasium-v0"
+    offline_env_name: "OfflineCarGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_cargoal1_dsrl.pkl"
+    output_dir: "outputs/cargoal1_dsrl"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "cargoal1_dsrl"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 25
+    # NOTE: runner computes percentile thresholds at runtime (these are
+    # placeholders; the principled runner overrides them).
+    traj_safe_max_cost: 13.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 69.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  pointgoal1_dsrl:
+    # Phase 12e: PointGoal1 standard DSRL benchmark. Tested by both PReSa
+    # AND PREFINE explicitly. Data from DSRL hdf5 (2022 trajectories
+    # of 1000 steps, multi-policy mix), loaded via env.get_dataset().
+    # Cost distribution: 30% safe at threshold 10, 46% at 20, 67% at 40
+    # (better safe/unsafe balance than CarGoal2). MAX_R=30.07, MAX_C=100.
+    env_name: "SafetyPointGoal1Gymnasium-v0"
+    offline_env_name: "OfflinePointGoal1Gymnasium-v0"
+    data_pickle: "data/trajectories_pointgoal1_dsrl.pkl"
+    output_dir: "outputs/pointgoal1_dsrl"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointgoal1_dsrl"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 25                          # DSRL "Goal" task standard
+    # Trajectory-level filters: principled, cost_limit-anchored.
+    # safe   = cost <= cost_limit / 2   (12.5 -> 754 trajs, mean R = 9)
+    # unsafe = cost >= cost_limit * 1.5 (37.5 -> 698 trajs, mean R = 16)
+    # PREFINE-aligned: anchors safe/unsafe pools to the task's actual
+    # safety budget rather than hand-picked numbers.
+    traj_safe_max_cost: 6.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 49.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000             # FULL data; no segment cap
+
+  cargoal2:
+    # Phase 12c: Standard DSRL benchmark setup matching PReSa / PREFINE / PbCRL.
+    # Data comes from DSRL's published hdf5 (4105 trajectories of 1000 steps,
+    # multi-policy mix) loaded via env.get_dataset(). NO online collection.
+    # Cost distribution: 20% safe at threshold 10, 42% safe at threshold 40
+    # (DSRL constraint-variation thresholds). Reward/cost tradeoff: safe
+    # trajectories have LOWER R than unsafe (5.7 vs 13.2 mean) — agents
+    # sacrifice reward to avoid hazards.
+    env_name: "SafetyCarGoal2Gymnasium-v0"
+    offline_env_name: "OfflineCarGoal2Gymnasium-v0"
+    data_pickle: "data/trajectories_cargoal2.pkl"
+    output_dir: "outputs/cargoal2"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "cargoal2_dsrl"
+    data_source: "dsrl"
+    # Segment-level safety threshold: per-segment cost <= 0 = safe (binary).
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 25                          # DSRL "Goal" task standard threshold
+    # Trajectory-level filters for preference pool construction.
+    # safe trajectory  = total cost <=  5 (671 trajectories, mean R = 5.7)
+    # unsafe trajectory = total cost >= 30 (2674 trajectories, mean R = 13.2)
+    traj_safe_max_cost: 16.0
+    traj_safe_min_reward: -1.0              # disabled (cost is the discriminator)
+    traj_unsafe_min_cost: 115.0
+    # Compute budget. Default 350 BC epochs + 300 V_epochs + 300 AWR epochs
+    # is too expensive on 4.1M-transition data. Empirically BC converges
+    # by epoch 50 here (loss 0.016 vs initial 0.31). Use lower counts to
+    # keep multi-seed runs tractable while still saturating convergence.
+    bc_only_epochs: 100
+    batch_size: 512
+    # IMPORTANT: override default 10000 cap so BC trains on the FULL data
+    # (87K active segments after filtering, ~2.6M state-action pairs).
+    # The 10000 cap was a metadrive-era default; with cargoal2's 4105
+    # trajectories the cap throws away 87% of available data and makes BC
+    # strictly weaker than PReSa's BC-All. Use a number above the actual
+    # count to keep all segments.
+    max_active_segments: 100000
+
+  carcircle1:
+    env_name: "SafetyCarCircle1Gymnasium-v0"
+    offline_env_name: "OfflineCarCircle1Gymnasium-v0"
+    data_pickle: "data/trajectories_carcircle1.pkl"
+    output_dir: "outputs/carcircle1"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "carcircle1_online"
+    data_source: "online"
+    online_episodes: 500
+
+  carpush1:
+    env_name: "SafetyCarPush1Gymnasium-v0"
+    offline_env_name: "OfflineCarPush1Gymnasium-v0"
+    data_pickle: "data/trajectories_carpush1.pkl"
+    output_dir: "outputs/carpush1"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "carpush1_online"
+    data_source: "online"
+    online_episodes: 500
+
+  # ==================================================================
+  # SAFETY-GYMNASIUM: Ant robot
+  # ==================================================================
+  antgoal1:
+    env_name: "SafetyAntGoal1Gymnasium-v0"
+    offline_env_name: "OfflineAntCircle-v0"
+    data_pickle: "data/trajectories_antgoal1.pkl"
+    output_dir: "outputs/antgoal1"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "antgoal1_dsrl"
+    data_source: "dsrl"
+
+  # ==================================================================
+  # BULLET-SAFETY-GYM: no DSRL offline data → online collection only
+  # ==================================================================
+  ballcircle:
+    env_name: "SafetyBallCircle-v0"
+    offline_env_name: null
+    data_pickle: "data/trajectories_ballcircle.pkl"
+    output_dir: "outputs/ballcircle"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "ballcircle_online"
+    data_source: "online"
+    online_episodes: 500
+
+  carcircle_bullet:
+    env_name: "SafetyCarCircle-v0"
+    offline_env_name: null
+    data_pickle: "data/trajectories_carcircle_bullet.pkl"
+    output_dir: "outputs/carcircle_bullet"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "carcircle_bullet_online"
+    data_source: "online"
+    online_episodes: 500
+
+  antrun:
+    env_name: "SafetyAntRun-v0"
+    offline_env_name: null
+    data_pickle: "data/trajectories_antrun.pkl"
+    output_dir: "outputs/antrun"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "antrun_online"
+    data_source: "online"
+    online_episodes: 500
+
+  dronerun:
+    env_name: "SafetyDroneRun-v0"
+    offline_env_name: null
+    data_pickle: "data/trajectories_dronerun.pkl"
+    output_dir: "outputs/dronerun"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "dronerun_online"
+    data_source: "online"
+    online_episodes: 500
+
+  # ==================================================================
+  # MUJOCO VELOCITY: cost = velocity constraint violation
+  # Note: no visual hazards -- VLM labeling less meaningful here
+  # ==================================================================
+  halfcheetah:
+    env_name: "SafetyHalfCheetahVelocityGymnasium-v1"
+    offline_env_name: "OfflineHalfCheetahVelocityGymnasium-v1"
+    data_pickle: "data/trajectories_halfcheetah.pkl"
+    output_dir: "outputs/halfcheetah"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "halfcheetah_dsrl"
+    data_source: "dsrl"
+
+  hopper:
+    env_name: "SafetyHopperVelocityGymnasium-v1"
+    offline_env_name: "OfflineHopperVelocityGymnasium-v1"
+    data_pickle: "data/trajectories_hopper.pkl"
+    output_dir: "outputs/hopper"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "hopper_dsrl"
+    data_source: "dsrl"
+
+  # ==================================================================
+  # METADRIVE: realistic driving simulator (DSRL offline data available)
+  # 9 tasks: Easy/Medium/Hard × Sparse/Mean/Dense traffic
+  # Offline env IDs use old `gym` registry: OfflineMetadrive-{level}{density}-v0
+  # Online env class: from dsrl.offline_metadrive.gym_envs import EasySparseEnv etc.
+  # data_source: "metadrive" → pipeline uses MetaDrive adapter in env_utils.
+  # Seeds stored at reset time → rendering matches collection exactly.
+  # ==================================================================
+
+  # -- Easy (map: SCS straight road, start_seed: 0) --
+  metadrive_easy_sparse:
+    env_name: "EasySparseEnv"
+    metadrive_task: "easy_sparse"        # key into utils/metadrive_utils.TASK_CONFIGS
+    offline_env_name: "OfflineMetadrive-easysparse-v0"
+    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
+    data_pickle: "data/trajectories_metadrive_easy_sparse.pkl"
+    output_dir: "outputs/metadrive_easy_sparse"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_easy_sparse"
+    data_source: "metadrive"
+    frame_selection: "cost_aware"
+    vlm_strategy: "pairwise"             # canonical PLARE-style comparison (v2 setup)
+    cpl_dropout: 0.0
+    render_image_size: 480               # chase-view render width (height scaled 4:3)
+    # MetaDrive's per-step cost is ~binary (a single 1 at the terminating
+    # out_of_road / crash event), so a safety-gym-style contrast >= 2.0
+    # would never trigger here.
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 10                       # DSRL/FSRL convention for metadrive (was 25 from safety-gym default)
+    collect:
+      n_episodes: 300
+      max_steps_per_episode: 500
+      seed_offset: 300000                # ignored for metadrive (uses ep_idx)
+      use_bc_policy: true
+      bc_action_noise: 0.15              # noise injection → safety variation across episodes
+
+  # Methodology test: same env as metadrive_easy_sparse but with the three
+  # crash-`done` flags disabled, so violations accumulate cost (1.0/step)
+  # without terminating the episode. Lets unsafe segments contain many cost
+  # steps (denser CPL signal density, matches PLARE's MetaWorld regime).
+  # Run with max_steps_per_episode=1000 to allow full survive-or-arrive runs.
+  metadrive_easy_sparse_nonterm:
+    env_name: "EasySparseEnv"
+    metadrive_task: "easy_sparse"
+    metadrive_nonterminal: true
+    offline_env_name: "OfflineMetadrive-easysparse-v0"
+    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
+    data_pickle: "data/trajectories_metadrive_easy_sparse_nonterm.pkl"
+    output_dir: "outputs/metadrive_easy_sparse_nonterm"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_easy_sparse_nonterm"
+    data_source: "metadrive"
+    frame_selection: "cost_aware"
+    vlm_strategy: "pairwise"
+    cpl_dropout: 0.0
+    render_image_size: 480
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 10                       # now actually meaningful — episodes can exceed this
+    collect:
+      n_episodes: 300
+      max_steps_per_episode: 1000        # full horizon so episodes can run to arrive_dest
+      seed_offset: 0
+      use_bc_policy: true
+      bc_action_noise: 0.15               # used only if auto_calibrate is absent / disabled
+      auto_calibrate:                     # bisect bc_action_noise to hit a target cost distribution
+        n_pilot: 15
+        target_frac: [0.30, 0.50]         # 30–50% of pilot episodes have cost > 0
+        target_cost_when_violating: [5, 30]  # mean cost (across violating episodes) in [5, 30]
+        sigma_lo: 0.05
+        sigma_hi: 0.60
+        max_iter: 5
+
+  # ----- HARDER ENV: medium_dense (XST map with intersection + 0.30 traffic) -----
+  # Both terminal and non-terminal variants for the dilution-vs-something-else test.
+  # Auto-calibration uses the median-of-violating-costs metric (robust to tail)
+  # and 30 pilot episodes per bisection iteration for stable convergence.
+  metadrive_medium_dense:
+    env_name: "MediumDenseEnv"
+    metadrive_task: "medium_dense"
+    offline_env_name: "OfflineMetadrive-mediumdense-v0"
+    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
+    data_pickle: "data/trajectories_metadrive_medium_dense.pkl"
+    output_dir: "outputs/metadrive_medium_dense"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_medium_dense"
+    data_source: "metadrive"
+    frame_selection: "cost_aware"
+    vlm_strategy: "pairwise"
+    cpl_dropout: 0.0
+    render_image_size: 480
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 10
+    # Trajectory-quality filters for the preference sampler. Empirically every
+    # cost==0 episode in this dataset reaches the goal (length < horizon, no
+    # violations possible), so cost==0 IS the structural "completed task safely"
+    # definition — the reward filter would be a no-op so we omit it (-1 = off).
+    # In terminal mode cost is binary {0,1}, so unsafe_min_cost = 1.0 is the
+    # only possible "really unsafe" threshold.
+    traj_safe_max_cost: 0.0                  # safe traj has cost == 0  (== arrived at destination)
+    traj_safe_min_reward: -1.0               # disabled: redundant with cost==0 in this dataset
+    traj_unsafe_min_cost: 1.0                # terminal mode: any cost event terminates, so 1 is the max
+    collect:
+      n_episodes: 300
+      max_steps_per_episode: 1000
+      seed_offset: 0
+      use_bc_policy: true
+      bc_action_noise: 0.15
+      auto_calibrate:
+        n_pilot: 30
+        target_frac: [0.30, 0.50]
+        target_cost_when_violating: [5, 30]
+        sigma_lo: 0.05
+        sigma_hi: 0.60
+        max_iter: 5
+
+  # ==================================================================
+  # DSRL-convention MetaDrive tasks (Phase 9+). Use SafeMetaDriveEnv +
+  # FSRL step wrapper to exactly mirror dsrl.offline_metadrive.gym_envs:
+  # per-step velocity_cost + proximity_cost on top of single-step crash /
+  # out_of_road cost, termination on arrive_dest OR crash OR out_of_road,
+  # truncation on max_step. Constraint thresholds 10/20/40 are
+  # calibrated against this configuration. Cost in these tasks is real-
+  # valued (sum of small per-step velocity/proximity costs) rather than
+  # binary; trajectory filters use cost-vs-threshold cutoffs.
+  # ==================================================================
+  metadrive_dsrl_medium_mean:
+    env_name: "MediumMeanEnv"               # matches dsrl.offline_metadrive.gym_envs.MediumMeanEnv
+    metadrive_task: "dsrl_medium_mean"      # key into utils/metadrive_utils.TASK_CONFIGS
+    metadrive_dsrl: true                    # uses make_metadrive_env(dsrl=True)
+    offline_env_name: "OfflineMetadrive-mediummean-v0"
+    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediummean-v0-50-1000.hdf5"
+    data_pickle: "data/trajectories_metadrive_dsrl_medium_mean.pkl"
+    output_dir: "outputs/metadrive_dsrl_medium_mean"
+    data_source: "metadrive"
+    wandb_run_name: "metadrive_dsrl_medium_mean"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_dsrl_medium_mean"
+    data_source: "metadrive"
+    frame_selection: "cost_aware"
+    vlm_strategy: "pairwise"
+    cpl_dropout: 0.0
+    render_image_size: 480
+    # Cost is real-valued but our 300-episode collection is mostly binary at
+    # the trajectory level: 29 eps cost==0 (perfect drives, reward 234-287),
+    # 78 eps cost∈(0,1) (accumulated velocity/proximity but didn't terminate),
+    # 193 eps cost∈[1,2) (terminated from crash/out_of_road + small velocity).
+    # max episode cost = ~2, far below DSRL's claimed [0,50] range. Setting
+    # cost_limit=10 to match DSRL's eval-time threshold, but in our data
+    # this threshold is never exceeded; "safety" empirically means cost==0.
+    cost_safe_threshold: 0.0                # segment cost <= 0 = safe (binary in practice)
+    cost_contrast_min: 0.5                  # need |costA - costB| >= 0.5 for clear contrast
+    cost_limit: 10                          # DSRL convention for medium tasks (eval-time use)
+    # Trajectory-quality filters mirror Phase 5 terminal-mode pattern:
+    # safe traj = cost==0 (the 29 perfect completions), unsafe traj = cost>=1
+    # (the 193 terminating violations). This isolates the cleanest signal
+    # for the preference sampler.
+    traj_safe_max_cost: 0.0                 # safe traj: total cost == 0 (29 eps)
+    traj_safe_min_reward: -1.0              # disabled (cost==0 trajs already have high reward)
+    traj_unsafe_min_cost: 1.0               # unsafe traj: terminated from violation (193 eps)
+    collect:
+      n_episodes: 300
+      max_steps_per_episode: 1000
+      seed_offset: 0
+      use_bc_policy: true
+      bc_action_noise: 0.20
+      auto_calibrate:
+        n_pilot: 30
+        # Targets are now on the DSRL cost scale (real-valued tens), not
+        # binary. A "violating" episode is one with cost > 5; we want the
+        # median-cost-of-violating episodes to fall in [10, 30] (above the
+        # threshold but not in the catastrophic tail).
+        target_frac: [0.30, 0.50]
+        target_cost_when_violating: [10, 30]
+        sigma_lo: 0.05
+        sigma_hi: 0.80
+        max_iter: 5
+
+  metadrive_medium_dense_nonterm:
+    env_name: "MediumDenseEnv"
+    metadrive_task: "medium_dense"
+    metadrive_nonterminal: true
+    offline_env_name: "OfflineMetadrive-mediumdense-v0"
+    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
+    data_pickle: "data/trajectories_metadrive_medium_dense_nonterm.pkl"
+    output_dir: "outputs/metadrive_medium_dense_nonterm"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_medium_dense_nonterm"
+    data_source: "metadrive"
+    frame_selection: "cost_aware"
+    vlm_strategy: "pairwise"
+    cpl_dropout: 0.0
+    render_image_size: 480
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 10
+    # Trajectory-quality filters. Non-terminal mode lets cost accumulate, so
+    # cost is no longer binary — we pick the unsafe cutoff at the env's own
+    # safety budget (DSRL cost_limit = 10), which is the principled "blew
+    # through the safety budget" definition. cost==0 still equals "arrived
+    # at destination safely" empirically (same reasoning as the terminal
+    # variant), so the reward filter is again disabled as redundant.
+    traj_safe_max_cost: 0.0                  # safe traj has cost == 0 (== arrived at destination)
+    traj_safe_min_reward: -1.0               # disabled: redundant with cost==0 in this dataset
+    traj_unsafe_min_cost: 10.0               # nonterm: DSRL cost_limit budget exceeded
+    collect:
+      n_episodes: 300
+      max_steps_per_episode: 1000
+      seed_offset: 0
+      use_bc_policy: true
+      bc_action_noise: 0.15
+      auto_calibrate:
+        n_pilot: 30
+        target_frac: [0.30, 0.50]
+        target_cost_when_violating: [5, 30]
+        sigma_lo: 0.05
+        sigma_hi: 0.60
+        max_iter: 5
+
+  metadrive_easy_mean:
+    env_name: "EasyMeanEnv"
+    offline_env_name: "OfflineMetadrive-easymean-v0"
+    data_pickle: "data/trajectories_metadrive_easy_mean.pkl"
+    output_dir: "outputs/metadrive_easy_mean"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_easy_mean"
+    data_source: "metadrive"
+
+  metadrive_easy_dense:
+    env_name: "EasyDenseEnv"
+    offline_env_name: "OfflineMetadrive-easydense-v0"
+    data_pickle: "data/trajectories_metadrive_easy_dense.pkl"
+    output_dir: "outputs/metadrive_easy_dense"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_easy_dense"
+    data_source: "metadrive"
+
+  # -- Medium (map: XST with intersection, start_seed: 100) --
+  metadrive_medium_sparse:
+    env_name: "MediumSparseEnv"
+    offline_env_name: "OfflineMetadrive-mediumsparse-v0"
+    data_pickle: "data/trajectories_metadrive_medium_sparse.pkl"
+    output_dir: "outputs/metadrive_medium_sparse"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_medium_sparse"
+    data_source: "metadrive"
+
+  metadrive_medium_mean:
+    env_name: "MediumMeanEnv"
+    offline_env_name: "OfflineMetadrive-mediummean-v0"
+    data_pickle: "data/trajectories_metadrive_medium_mean.pkl"
+    output_dir: "outputs/metadrive_medium_mean"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_medium_mean"
+    data_source: "metadrive"
+
+  # NOTE: full metadrive_medium_dense (+ _nonterm) config is defined earlier
+  # in this file (with auto_calibrate block, dsrl_hdf5 path, etc.). The
+  # skeletal stub that used to live here was removed because YAML's
+  # last-key-wins rule on duplicates was clobbering the full config.
+
+  # -- Hard (map: TRO with roundabout, start_seed: 200) --
+  metadrive_hard_sparse:
+    env_name: "HardSparseEnv"
+    offline_env_name: "OfflineMetadrive-hardsparse-v0"
+    data_pickle: "data/trajectories_metadrive_hard_sparse.pkl"
+    output_dir: "outputs/metadrive_hard_sparse"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_hard_sparse"
+    data_source: "metadrive"
+
+  metadrive_hard_mean:
+    env_name: "HardMeanEnv"
+    offline_env_name: "OfflineMetadrive-hardmean-v0"
+    data_pickle: "data/trajectories_metadrive_hard_mean.pkl"
+    output_dir: "outputs/metadrive_hard_mean"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_hard_mean"
+    data_source: "metadrive"
+
+  metadrive_hard_dense:
+    env_name: "HardDenseEnv"
+    offline_env_name: "OfflineMetadrive-harddense-v0"
+    data_pickle: "data/trajectories_metadrive_hard_dense.pkl"
+    output_dir: "outputs/metadrive_hard_dense"
+    prompt_template: "prompts/safety_metadrive.txt"
+    wandb_run_name: "metadrive_hard_dense"
+    data_source: "metadrive"
+
+  pointbutton2:
+    env_name: "SafetyPointButton2Gymnasium-v0"
+    offline_env_name: "OfflinePointButton2Gymnasium-v0"
+    data_pickle: "data/trajectories_pointbutton2.pkl"
+    output_dir: "outputs/pointbutton2"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "pointbutton2"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 25
+    traj_safe_max_cost: 38.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 155.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  carbutton2:
+    env_name: "SafetyCarButton2Gymnasium-v0"
+    offline_env_name: "OfflineCarButton2Gymnasium-v0"
+    data_pickle: "data/trajectories_carbutton2.pkl"
+    output_dir: "outputs/carbutton2"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "carbutton2"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 25
+    traj_safe_max_cost: 45.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 196.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  carbutton1_t3:
+    env_name: "SafetyCarButton1Gymnasium-v0"
+    offline_env_name: "OfflineCarButton1Gymnasium-v0"
+    data_pickle: "data/trajectories_carbutton1_full.pkl"
+    output_dir: "outputs/carbutton1_t3"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "carbutton1_t3"
+    data_source: "dsrl"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 25
+    traj_safe_max_cost: 45.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 169.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  # --- BulletGym extension (BulletSafetyGym via DSRL mirrors; budgets 10) ---
+  ballrun_b:
+    env_name: "SafetyBallRun-v0"
+    offline_env_name: "OfflineBallRun-v0"
+    data_pickle: "data/trajectories_ballrun_b.pkl"
+    output_dir: "outputs/ballrun_b"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "ballrun_b"
+    data_source: "offline"
+    traj_safe_max_cost: 32.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 69.0
+    cost_limit: 10
+  ballcircle_b:
+    env_name: "SafetyBallCircle-v0"
+    offline_env_name: "OfflineBallCircle-v0"
+    data_pickle: "data/trajectories_ballcircle_b.pkl"
+    output_dir: "outputs/ballcircle_b"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "ballcircle_b"
+    data_source: "offline"
+    traj_safe_max_cost: 25.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 62.0
+    cost_limit: 10
+  carcircle_b:
+    env_name: "SafetyCarCircle-v0"
+    offline_env_name: "OfflineCarCircle-v0"
+    data_pickle: "data/trajectories_carcircle_b.pkl"
+    output_dir: "outputs/carcircle_b"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "carcircle_b"
+    data_source: "offline"
+    traj_safe_max_cost: 24.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 80.0
+    cost_limit: 10
+  carrun_b:
+    env_name: "SafetyCarRun-v0"
+    offline_env_name: "OfflineCarRun-v0"
+    data_pickle: "data/trajectories_carrun_b.pkl"
+    output_dir: "outputs/carrun_b"
+    prompt_template: "prompts/safety_cargoal.txt"
+    wandb_run_name: "carrun_b"
+    data_source: "offline"
+    traj_safe_max_cost: 5.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 22.0
+    cost_limit: 10
+  dronerun_b:
+    env_name: "SafetyDroneRun-v0"
+    offline_env_name: "OfflineDroneRun-v0"
+    data_pickle: "data/trajectories_dronerun_b.pkl"
+    output_dir: "outputs/dronerun_b"
+    prompt_template: "prompts/safety_pointgoal.txt"
+    wandb_run_name: "dronerun_b"
+    data_source: "offline"
+
+    traj_safe_max_cost: 7.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 87.0
+    cost_limit: 10
