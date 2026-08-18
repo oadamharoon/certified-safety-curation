@@ -83,14 +83,16 @@ def from_osrl(algo):
 mean_frac = np.mean([200.0 / NTRAJ[t] for t in T15])
 
 METHODS = [
-    # (label, x label-fraction, getter, color, marker)
-    ("BC-All", 0.0, from_snap("bc_all"), "#999999", "o"),
-    ("CPL (prefs)", 0.0, from_snap("cpl_gt"), "#D55E00", "^"),
-    ("Ours (calibrated)", mean_frac, from_snap("calfilt_ltt"), "#0072B2", "*"),
-    ("BC-Safe", 1.0, from_snap("bcsafe"), "#009E73", "s"),
-    ("CDT", 1.0, from_osrl("cdt"), "#CC79A7", "D"),
-    ("CPQ", 1.0, from_osrl("cpq"), "#E69F00", "v"),
-    ("COptiDICE", 1.0, from_osrl("coptidice"), "#8c564b", "X"),
+    # (label, supervision rung, getter, color, marker)
+    #   0 none | 1 ordinal comparisons | 2 comparisons + sparse budget judgments
+    #   3 budget label on every trajectory | 4 cost value on every transition
+    ("BC-All", 0, from_snap("bc_all"), "#999999", "o"),
+    ("CPL (prefs)", 1, from_snap("cpl_gt"), "#D55E00", "^"),
+    ("Ours (calibrated)", 2, from_snap("calfilt_ltt"), "#0072B2", "*"),
+    ("BC-Safe", 3, from_snap("bcsafe"), "#009E73", "s"),
+    ("CDT", 4, from_osrl("cdt"), "#CC79A7", "D"),
+    ("CPQ", 4, from_osrl("cpq"), "#E69F00", "v"),
+    ("COptiDICE", 4, from_osrl("coptidice"), "#8c564b", "X"),
 ]
 
 
@@ -123,14 +125,16 @@ for label, x, getter, color, marker in METHODS:
     y = n_safe
     ax.scatter([x], [y], s=110 if "Ours" in label else 70, color=color,
                edgecolors=color, linewidths=1.4, marker=marker, zorder=3)
-    dx, ha = (9, "left") if x < 0.5 else (-9, "right")
+    dx, ha = (9, "left") if x < 2.5 else (-9, "right")
     ax.annotate(label, (x, y),
                 xytext=(dx, -2), textcoords="offset points", fontsize=6.8,
                 ha=ha, color=INK)
-ax.set_xlabel(r"fraction of trajectories with cost labels ($\downarrow$ better)")
+ax.set_xlabel("supervision the method requires")
+ax.set_xticks([0, 1, 2, 3, 4])
+ax.set_xticklabels(["none", "clip\ncomparisons", "comparisons\n+ 200 budget\njudgments",
+                    "budget label\nper trajectory", "cost value\nper transition"], fontsize=6)
+ax.set_xlim(-0.4, 4.4)
 ax.set_ylabel(r"tasks within budget, of 15 ($\uparrow$ better)")
-ax.set_xlim(-0.06, 1.06)
-ax.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
 ax.set_ylim(-0.8, 13.5)
 ax.set_yticks(range(0, 13, 2))
 ax.grid(True, color=GRID, linewidth=0.5, alpha=0.8)
