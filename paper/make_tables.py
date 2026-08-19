@@ -407,8 +407,12 @@ import json as _json
 _gv = _json.load(open(os.path.join(BASE, "data", "review_response", "guarantee_stats_2000.json")))
 _bv = _json.load(open(os.path.join(BASE, "data", "review_response", "bullet_guarantee_2000.json")))
 lines = []
+_seen = set()
 for src_d in (_gv, _bv):
     for task, td in src_d.items():
+        if task in _seen:   # _gv already covers Bullet; _bv is a stale duplicate
+            continue
+        _seen.add(task)
         cells = [s["200"] for s in td["seeds"].values() if "200" in s]
         if not cells:
             continue
