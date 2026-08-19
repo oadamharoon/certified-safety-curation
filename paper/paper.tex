@@ -275,7 +275,7 @@ The first half is why refusal is a correctness property rather than a conservati
 \begin{center}
 \includegraphics[width=0.8\linewidth]{figures/coverage.pdf}
 \end{center}
-\caption{Guarantee validation over 2000 calibration draws per cell. Left: unconditional false-certification rate against the level $\delta = 0.1$ (dashed); the guarantee holds in every task, seed, and calibration size. Right: certification rate as a function of calibration size $n$; tasks whose selections cannot meet $\alpha$ are correctly never certified.}
+\caption{Guarantee validation over 2000 calibration draws per cell. Left: unconditional false-certification rate against the level $\delta = 0.1$ (dashed); the guarantee holds in every task, seed, and calibration size. Right: certification rate as a function of calibration size $n$; tasks whose selections cannot meet $\alpha$ certify rarely and at rates Proposition~\ref{prop:guarantee} bounds below $\delta$ (Ant $0.006$, PointGoal2 $0.047$, Hopper $0.000$).}
 \label{fig:coverage}
 \end{figure}
 
@@ -436,7 +436,7 @@ Table~\ref{tab:baselines} reports the full-label baselines and CPL per task; Fig
 
 
 \begin{table}[h]
-\caption{External baselines: full-label offline safe RL trained in-codebase (three seeds; CDT at cost target 20, with its full target sweep in Appendix~\ref{app:cdtsweep}), CPL on our exact preference data, and BC-Safe-Seg, the segment-level full-label clone (five seeds). Bold cost cells are within budget.}
+\caption{External baselines: full-label offline safe RL trained in-codebase (three seeds; CDT's full cost-target sweep, including its safest target per task, is in Appendix~\ref{app:cdtsweep}), CPL on our exact preference data, and BC-Safe-Seg, the segment-level full-label clone (five seeds). Bold cost cells are within budget.}
 \label{tab:baselines}
 \begin{center}
 \scriptsize
@@ -516,7 +516,7 @@ Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
 \begin{center}
 \includegraphics[width=0.98\linewidth]{figures/alpha_curve.pdf}
 \end{center}
-\caption{The certification operating curve on both suites. Certification rate against the guarantee level $\alpha$ ($n = 200$; resampled calibration draws; mean over V-ensemble seeds). Rates rise with $\alpha$ in the order of each pool's safe mass; tasks whose selections cannot meet a level certify at rate zero there.}
+\caption{The certification operating curve on both suites. Certification rate against the guarantee level $\alpha$ ($n = 200$; resampled calibration draws; mean over V-ensemble seeds). Rates rise with $\alpha$ in the order of each pool's safe mass; where a pool cannot meet a level, the rate there stays at or near zero and within the $\delta$ the guarantee prices.}
 \label{fig:alphacurve}
 \end{figure}
 
@@ -728,7 +728,7 @@ One cell carries the section's real limitation. On DroneRun every filter, ours a
 \paragraph{Composability is regime-dependent.} A pre-registered rule ran the composability echo on CarRun once full-data CDT violated there: on CarRun's certified selection (realized contamination $0.138$, half the pool), behavior cloning is safe at cost $0.14$, but CDT remains unsafe on all three seeds ($11.4$ to $19.6$ against budget 10). Unlike the main suite, where certified selections tamed CDT in all 27 runs, curation does not help here, and the reason is diagnostic: on CarRun even cloning the whole pool is safe (BC-All at cost $0.0$), so CDT's violation is caused by its operator rather than by the data, and curation cannot remove a violation the data did not cause. The certified return-weighted operator completes the diagnosis. On the same certified selection it is safe at all four intensities (reward 560 to 562, cost at most 0.5, Table~\ref{tab:operator}), so return-seeking as such is not what violates on CarRun; extrapolative return conditioning is. Across the four composability cases the pattern is consistent. Certified curation cures the full-label learner exactly where cloning the full pool is itself unsafe (all three main-suite tasks, BC-All costs 34 to 86), and cannot where the pool is benign and the operator alone violates, the boundary the granularity analysis predicts.
 
 \begin{table}[h]
-\caption{BulletSafetyGym transfer at budget 10 (mean $\pm$ 95\% CI where multiple seeds; bold marks mean cost within budget; BC-All deterministic; CDT trained on the full data and evaluated at its most conservative target, 10). CarRun certifies on five of five seeds; every other task refuses on every seed.}
+\caption{BulletSafetyGym transfer at budget 10 (mean $\pm$ 95\% CI where multiple seeds; bold marks mean cost within budget; BC-All deterministic; CDT trained on the full data and evaluated at the budget-matched target of 10, with its tighter targets in Table~\ref{tab:cdttargetsb}). CarRun certifies on five of five seeds; every other task refuses on every seed.}
 \label{tab:bullet}
 \begin{center}
 \scriptsize
