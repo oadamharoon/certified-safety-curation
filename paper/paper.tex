@@ -63,17 +63,14 @@ Offline reinforcement learning promises policy improvement from logged data alon
 \begin{center}
 \includegraphics[width=\linewidth]{figures/concept.pdf}
 \end{center}
-\caption{Certified safety curation. The dataset is a pool of whole trajectories,
-some of which pass through hazards; which ones is never given to the method. A
-state-only value trained from segment comparisons, which carry an ordering and
-no magnitudes, scores each trajectory, and the readout is the trajectory-level
-aggregate rather than any per-transition quantity. A threshold cuts the score
-axis and $200$ episodic budget labels audit what survives, either certifying the
-selection at $(\alpha, \delta)$ or refusing and returning a conservative
-selection reported as uncertified; either way the selection is cloned, and a
-certified selection may first be curated for reward
-(Section~\ref{sec:gating}). The figure is schematic: the paths and densities are
-illustrative, not measured.}
+\caption{Certified safety curation. A state-only value trained from segment
+comparisons, which carry an ordering and no magnitudes, scores whole
+trajectories. A threshold cuts the score axis and $200$ episodic budget labels
+audit what survives, either certifying the selection at $(\alpha, \delta)$ or
+refusing and returning a conservative selection reported as uncertified. Either
+way the selection is cloned, and a certified selection may first be curated for
+reward (Section~\ref{sec:gating}). Paths and densities are illustrative, not
+measured.}
 \label{fig:concept}
 \end{figure}
 

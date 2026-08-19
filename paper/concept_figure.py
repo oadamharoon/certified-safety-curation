@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, Circle, Rectangle, FancyBboxPatch
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BLUE, ORANGE, GREEN, GREY, INK = "#0072B2", "#D55E00", "#009E73", "#5f5f5f", "#1f1f1f"
+BLUE, ORANGE, GREEN, GREY, INK = "#0072B2", "#D55E00", "#009E73", "#5f5f5f", "#2b2b2b"
 rng = np.random.default_rng(4)
 
 
@@ -27,12 +27,12 @@ def kde(x, pts, bw):
 
 
 def main():
-    fig = plt.figure(figsize=(12.0, 5.4))
-    gs = fig.add_gridspec(1, 3, width_ratios=[1.06, 1.06, 1.52], wspace=0.13,
+    fig = plt.figure(figsize=(12.0, 3.5))
+    gs = fig.add_gridspec(1, 3, width_ratios=[1.01, 1.04, 1.51], wspace=0.09,
                           left=0.015, right=0.985, top=0.84, bottom=0.10)
 
     # ================= (1) trajectories through a hazard field =================
-    ax = fig.add_subplot(gs[0, 0]); ax.set_xlim(0, 10); ax.set_ylim(0, 12); ax.axis("off")
+    ax = fig.add_subplot(gs[0, 0]); ax.set_xlim(0, 10); ax.set_ylim(-1.1, 12); ax.axis("off")
     ax.add_patch(Rectangle((0.3, 0.8), 9.4, 8.6, fill=False, ec="0.75", lw=1.0))
     haz = [(3.2, 6.6), (6.2, 4.6), (4.6, 2.6), (7.8, 7.2)]
     for hx, hy in haz:
@@ -58,13 +58,13 @@ def main():
         ax.plot(x, y, color=ORANGE if through else BLUE,
                 lw=1.25 if through else 1.15,
                 alpha=0.80 if through else 0.68, zorder=3 if through else 2)
-    ax.set_title("a pool of whole trajectories", fontsize=15.3, color=INK, pad=14)
-    ax.text(5.0, 10.0, "some pass through hazards,\nmost do not",
-            ha="center", va="bottom", fontsize=11.9, color=GREY, linespacing=1.4)
-    ax.text(0.3, 0.15, "hazard field", fontsize=11.56, color=ORANGE, ha="left", va="bottom")
+    ax.set_title("a pool of whole trajectories", fontsize=13.05, color=INK, pad=14)
+    ax.text(5.0, 10.0, "some pass through hazards, most do not;\nwhich is which is never given to the method",
+            ha="center", va="bottom", fontsize=10.15, color=GREY, linespacing=1.4)
+    ax.text(0.3, 0.15, "hazard field", fontsize=9.86, color=ORANGE, ha="left", va="bottom")
 
     # ================= (2) each trajectory collapses to one number =============
-    ax = fig.add_subplot(gs[0, 1]); ax.set_xlim(-0.5, 10.5); ax.set_ylim(0, 12); ax.axis("off")
+    ax = fig.add_subplot(gs[0, 1]); ax.set_xlim(-0.5, 10.5); ax.set_ylim(-1.1, 12); ax.axis("off")
     xs = np.linspace(0, 10, 400)
     s_pts = rng.normal(6.6, 1.35, 260); u_pts = rng.normal(3.5, 1.25, 240)
     ds, du = kde(xs, s_pts, 0.75), kde(xs, u_pts, 0.72)
@@ -76,23 +76,23 @@ def main():
     ax.annotate("", xy=(10.2, 1.6), xytext=(-0.3, 1.6),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
     ax.text(10.2, 0.95, r"score $g(\tau)=\frac{1}{|\tau|}\sum_{s_t\in\tau}\bar V(s_t)$", ha="right",
-            va="top", fontsize=12.92, color=INK)
-    ax.text(3.3, 1.6 + sc * du.max() + 0.5, "unsafe", ha="center", fontsize=12.58, color=ORANGE)
-    ax.text(7.0, 1.6 + sc * ds.max() + 0.5, "safe", ha="center", fontsize=12.58, color=BLUE)
+            va="top", fontsize=11.02, color=INK)
+    ax.text(3.3, 1.6 + sc * du.max() + 0.5, "unsafe", ha="center", fontsize=10.73, color=ORANGE)
+    ax.text(7.0, 1.6 + sc * ds.max() + 0.5, "safe", ha="center", fontsize=10.73, color=BLUE)
     # the supervision that trains the value, which the pipeline otherwise hides
-    for k, (yb, col) in enumerate([(6.55, "#4d4d4d"), (5.55, "#b0b0b0")]):
+    for k, (yb, col) in enumerate([(1.24, "#3d3d3d"), (0.50, "#8a8a8a")]):
         tt = np.linspace(0, 1, 40)
         ax.plot(-0.35 + 0.95 * tt, yb + 0.13 * np.sin(4.2 * tt + k), color=col, lw=1.1)
-    ax.text(0.78, 6.55, r"$\sigma^{+}$", fontsize=11.56, color="#4d4d4d", va="center")
-    ax.text(0.78, 5.55, r"$\sigma^{-}$", fontsize=11.56, color="#b0b0b0", va="center")
-    ax.text(-0.35, 4.35, "which is safer,\nnot by how much", fontsize=10.88,
+    ax.text(0.72, 1.24, r"$\sigma^{+}$", fontsize=9.86, color="#3d3d3d", va="center")
+    ax.text(0.72, 0.50, r"$\sigma^{-}$", fontsize=9.86, color="#8a8a8a", va="center")
+    ax.text(-0.35, -0.52, "which is safer,\nnot by how much", fontsize=9.28,
             color=GREY, va="center", ha="left")
-    ax.set_title("one number per trajectory", fontsize=15.3, color=INK, pad=14)
-    ax.text(5.0, 10.0, "aggregating over a trajectory\nis where preferences\nidentify the value",
-            ha="center", va="bottom", fontsize=11.9, color=GREY, linespacing=1.4)
+    ax.set_title("one number per trajectory", fontsize=13.05, color=INK, pad=14)
+    ax.text(5.0, 10.0, "aggregating over a trajectory is where\npreferences identify the value",
+            ha="center", va="bottom", fontsize=10.15, color=GREY, linespacing=1.4)
 
     # ================= (3) cut, audit, certify or refuse =======================
-    ax = fig.add_subplot(gs[0, 2]); ax.set_xlim(-0.6, 16.4); ax.set_ylim(-1.5, 12); ax.axis("off")
+    ax = fig.add_subplot(gs[0, 2]); ax.set_xlim(-0.6, 15.2); ax.set_ylim(-1.1, 12); ax.axis("off")
     ax.fill_between(xs, 1.6, 1.6 + sc * du, color=ORANGE, alpha=0.20, lw=0, zorder=2)
     ax.fill_between(xs, 1.6, 1.6 + sc * ds, color=BLUE, alpha=0.20, lw=0, zorder=3)
     TAU = 6.05
@@ -101,11 +101,11 @@ def main():
     ax.fill_between(xs[keep], 1.6, 1.6 + sc * ds[keep], color=BLUE, alpha=0.70, lw=0, zorder=5)
     ax.plot([TAU, TAU], [1.6, 8.3], color=INK, lw=1.5, zorder=6)
     ax.text(TAU - 0.15, 8.15, r"threshold $\lambda$", ha="right", va="bottom",
-            fontsize=12.92, color=INK)
+            fontsize=11.02, color=INK)
     ax.annotate("", xy=(11.1, 1.6), xytext=(-0.4, 1.6),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
-    ax.text(8.6, 2.85, "selected", ha="center", fontsize=12.92, color=INK)
-    ax.text(2.6, 2.85, "discarded", ha="center", fontsize=12.92, color=GREY)
+    ax.text(8.6, 2.85, "selected", ha="center", fontsize=11.02, color=INK)
+    ax.text(2.6, 2.85, "discarded", ha="center", fontsize=11.02, color=GREY)
     # the labeled audit sample
     smp = rng.uniform(TAU + 0.3, 10.15, 11)
     ax.scatter(smp, np.full_like(smp, 8.85), s=17, marker="o",
@@ -114,23 +114,23 @@ def main():
     ax.scatter(bad, np.full_like(bad, 8.85), s=17, marker="o",
                facecolor=ORANGE, edgecolor=ORANGE, linewidth=0.9, zorder=8)
     ax.text(8.3, 9.25, "200 budget-exceedance labels", ha="center", va="bottom",
-            fontsize=12.24, color=INK)
-    ax.add_patch(FancyBboxPatch((3.3, -1.15), 8.6, 2.4,
+            fontsize=10.44, color=INK)
+    ax.add_patch(FancyBboxPatch((4.55, -0.95), 6.55, 2.3,
                                 boxstyle="round,pad=0.14,rounding_size=0.25",
                                 facecolor="white", edgecolor=GREEN, lw=1.2, zorder=9))
-    ax.text(7.6, 0.62, "certified", ha="center", va="center", fontsize=14.28,
+    ax.text(7.85, 1.02, "certified", ha="center", va="center", fontsize=12.18,
             color=GREEN, zorder=10)
-    ax.text(7.6, -0.52, r"$\Pr[\,$certify $\wedge\ \widehat{\mathrm{unsafe}}>\alpha\,]\leq\delta$",
-            ha="center", va="center", fontsize=12.24, color=INK, zorder=10, linespacing=1.4)
-    ax.text(-0.5, 5.6, "or refuse,\nkeeping a\nconservative\nselection", ha="left",
-            va="center", fontsize=11.9, color=GREY, linespacing=1.4, style="italic")
-    ax.annotate("", xy=(13.3, 0.1), xytext=(12.2, 0.1),
+    ax.text(7.85, -0.15, r"$\Pr[\,$certify $\wedge\ \widehat{\mathrm{unsafe}}>\alpha\,]\leq\delta$",
+            ha="center", va="center", fontsize=10.44, color=INK, zorder=10, linespacing=1.4)
+    ax.text(-0.5, 0.30, "or refuse, and keep\na conservative\nselection", ha="left",
+            va="center", fontsize=10.15, color=GREY, linespacing=1.4, style="italic")
+    ax.annotate("", xy=(12.05, 0.15), xytext=(11.25, 0.15),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
-    ax.text(13.5, 0.1, "clone the\nselection", ha="left", va="center", fontsize=11.9,
+    ax.text(12.25, 0.15, "clone the\nselection", ha="left", va="center", fontsize=10.15,
             color=INK, linespacing=1.4)
-    ax.set_title("cut, then audit what survives", fontsize=15.3, color=INK, pad=14)
-    ax.text(7.9, 10.0, "the guarantee is about the training set,\nnot the policy trained on it",
-            ha="center", va="bottom", fontsize=11.9, color=GREY, linespacing=1.4)
+    ax.set_title("cut, then audit what survives", fontsize=13.05, color=INK, pad=14)
+    ax.text(5.2, 10.0, "the guarantee is about the training set,\nnot the policy trained on it",
+            ha="center", va="bottom", fontsize=10.15, color=GREY, linespacing=1.4)
 
     # stage arrows
     fig.canvas.draw()
