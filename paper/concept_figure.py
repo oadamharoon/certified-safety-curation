@@ -76,9 +76,10 @@ def main():
     for k, (yb, col) in enumerate([(1.12, BLUE), (0.62, ORANGE)]):
         tt = np.linspace(0, 1, 40)
         ax.plot(-0.35 + 0.95 * tt, yb + 0.13 * np.sin(4.2 * tt + k), color=col, lw=1.1)
-    ax.text(0.74, 0.87, r"$\succ$", fontsize=8, color=INK, va="center")
-    ax.text(0.95, 0.87, "comparisons\ntrain $\\bar V$", fontsize=6.4, color=GREY,
-            va="center", linespacing=1.35)
+    ax.text(0.72, 1.12, r"$\sigma^{+}$", fontsize=6.8, color=BLUE, va="center")
+    ax.text(0.72, 0.62, r"$\sigma^{-}$", fontsize=6.8, color=ORANGE, va="center")
+    ax.text(1.25, 0.87, "segment comparisons\ntrain $\\bar V$", fontsize=6.4,
+            color=GREY, va="center", linespacing=1.35)
     ax.set_title("one number per trajectory", fontsize=9, color=INK, pad=14)
     ax.text(5.0, 10.0, "aggregating over a trajectory is where\npreferences identify the value",
             ha="center", va="bottom", fontsize=7, color=GREY, linespacing=1.4)
@@ -96,7 +97,7 @@ def main():
             fontsize=7.6, color=INK)
     ax.annotate("", xy=(11.1, 1.6), xytext=(-0.4, 1.6),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
-    ax.text(8.6, 2.85, "kept", ha="center", fontsize=7.6, color=INK)
+    ax.text(8.6, 2.85, "selected", ha="center", fontsize=7.6, color=INK)
     ax.text(2.6, 2.85, "discarded", ha="center", fontsize=7.6, color=GREY)
     # the labeled audit sample
     smp = rng.uniform(TAU + 0.3, 10.15, 11)
@@ -105,7 +106,7 @@ def main():
     bad = smp[:2]
     ax.scatter(bad, np.full_like(bad, 8.85), s=17, marker="o",
                facecolor=ORANGE, edgecolor=ORANGE, linewidth=0.9, zorder=8)
-    ax.text(8.3, 9.25, "200 budget checks", ha="center", va="bottom",
+    ax.text(8.3, 9.25, "200 budget-exceedance labels", ha="center", va="bottom",
             fontsize=7.2, color=INK)
     ax.add_patch(FancyBboxPatch((4.2, 0.05), 6.6, 2.0,
                                 boxstyle="round,pad=0.14,rounding_size=0.25",
@@ -118,7 +119,7 @@ def main():
             va="center", fontsize=7.0, color=GREY, linespacing=1.4, style="italic")
     ax.annotate("", xy=(11.9, 1.05), xytext=(10.95, 1.05),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
-    ax.text(12.1, 1.05, "clone the\nkept set", ha="left", va="center", fontsize=7.0,
+    ax.text(12.1, 1.05, "clone the\nselection", ha="left", va="center", fontsize=7.0,
             color=INK, linespacing=1.4)
     ax.set_title("cut, then audit what survives", fontsize=9, color=INK, pad=14)
     ax.text(5.2, 10.0, "the guarantee is about the training set,\nnot the policy trained on it",
