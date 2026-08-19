@@ -1,0 +1,752 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2026_conference,times}
+
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{multirow}
+\usepackage{xcolor}
+
+% NOTE FOR AUTHORS: all table bodies live in data/tables/*.tex and regenerate
+% via scripts/collect_results.py + scripts/make_tables.py; figures regenerate
+% via scripts/make_figures.py from the archived JSONs in data/.
+\newtheorem{proposition}{Proposition}
+\newtheorem{observation}{Observation}
+
+\newcommand{\Vth}{V_\theta}
+\newcommand{\Vbar}{\bar{V}}
+\newcommand{\Dpref}{\mathcal{D}_{\mathrm{pref}}}
+\newcommand{\Doff}{\mathcal{D}}
+\newcommand{\segA}{\sigma^{+}}
+\newcommand{\segB}{\sigma^{-}}
+% expandable file input for tabular bodies (kernel \input has unexpandable
+% file hooks that break alignment scanning at \bottomrule)
+\makeatletter
+\newcommand{\tabinput}[1]{\@@input#1 }
+\makeatother
+
+\title{Certified Safety Curation: Distribution-Free Guarantees\\ for Safe Offline Reinforcement Learning}
+
+% NOTE: authors render only under \iclrfinalcopy; remove that toggle for the
+% anonymized submission and this block is hidden automatically.
+\author{Adam Haroon\thanks{Corresponding author: \texttt{aharoon@iastate.edu}}, \ Cody Fleming \\
+Iowa State University\\
+Ames, IA, USA\\
+\texttt{\{aharoon,flemingc\}@iastate.edu}}
+
+% Three usage modes:
+%   PREPRINT (current): \iclrfinalcopy + \lhead override below -> authors shown,
+%     header reads "Preprint. Under review." instead of "Published ...".
+%   SUBMISSION: comment out BOTH lines -> anonymized, "Under review ..." header.
+%   CAMERA-READY: keep \iclrfinalcopy, remove the \lhead override.
+\iclrfinalcopy
+\lhead{Preprint. Under review.}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Safe offline reinforcement learning assumes a cost function evaluated on every transition. We ask what remains possible without one, when safety can be judged only by comparing short clips and by occasionally asking whether an episode exceeded its budget. Certified safety curation answers with a filter-then-clone pipeline. A state-only safety value, trained from pairwise segment comparisons, scores whole trajectories; Learn-then-Test calibration against 200 budget-exceedance labels picks a selection threshold and certifies it, yielding a distribution-free $(\alpha, \delta)$ bound on the unsafe fraction of the selected training data; behavior cloning learns from that selection. We are not aware of prior work certifying the composition of a training set for offline RL or imitation. One design choice is unusual and we justify it with oracle controls. Reweighting individual transitions by the value fails to produce trajectory-level safety even when the value is exact, so the value selects whole trajectories instead. The resulting policies satisfy the cost budget on eleven of fifteen DSRL tasks, one short of behavior cloning on the ground-truth safe subset, which needs a budget label on every trajectory; dropping the certificate and keeping the calibration-estimated threshold reaches twelve, matching it outright while running at lower cost on eight of the eleven tasks both keep safe. The strongest full-label method violates on eight even when its conditioning target is swept to a fifth of the budget. The certified selection is portable. Retrained on it, that same method becomes safe on navigation tasks no target setting rescues. The certificate also refuses, and its refusals are predictable, since certification succeeds exactly when the purest attainable selection falls below $\alpha$, a margin the calibration sample itself estimates. Offline, the data is the ceiling on what any method can safely achieve; the certificate makes that ceiling knowable in advance.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+Offline reinforcement learning promises policy improvement from logged data alone, and its safety-constrained variant additionally requires the learned policy to keep expected cost below a budget \citep{liu2024dsrl}. Existing safe offline RL methods require a cost function, evaluated on every transition of the dataset \citep{liu2023cdt, zheng2024fisor, gong2025trac}. On benchmarks that function is given, and applying it costs nothing. The difficulty is upstream, in writing it down. Specifying a cost that faithfully captures what one means by unsafe is the same problem reward engineering has proven to be, and it is why preference-based learning exists at all \citep{christiano2017deep}. Where no trustworthy cost function can be specified, a practitioner may still be able to say which of two short clips looks safer, and to judge occasionally whether an episode went over budget. This paper asks what safe offline RL can still deliver from those two weaker signals alone. Recent work has begun importing preferences into safe offline RL \citep{gong2026presa, burnwal2026osil}. None of it, however, carries a statistical guarantee relating supervision to the safety of what is learned.
+
+The question we study is whether a \emph{state-only} safety value, one that never sees actions and is trained only from comparisons, can identify safe training data well enough to be certified. Our answer is certified safety curation, a filter-then-clone method whose central deliverable is a statistical guarantee on the data it trains on. Controls throughout make precise what the comparisons contribute and what they do not. Our pipeline learns a state-only safety value from pairwise segment preferences, scores whole trajectories with it, selects a subset by thresholding the score, and behavior-clones the selection. The threshold is chosen by Learn-then-Test calibration \citep{angelopoulos2025ltt} against a small labeled sample, which yields a distribution-free guarantee. With probability at least $1-\delta$ over the calibration draw, the unsafe-trajectory fraction of the selected training set is at most $\alpha$. The guarantee consumes 200 budget-exceedance judgments, one bit per sampled trajectory, where competing methods require a cost value on every transition of every trajectory.
+
+An empirical analysis of independent interest grounds the design. The natural alternative, advantage-weighted regression \citep{peng2019awr}, fails for two compounding reasons, and both point the same way. The value should be used where preference training identifies it and where selection keeps behaviors intact, which is at the scale of whole trajectories.
+
+Our contributions are as follows.
+\begin{itemize}
+\item \textbf{A granularity analysis with oracle controls} (Section~\ref{sec:analysis}) separating two failures of per-transition extraction: per-transition reweighting does not produce trajectory-level safety even given ground-truth values, and segment-sum preference training additionally underdetermines learned values at per-transition scale while leaving trajectory-level ranking reliable. Selection at the intermediate segment scale fails too, with full labels (BC-Safe-Seg, safe on two of fifteen). The readout scale, not the supervision, is the binding choice.
+\item \textbf{Certified curation} (Section~\ref{sec:calibration-method}): Learn-then-Test calibration of the selection threshold with an $(\alpha, \delta)$ guarantee on training-set composition, validated empirically over thousands of calibration draws with conditional rates reported. The procedure refuses to certify exactly on the tasks where the score cannot concentrate safety below $\alpha$, and the certificate doubles as a gate for reward-aware curation, up to a return-weighted cloning operator whose safety on certified selections is robust to its aggressiveness.
+\item \textbf{A measured account of what the supervision buys} (Section~\ref{sec:experiments}). The calibrated filter, one fixed procedure consuming preferences plus 200 labels, satisfies the budget on eleven of fifteen DSRL tasks; a classifier trained on the calibration labels alone matches that count, so safety on these benchmarks is readily decodable from state and what distinguishes methods is not scorer accuracy but certification and the supervisor each route assumes. Comparisons are one way to obtain the scorer, the one that assumes least; the certificate and its refusals do not depend on which scorer is used.
+\end{itemize}
+
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Filtered and weighted behavior cloning.}
+Selecting or reweighting data before cloning is well established for reward. Percentile behavior cloning ranks trajectories by return \citep{chen2021dt, emmons2022rvs}, BAIL selects transitions near a return envelope \citep{chen2020bail}, CRR and AWR weight transitions by learned advantages \citep{wang2020crr, peng2019awr}, and concurrent robotics work scores demonstrations with preference models before cloning \citep{liang2026robometer, beck2025sfbc}. This line targets task success; none of it addresses a safety constraint, and every threshold in it is hand-tuned.
+
+\paragraph{Safe offline RL.}
+Methods with full cost labels include constrained sequence modeling \citep{liu2023cdt}, feasibility-guided diffusion \citep{zheng2024fisor}, and trajectory classification \citep{gong2025trac}. The DSRL benchmark's BC-Safe baseline clones trajectories under the cost budget \citep{liu2024dsrl}, requiring labels on every trajectory. Preference and weak-label variants are emerging: PReSa consumes binary segment safety labels inside a Lagrangian objective \citep{gong2026presa}; OSIL learns a per-step cost model from dataset-level preferences and applies it as a cloning penalty \citep{burnwal2026osil}; PREFINE fine-tunes implicit reward and cost models from preferences for safety alignment \citep{prefine2025}. None selects training data with a preference-learned value, and none carries a statistical guarantee.
+
+\paragraph{Distribution-free risk control.}
+Learn-then-Test and risk-controlling prediction sets calibrate model configurations and prediction sets with finite-sample guarantees \citep{angelopoulos2025ltt, bates2021rcps, angelopoulos2024crc}. In RL and control, published applications are at deployment time: conformal off-policy intervals \citep{taufiq2022copp} and runtime safety monitors \citep{feldman2025conformal}; high-confidence policy improvement bounds a policy's performance \citep{thomas2015hcpi, laroche2019spibb}. The nearest statistical relative is conformal selection \citep{jin2023conformal}, which screens candidate units under false discovery rate control; FDR is an expectation bound, weaker than the $(\alpha, \delta)$ high-probability bound we calibrate. Our calibration is standard Learn-then-Test with an exact hypergeometric substitution for the finite pool; the contribution is the object it certifies, the composition of a training set, and the empirical study of what that certificate delivers.
+
+\section{Preliminaries}
+\label{sec:prelim}
+
+A constrained MDP is $(\mathcal{S}, \mathcal{A}, P, r, c, b)$ with cost $c \ge 0$ and budget $b$; the objective is $\max_\pi J_r(\pi)$ subject to $J_c(\pi) \le b$. The offline setting provides a static dataset $\Doff = \{\tau_i\}_{i=1}^{N}$ of trajectories $\tau = (s_1, a_1, \dots, s_T, a_T)$. We call a trajectory unsafe when its episodic cost exceeds the task budget, and write $u(\tau) \in \{0, 1\}$ for this indicator. A constrained MDP supplies the cost function $c$ by definition, and on benchmarks it is applied to every transition. Our method never reads it. Safety supervision consists instead of two weaker signals. The first is a preference dataset $\Dpref$ of pairs of length-$H$ segments $(\segA, \segB)$, each labeled with which segment is safer and nothing more, an ordering rather than a magnitude. The second, used only for calibration, is a \emph{cost label} on each of $n$ trajectories, meaning the binary indicator $u(\tau)$ of whether that trajectory's episodic cost exceeded the budget. These $n$ trajectories are drawn uniformly without replacement from $\Doff$, which is what makes the finite-population test of Section~\ref{sec:calibration-method} exact. We call whoever or whatever supplies these signals the \emph{labeler}; in our experiments it is the benchmark's own cost function, which lets us study the algorithm without confounding it with labeler error, and in deployment it would be a human reviewer, an automated monitor, or instrumentation. We report raw reward and episodic cost with each task's budget stated; a policy is safe when its expected cost is within the budget, equivalently when its DSRL-normalized cost is at most one (Appendix~\ref{app:baselines} reports the main comparison in normalized units).
+
+\section{Method: Certified Safety Curation}
+\label{sec:method}
+
+The method has four stages: value learning, trajectory scoring, calibrated selection, and cloning. Figure placement and pseudocode are deferred to Appendix~\ref{app:algo}.
+
+\subsection{Safety value from segment preferences}
+\label{sec:value}
+We learn a state-only value $\Vth: \mathcal{S} \to \mathbb{R}$ by maximum likelihood under a Bradley-Terry model \citep{bradley1952rank} over segment sums,
+\begin{equation}
+\label{eq:bt}
+\mathcal{L}(\theta) = -\mathbb{E}_{(\segA, \segB) \sim \Dpref}\Big[\log \sigma\Big(\textstyle\sum_{t=1}^{H} \Vth(s_t^{+}) - \sum_{t=1}^{H} \Vth(s_t^{-})\Big)\Big],
+\end{equation}
+where $\sigma$ is the logistic function, so the loss is the log-likelihood of the observed orderings. We train an ensemble of $K$ independently initialized networks and write $\Vbar$ for their mean. The ensemble is not what makes selection work, and single members match its filter precision to within $0.006$ (Appendix~\ref{app:hyper}); we keep it because disagreement across members is the diagnostic that Section~\ref{sec:analysis} uses to locate where the value is and is not identified. We use $K = 3$ throughout. Two properties of Equation~\ref{eq:bt} drive the design. It supervises only segment sums, so any perturbation whose sums agree across every preference pair is invisible to the loss and per-state values are underdetermined. Aggregation is therefore the value's reliable regime, which Section~\ref{sec:analysis} quantifies.
+
+\subsection{Trajectory scoring and selection}
+\label{sec:scoring}
+Each trajectory receives the score $g(\tau) = \frac{1}{|\tau|} \sum_{s_t \in \tau} \Vbar(s_t)$, and the selection at threshold $\lambda^{*}$ is $S(\lambda^{*}) = \{\tau_i : g(\tau_i) \ge \lambda^{*}\}$. The policy is obtained by behavior cloning on $S(\lambda^{*})$. Averaging over hundreds of states cancels the per-state noise that Equation~\ref{eq:bt} leaves unconstrained, and selection at the trajectory level preserves whole multi-step avoidance behaviors that per-transition reweighting fragments.
+
+\subsection{Calibrated threshold with a composition guarantee}
+\label{sec:calibration-method}
+The threshold is the method's only free parameter, and we select it by Learn-then-Test (LTT) \citep{angelopoulos2025ltt}. Let $\mathcal{C}$ be a calibration sample of $n$ trajectories drawn uniformly without replacement from $\Doff$ and labeled with episodic cost. For a decreasing grid of candidate thresholds $\lambda_1 > \lambda_2 > \cdots$ (score quantiles from $0.85$ down to $0.30$), let $N_j = |S(\lambda_j)|$ be the selection size, and let $m_j$ and $k_j$ be the number of calibration trajectories above $\lambda_j$ and the number of those that are unsafe. Because the pool is finite and the selection sizes are known, the null hypothesis that the selection contains more than $\alpha N_j$ unsafe trajectories admits an exact test: under the least-favorable null the unsafe calibration count is hypergeometric, and $p_j = F_{\mathrm{hyp}}\big(k_j;\, N_j,\, \lfloor \alpha N_j \rfloor + 1,\, m_j\big)$ is a super-uniform p-value, where $F_{\mathrm{hyp}}$ is the hypergeometric CDF. Strict fixed-sequence testing tests the hypotheses in order, each at level $\delta$, stops at the first failure to reject, and returns the last rejected threshold; if the first test fails, no threshold is certified.
+
+\begin{proposition}
+\label{prop:guarantee}
+The returned threshold $\hat\lambda$ satisfies
+\begin{equation}
+\label{eq:guarantee}
+\Pr\Big[\,\textnormal{a threshold is certified}\ \wedge\ \widehat{\mathrm{unsafe}}\big(S(\hat\lambda)\big) > \alpha\,\Big] \;\le\; \delta,
+\end{equation}
+where $\widehat{\mathrm{unsafe}}(S) = \frac{1}{|S|}\sum_{\tau \in S} u(\tau)$ is the unsafe fraction with respect to the dataset $\Doff$ itself and the probability is over the uniform calibration draw. A proof is given in Appendix~\ref{app:proof}.
+\end{proposition}
+
+Validity requires no assumption that the unsafe fraction decreases as the threshold rises. Testing in a fixed order and stopping at the first failure means a true null is never tested after a rejection, which is what bounds the error; monotonicity affects only which hypotheses the walk can reach, that is, the \emph{power} of the procedure, the probability of certifying when a certifiable threshold exists. The guarantee is transductive. The population is the finite pool $\Doff$ to which the threshold is applied, containing both the labeled calibration trajectories and the unlabeled remainder, and it is exactly the object the downstream cloning consumes; the hypergeometric test is exact for such a population. The guarantee is per calibration run, meaning one execution of steps 3 and 4 of the algorithm in Appendix~\ref{app:algo} for one task and one value-ensemble seed, where a \emph{task} is a single dataset-environment pair such as CarGoal1. Each certificate is a statement about that run alone; we make no joint claim across the twenty tasks or across seeds. It is also unconditional. It bounds the joint probability of certifying and violating, not the violation probability given a certificate, which equals the joint rate divided by the certification rate and can exceed $\delta$ where certification is rare; Section~\ref{sec:guarantee-validation} reports both. The grid starts at the $0.85$ quantile because deeper thresholds are statistically uncertifiable at practical $n$ and sit in the score tail the Bradley-Terry null space leaves unidentified (Section~\ref{sec:analysis}); when no threshold certifies, the procedure returns an explicitly uncertified conservative selection, keeping the top fraction of trajectories given by a one-sided Clopper-Pearson lower bound on the pool safe mass computed from the calibration labels already spent, and reports the absence of a certificate.
+
+\subsection{Certification-gated reward-aware curation}
+\label{sec:gating}
+A safety-only filter discards the dataset's reward information, so within a selection we optionally retain the top half by episodic return before cloning. This sub-selection is safe exactly when the selection is clean and harmful when it is contaminated, since return and cost correlate on contaminated selections; we therefore gate it on the certificate, which thus serves double duty as a guarantee on composition and a decision signal for how aggressively to curate. The hard rule is the extreme point of a family we also instantiate softly: \emph{certified return-weighted cloning} resamples the certified selection with probability proportional to $\exp(\mathrm{clip}(z(R_i), \pm \kappa))$, where $z(R_i)$ standardizes episodic return within the selection and the clip $\kappa$ sets the return-seeking intensity. This is the operator the granularity analysis prescribes. The exponentiated weighting of advantage-weighted regression, moved from the per-transition scale where Section~\ref{sec:analysis} shows it cannot compose to the trajectory scale where selection does, and run only behind the certificate. Section~\ref{sec:results} shows its safety on certified selections is robust to $\kappa$, and Appendix~\ref{app:composea40} that beyond the certified composition it is not.
+
+\section{Why Trajectory Scale: an Oracle-Controlled Analysis}
+\label{sec:analysis}
+
+The algorithm of Appendix~\ref{app:algo} clones a \emph{selection}. The value picks trajectories, and behavior cloning does the rest. That is an unusual choice, because the standard way to turn a learned value into a policy is to reweight individual transitions by it. This section explains why we do not. Everything analyzed here is the alternative we reject, not a component of our method. The alternative is advantage-weighted regression \citep{peng2019awr}: form a per-transition advantage from the value, weight each transition by $\exp(A/\beta)$, and fit a policy to the reweighted data. No Lagrange multiplier appears, because no constrained program is solved; the value is a scoring signal in both cases, and only the granularity of its use differs. The analysis uses nine DSRL benchmark tasks \citep{liu2024dsrl}. The five velocity-constrained locomotion tasks (HalfCheetah, Walker2d, Ant, Hopper, Swimmer) and the four Goal-family navigation tasks (CarGoal1, CarGoal2, PointGoal1, PointGoal2); Section~\ref{sec:experiments} evaluates the full fifteen-task suite. Preference pairs are labeled by the two segments' own summed ground-truth costs, the lower-cost segment preferred and ties skipped; pair sampling draws the two segments from parent trajectories in contrasting cost-reward pools so that comparisons carry signal, and 1000 labeled pairs per task are used throughout. Labels are exact, isolating algorithmic questions from labeler noise; segment-level labeling means the value's supervision is genuinely sub-trajectory, and the pool-based sampling is a bias on which pairs are seen, not on the labels.
+
+The analysis separates two obstacles. The first concerns how the value is used and holds even when the value is exact; the second concerns what preference training leaves undetermined in the value itself. Throughout, \emph{per-transition} use means weighting each state-action pair by its own advantage, while \emph{trajectory-scale} use means aggregating the value over a whole trajectory and selecting on that aggregate.
+
+\paragraph{Obstacle 1: reweighting transitions does not produce trajectory-level safety, even with exact values.}
+We substitute two ground-truth values into the identical advantage-weighted extraction on all nine tasks. The per-step oracle $V = -c$, which is the exact generator of the preferences and has no identifiability ambiguity, and the discounted cost-to-go oracle (discount $0.99$). Neither improves on the learned value in any cell but one: Swimmer under the per-step oracle (Table~\ref{tab:oracle}), which requires dense supervision unavailable under preferences (Appendix~\ref{app:extraction}). On the failing navigation tasks all sources sit in the same cost band, well above budget; on three of the five velocity tasks, where the learned value yields safe policies under this extraction, the oracles are dramatically unsafe, up to an order of magnitude over budget. The learned value's generalization, which spreads sparse cost events onto neighboring states, is therefore essential signal rather than approximation error. Multi-step advantages degrade safety through credit blurring: at $k = 5$, cost worsens on seven of the nine analysis tasks relative to $k = 1$ (HalfCheetah 4.8 to 121), monotonically in $k$ (Appendix~\ref{app:extraction}). Applying the same reweighting on top of the ground-truth-filtered BC-Safe policy destroys its safety on five of the seven tasks where that policy satisfies the budget. The mechanism is compositional. Exponentiated per-step weights gently reweight actions the dataset already contains at each state, while safety on these tasks is carried by whole multi-step avoidance behaviors that reweighting fragments rather than preserves. Value quality is not what limits this route; the way the value is used is, and Appendix~\ref{app:proof} gives a minimal construction (Proposition~\ref{prop:corridor}) in which the failure is provable: bounded per-transition weights need a range growing linearly with the horizon, while trajectory selection succeeds whenever a safe trajectory exists. One enriched configuration does force safety through this route, an action-conditioned value distilled from dense ground-truth cost labels and scored counterfactually through a dynamics ensemble (Table~\ref{tab:extraction}); it succeeds only at severe reward cost with supervision unavailable under preferences: no state-only, preference-compatible configuration we tested produces trajectory-level safety this way.
+
+\paragraph{Obstacle 2: preference training additionally underdetermines the learned value at per-transition scale.}
+The learned value carries a second burden the oracles do not, and Table~\ref{tab:obstacle2} quantifies it at the two scales: trajectory-level ranking is reliable while every per-transition statistic sits at or below the value's own noise floor. The tail that exponential weighting concentrates on is seed-specific, consistent with the Bradley-Terry loss's null space, whose sum-preserving perturbations are invisible to training; a matched control with dense per-step supervision shows comparable cross-seed disagreement (Appendix~\ref{app:extraction}), so seed variance contributes as well, and the per-transition scale is unreliable under either supervision. Because candidate actions at a fixed state separate by less than the noise floor, counterfactual scoring through learned dynamics models verifiably engages and commits to noise, and held-out accuracy does not predict per-transition extraction quality: Hopper ($0.980$) and Swimmer ($0.988$) carry two of the best values into the two worst policies. Appendix~\ref{app:extraction} reports the full sweep.
+
+\begin{table}[h]
+\caption{The value at two scales, across the nine analysis tasks (ranges over tasks; ensembles over three seeds). Accuracy means the fraction of held-out pairs the value orders the same way as their ground-truth summed costs.}
+\label{tab:obstacle2}
+\begin{center}
+\small
+\begin{tabular}{llr}
+\toprule
+Scale & Quantity & Range \\
+\midrule
+Trajectory & held-out segment-pair accuracy & $0.816$ to $1.000$ \\
+Per-transition & cross-seed advantage rank correlation $\rho$ & $0.63$ to $0.84$ \\
+Per-transition & top-1-percent transition overlap (Jaccard) & $0.15$ to $0.41$ \\
+Per-transition & action-value separation at a fixed state & $0.015$ to $0.08$ units \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[t]
+\caption{Oracle-value ablation on all nine analysis tasks with the BC-All reference (oracles: three seeds; learned value: five seeds; bold marks mean cost within budget).}
+\label{tab:oracle}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{BC-All} & \multicolumn{2}{c}{Learned $\Vbar$} & \multicolumn{2}{c}{Oracle, per-step} & \multicolumn{2}{c}{Oracle, cost-to-go} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/oracle_all.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+\begin{observation}[Granularity principle]
+\label{obs:granularity}
+Per-transition extraction fails twice over. Reweighting transitions does not produce trajectory-level safety even under exact values (Obstacle 1), and preference-trained values are unidentified at per-transition scale while reliable at trajectory scale (Obstacle 2). Trajectory-scale selection sidesteps both. It uses the value where preference training identifies it, and it keeps whole behaviors intact rather than reweighting their parts.
+\end{observation}
+
+The positive half of the principle has a direct witness. Behavior cloning on the ground-truth safe subset (BC-Safe) satisfies the budget on eight of nine tasks, including PointGoal1, which no per-transition operator moved. Our method replaces BC-Safe's full labeling with the preference-learned score and adds the certificate.
+
+\paragraph{What the value encodes.}
+The value is inspectable, and inspection corroborates the principle (Figure~\ref{fig:interp}, Appendix~\ref{app:landscape}). Gradient saliency recovers the cost-defining observation dimension on four of five velocity tasks; $\Vbar$ declines as violations approach on every task, by two to four within-task standard deviations, which explains why it outperforms the exact but sparse per-step oracle as a selection signal; and per-state values along a single trajectory are noisy while their rolling mean is stable, Observation~\ref{obs:granularity} in one trace. On navigation these coordinate-wise diagnostics go quiet because the constraint is geometric, but rendering the value spatially recovers it, that is, evaluating $\Vbar$ on states binned by the agent's $(x,y)$ position and plotting the average. On PointGoal1 the value tracks the hazard field the model was never given. Over policy rollouts, mean $\Vbar$ rises with distance to the nearest hazard (binned Spearman $\rho = 0.88$, $p < 0.001$; $\rho = 0.61$ over raw states), an alignment that largely collapses when the same states are frozen at zero velocity ($\rho$ between $0.09$ and $0.27$ across three layouts), so the value encodes proximity and motion jointly on the visited distribution, and the same diagnostics flatten precisely where the method trails the strongest baseline (Appendix~\ref{app:landscape}).
+
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Setup}
+We evaluate on fifteen DSRL tasks. The five velocity-constrained locomotion tasks and ten SafetyGymnasium navigation tasks spanning the Goal, Button, and Circle families for the Point and Car robots, the union of the task sets used by the methods we compare against (budgets 20 for velocity and 25 for navigation. The strictest of the DSRL protocol's evaluation thresholds there and the canonical SafetyGymnasium limit, respectively, as used by the comparators). Datasets are the standard DSRL releases. All methods share network architectures (two-layer MLPs of width 256), the DSRL evaluation protocol (100 episodes per checkpoint), and identical preference data (1000 pairs per task, segment length 30). Baselines: BC-All and the full-label filters BC-Safe and BC-Safe-Seg \citep{liu2024dsrl, gong2026presa}; random-, return-, and bottom-return-selection controls at matched sizes, where the matched size equals the pool's ground-truth safe count, an oracle quantity we use for controls and the diagnostic V-filter so that selection signal is compared at equal selection budget; the full-label methods CDT \citep{liu2023cdt}, CPQ \citep{xu2022cpq}, and COptiDICE \citep{lee2022coptidice} trained in-codebase at matched cost limits and reported in Table~\ref{tab:baselines} of Appendix~\ref{app:baselines}; CPL \citep{hejna2024cpl} consuming exactly our preference data ($\lambda = 0.5$, BC-regularized). Our configurations. The V-filter at the calibration-estimated fraction (the one-sided Clopper-Pearson lower bound, level $\delta$, on the pool safe mass from the 200 calibration labels; the ground-truth-matched and fixed top-25-percent fractions remain as diagnostics), the calibrated filter (LTT, $\alpha = 0.25$, $\delta = 0.1$, $n = 200$, with the same estimated fraction as its uncertified fallback), the certification-gated reward-aware variant, and certified return-weighted cloning at clip $\kappa \in \{1, 2, 3\}$ plus the hard top-half rule, run on the certified selections (three seeds, the analysis-sweep convention). Headline configurations and controls report mean and 95 percent bootstrap confidence intervals over five seeds; analysis-section sweeps use three. A five-task BulletSafetyGym suite, held out as a transfer test with every hyperparameter frozen, is reported in Section~\ref{sec:results} and Appendix~\ref{app:bullet}.
+
+\subsection{Main results}
+\label{sec:results}
+\begin{table}[t]
+\caption{Raw reward and cost on fifteen DSRL tasks (five seeds, mean $\pm$ 95\% CI; budgets 20/25; bold cost within budget; BC-All is a single training with 100-episode evaluation; V-filter is the uncalibrated filter at the calibration-estimated fraction; Calibrated is the full procedure of Section~\ref{sec:calibration-method}, which certifies where it can and otherwise returns the conservative selection with an explicit refusal). $^\dagger$: on the three certified tasks the calibrated column applies the certification-gated reward-aware sub-selection; on uncertified tasks the two configurations coincide.}
+\label{tab:main}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{BC-All} & \multicolumn{2}{c}{BC-Safe} & \multicolumn{2}{c}{V-filter} & \multicolumn{2}{c}{Calibrated} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/main_gated.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+
+We judge methods by the constrained objective itself. A method earns credit first for satisfying the cost budget, and only then for the reward it achieves while doing so. Bold cells in every table mark budget satisfaction. Table~\ref{tab:main} presents the main comparison. Thresholds and budgets are stated in raw cost throughout, so raw units are primary here; Table~\ref{tab:normcost} restates cost across every method in normalized units for comparison with the literature.
+
+\paragraph{The calibrated filter, the self-contained deliverable.} One fixed procedure across tasks, consuming preferences plus 200 calibration labels, is safe on eleven of fifteen. This count is a property of the full procedure including its uncertified fallback. The certificate itself fires on three tasks at $\alpha = 0.25$ and on eight of the nine analysis tasks at $\alpha = 0.40$ (Section~\ref{sec:ablations}), and on uncertified tasks the deliverable is the conservative selection with an explicit no-certificate report. Its failures are Hopper (marginal), Swimmer, where only the estimated-fraction V-filter is marginally within budget (20 against BC-Safe's 72) and the calibrated fallback lands at 45, and the two tasks with no selectable safe subset (PointButton2, PointCircle2), where every method fails and the calibration refuses to certify.
+
+\paragraph{The value against ground truth.} The V-filter at the calibration-estimated fraction, which uses no ground-truth quantity anywhere, is safe on twelve of fifteen tasks, and BC-Safe, which needs a budget label on every trajectory, is also safe on twelve. The two match on coverage while requiring very different supervision. Their failure sets differ rather than nest. Ours violates on Hopper, which BC-Safe handles; BC-Safe violates on Swimmer at more than three times the budget, which ours handles; and both violate on PointButton2 and PointCircle2. Matching coverage is not the whole comparison, because the two methods sit differently inside the budget. On the eleven tasks where both are safe, ours runs at lower mean cost on eight, and mean normalized cost is $0.48$ against BC-Safe's $0.54$, six percent of the budget in additional headroom. The largest gaps are CarButton1 at $8.7$ cost units, Walker2d at $7.2$, and CarButton2 at $3.8$. Cells near the boundary are counted descriptively, without a test. The mechanism is the difference between a graded and a binary signal. The value ranks trajectories by how far they sit from the budget, while the label admits everything up to the boundary, and the clone inherits that boundary.
+
+\paragraph{The certificate as a gate.} The gated reward-aware variant is certification-safe. On the three certified tasks it keeps cost within budget in every cell with reward held within confidence intervals, and uncertified tasks keep their conservative selections; ungated, the same sub-selection on Hopper's contaminated selection multiplies mean cost to 148, and the gate refuses there (per-cell detail in Appendix~\ref{app:extended}). Its reward is bounded by what the selection already contains, since sub-selection discards trajectories but never adds them, so reward rises only where the certified selection is reward-rich; the return-weighted operator below is the stronger form of the same idea. The contribution here is the certificate and the weaker supervision it needs, not raw policy performance, and when certification fails the deliverable is a conservative selection explicitly flagged as uncertified.
+
+\paragraph{Transfer.} The unchanged pipeline also transfers to five BulletSafetyGym tasks with new embodiments, episode lengths of 100 to 300, and a harder budget. The calibrated procedure satisfies the budget on all five, the V-filter on four of five, and the guarantee holds in every validation cell; full-data CDT also meets this budget on all five once its cost target is conditioned to 2, at reward well above every filter, so on this suite the harder budget separates the methods by labeling cost rather than by safety (Appendix~\ref{app:bullet}). Across both suites the certificate fires on 4 of 20 tasks at $\alpha = 0.25$; its yield is governed by the purity margin defined in Section~\ref{sec:guarantee-validation}, not by raw safe mass: Swimmer has less safe mass than Ant yet certifies far more often, because its score separates the safe trajectories better.
+
+
+
+
+
+\paragraph{External baselines.} Table~\ref{tab:baselines} and Figure~\ref{fig:pareto} (both in Appendix~\ref{app:baselines}) place the method against full-label offline safe RL and against direct preference-based policy learning. CDT consumes per-step cost and reward labels and conditions on a cost target at deployment, so we sweep that target down to a fifth of the budget, at $\{5, 10, 15\}$ against budget 20 or 25 (Appendix~\ref{app:cdtsweep}, three seeds, 100 episodes per cell). Conditioning below budget buys real safety where the task admits it: CDT is safe on all five velocity tasks and both Circle tasks, with reward above ours wherever it is safe, which is the honest shape of the comparison on reward-rich pools. On the eight Goal and Button tasks it violates at \emph{every} target, and its realized cost barely responds to the knob, CarGoal1 moving from $40.9$ to $37.8$ and PointButton1 sitting near $100$ across the full range against budget 25. The lever is inoperative exactly where safety requires selectivity, so the failure is structural rather than a matter of target choice. CPQ and COptiDICE are safe on four and two of fifteen respectively, several cells degenerately (CPQ's Ant: reward $-3000$ at zero cost). CPL, the supervision-matched control consuming exactly our preference data rather than a safe RL method, is safe on four of fifteen with navigation costs of 40 to 120: the same supervision that curates safely fails as a direct policy-optimization signal. Across supervision levels the pattern is uniform. Every filter-then-clone method in our study is safer than every optimization-based method, the granularity principle at benchmark scale.
+
+\begin{table}[t]
+\caption{Composability at $\alpha = 0.25$: CDT and our operators on the deployed certified selection per task (three seeds; two further distinct selections per task in Appendix~\ref{app:composea40}). CDT's frontier-fitting augmentation presumes a full cost spectrum and cannot run on curated data, so certified runs disable it; the no-augmentation column controls for that on full data. The operator column is certified return-weighted cloning at $c = 2$. Bold cost is within budget.}
+\label{tab:compose}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rr rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{CDT (full data)} & \multicolumn{2}{c}{CDT (full, no aug.)} & \multicolumn{2}{c}{CDT (certified)} & \multicolumn{2}{c}{Ours (calibrated)} & \multicolumn{2}{c}{Ours (operator)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/compose.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+\paragraph{Handing the selection to another learner.} Because the certificate describes the data rather than the policy, the certified selection can be given to any offline learner as its training set. Retraining CDT on the certified selections of the three tasks that certify at $\alpha = 0.25$ makes every run safe, across three seeds and three distinct certified selections per task, 27 of 27 runs including three out-of-specification selections (Table~\ref{tab:compose}): on both navigation tasks, where full-data CDT violates the budget by nearly 50 percent, CDT on the certified selection runs at cost 5 to 11, and on HalfCheetah it retains CDT's full reward (2689 against our clone's 2172) at cost 2. Navigation reward matches or trails the BC clone of the same selection (8.4 against 8.4 on CarGoal1; 4.4 against 6.1 on PointGoal1). The table covers three tasks because only three certify at this level. The certificate's own refusal behavior, not a selection of favorable cases. Attribution is controlled twice over: full-data CDT with augmentation disabled remains severely unsafe on the navigation tasks (costs 52 and 47), and sweeping CDT's cost target down to a fifth of the budget on full data does not rescue it either (CarGoal1 $37.8$ to $40.9$, PointGoal1 $30.3$ to $36.4$, Appendix~\ref{app:cdtsweep}). Same learner, same budget, conditioning knob swept across its range, and only curation moves it inside budget. The certified level matters, and it matters more for some learners than others. At $\alpha = 0.40$ both learners eventually track realized contamination, the ground-truth unsafe fraction $\hat\alpha$ a drawn selection actually contains, which the certificate bounds by $\alpha$ only up to its $\delta$ risk. Their thresholds differ sharply: BC is safe on 22 of 24 task-selections while CDT violates on every navigation task on at least one, PointGoal1 moving from cost 10.5 at $\alpha = 0.25$ to 41.5 to 57.4 (Appendix~\ref{app:composea40}). Averaging learners outvote the unsafe tail; return-conditioned learners seek exactly it, so composing with them requires the tighter certificate, which gives the $\alpha = 0.25$ operating point an empirical justification beyond conservatism. Certified curation is thus a supervision-agnostic front end for learners stronger than behavior cloning wherever the learner's violations are data-driven; when the operator itself violates on a benign pool, curation cannot help, a boundary one transfer task exposes (Appendix~\ref{app:bullet}).
+
+\paragraph{A certificate-native return-seeking consumer.} The certificate's value depends on its consumer, so we derive one from the pipeline itself, certified return-weighted cloning (Section~\ref{sec:gating}), return-seeking at the granularity the analysis licenses, run only on certified selections. Across the three certifying tasks' nine distinct certified selections, the CarRun echo, and four intensities, every within-specification cell is safe, 28 of 28. The operator converts certification into reward: on HalfCheetah it lifts the clone's 2172 to 2361 on the deployed selection (Table~\ref{tab:compose}) and up to 2516 across its certified selections, at cost below 1, recovering up to two thirds of the gap to CDT retrained on the same data (2689). On CarRun it is safe at every intensity (reward 560 to 562, cost at most 0.5) where full-data CDT violates on all seeds, and navigation reward stays within confidence intervals of the plain clone. The boundary is equally sharp. The milder out-of-specification selections ($\hat\alpha$ of 0.266 and 0.287) stay safe in every arm, while the worst tail selection (0.351) is safe only at the gentlest intensity, cost 4.4 against up to 124.7 (Table~\ref{tab:operator}). On certified selections safety is robust to the intensity knob; beyond the certified composition it is not. The certificate is precisely what decouples the operator's safety from its aggressiveness.
+
+\subsection{Guarantee validation}
+\label{sec:guarantee-validation}
+If safety can be decoded from state, when can the decoding be trusted? We validate Proposition~\ref{prop:guarantee} empirically on the nine analysis tasks by rerunning the calibration across 2000 fresh draws per task, seed, and calibration size $n \in \{50, 100, 200, 400\}$ (Figure~\ref{fig:coverage}). The unconditional false-certification rate, the probability that a draw certifies a threshold whose true selection is out of specification, is below $\delta = 0.1$ in every cell; the worst cell (PointGoal2, seed 1, $n = 200$) is $0.057$ with a 95 percent Clopper-Pearson interval of $0.047$ to $0.068$, a maximum over cells that is itself upward biased, in the conservative direction. Certification rates increase with $n$ and with achievable selection purity: PointGoal1 certifies in about two thirds of draws at $n = 200$ and always by $n = 800$, while Hopper, Ant, and PointGoal2 certify never or almost never, correctly, since their top-quantile selections genuinely exceed $\alpha$. The refusal behavior is the guarantee working, and it is predictable. Define a pool's \emph{purity margin} as $\alpha$ minus the smallest unsafe fraction any threshold on the grid can achieve, that is, how far the purest attainable selection sits below the risk target. Certification rate tracks this margin almost exactly across the fourteen validated tasks (Spearman $0.99$), and the same relation reappears when the segment length rather than the task is varied (Spearman $0.988$ over $27$ task-length cells, Appendix~\ref{app:extended}), and the relationship is a threshold rather than a trend. Every task whose margin is negative certifies essentially never (four at exactly $0.00$, Ant at $0.006$, PointGoal2 at $0.047$), while positive margins yield rates rising with the margin, from DroneRun at $0.046 \to 0.17$ to CarRun at $0.209 \to 1.00$. Both halves have explanations, one of which is a proof.
+
+\begin{proposition}[Certification dichotomy]
+\label{prop:dichotomy}
+Write $u_j = U_j / N_j$ for the unsafe fraction of the selection at grid threshold $\lambda_j$, and let $u_{\min} = \min_j u_j$.
+\begin{enumerate}
+\item If $u_{\min} > \alpha$, then $\Pr[\textnormal{certify}] \le \delta$ for every calibration size $n$.
+\item If $u_1 < \alpha$, then $\Pr[\textnormal{certify}] \to 1$ as $n \to N$.
+\end{enumerate}
+\end{proposition}
+
+\emph{Proof.} (i) If $u_{\min} > \alpha$ then $u_j > \alpha$ for every $j$, so any returned threshold has $\widehat{\mathrm{unsafe}}(S(\hat\lambda)) > \alpha$. Certification therefore implies the violation event, and $\Pr[\textnormal{certify}] = \Pr[\textnormal{certify} \wedge \widehat{\mathrm{unsafe}} > \alpha] \le \delta$ by Proposition~\ref{prop:guarantee}, for any $n$. (ii) At $n = N$ the calibration sample is the whole pool, so $m_1 = N_1$ and $k_1 = U_1$ deterministically, and $p_1 = F_{\mathrm{hyp}}(U_1; N_1, U_1^{*}, N_1)$ is $0$ when $U_1 < U_1^{*} = \lfloor \alpha N_1 \rfloor + 1$, which is implied by $u_1 < \alpha$. The first hypothesis is then rejected with certainty and a threshold is returned. $\square$
+
+The two halves are not symmetric, and the gap between them is where the empirical law lives. Part (i) is a corollary of Proposition~\ref{prop:guarantee} rather than new machinery, but it is the formal content of refusal. On a pool no threshold can purify below $\alpha$, refusing is the only behavior consistent with the guarantee, and no labeling budget changes that. Part (ii) concerns the first tested threshold, since the fixed-sequence walk stops at its first failure; when the score ranks well these coincide, because $u_j$ is then smallest at the top quantile.
+
+The first half is why refusal is a correctness property rather than a conservative heuristic. On those pools no budget can help, because no threshold produces a selection the guarantee would permit. The second half is a question of labels, and empirically a sharp one. Sweeping $n$ up to $3200$, the budget at which a task first certifies in half of draws follows $n_{50} \approx 5.6\,/\,\text{margin}^{1.57}$ with $R^2 = 0.996$ across the six tasks that reach it (Appendix~\ref{app:extended}). Six points are few for a two-parameter law, so we report its stability rather than the fit alone. A paired bootstrap over tasks places the exponent in $[1.32, 1.65]$ with 95 percent confidence, and leave-one-out moves it only within $[1.54, 1.62]$. It is shallower than the $2$ a single fixed-threshold test would give in every bootstrap resample, which is consistent with the fixed-sequence walk reaching deeper thresholds as $n$ grows. Since the margin is itself estimable from the calibration sample, a practitioner can forecast before spending further labels both whether a certificate is attainable and roughly what it would cost. The same resample yields the deployer-facing conditional rate, $\Pr[\text{violate} \mid \text{certified}]$, which the unconditional theorem does not bound (Table~\ref{tab:condviol}, Appendix~\ref{app:extended}). It is small exactly where certification is common (PointGoal1 $0.07$ at certification rate $0.65$; CarRun $0.00$ at $1.00$) and large where certification is rare (Walker2d $0.63$ at $0.02$, Ant $1.00$ at $0.01$), so a rare certificate on a mostly-refusing task is itself weak evidence, and the certification rate, forecastable from the calibration sample's safe mass, is the trust signal a deployer should read alongside the certificate. This validation resamples calibration draws with the score fixed, the theorem's own setting, so it checks the implementation and the finite-sample constants rather than testing an assumption. Certification is also stricter than policy safety requires. The binary indicator counts a trajectory at cost 26 against budget 25 as fully unsafe although cloning such marginal violators teaches nearly safe behavior, so selections can exceed $\alpha$ while their clones run well within budget (Ant certifies in only one percent of draws while its calibrated policy runs at cost near 1); the gap between eleven safe DSRL tasks and the three that certify is this conservatism, priced and reported. Composition is not sufficient for policy safety either. BC-Safe's training set has unsafe fraction exactly zero, an implicit certificate at $\alpha = 0$, yet its clone still violates on three of the twenty tasks. The near-budget violations inherit the boundary the binary label admits (Section~\ref{sec:results}), while the large ones (Swimmer at 72) are cloning error and distribution shift, the two terms the mean-cost bridge of Appendix~\ref{app:extended} separates. The certificate is an audit of the data; the favorable mapping from composition to policy behavior is carried by margin-ranked selection, and the paper reports the two separately.
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=0.8\linewidth]{figures/coverage.pdf}
+\end{center}
+\caption{Guarantee validation over 2000 calibration draws per cell. Left: unconditional false-certification rate against the level $\delta = 0.1$ (dashed); the guarantee holds in every task, seed, and calibration size. Right: certification rate as a function of calibration size $n$; tasks whose selections cannot meet $\alpha$ are correctly never certified.}
+\label{fig:coverage}
+\end{figure}
+
+\subsection{Ablations}
+\label{sec:ablations}
+
+
+\paragraph{Selection signal.} Random-selection and return-selection controls at matched selection sizes isolate the contribution of the safety value (Table~\ref{tab:controls}, Appendix~\ref{app:extended}). Return selection, the percentile-BC analogue, is unsafe on all fifteen tasks, on several actively concentrating cost (four to ten times budget on the Button tasks). Random selection is unsafe on fourteen of fifteen. Bottom-return selection at the same sizes, the strongest form of the concern that the score might merely anti-rank return, is safe on eight of fifteen, and catastrophically unsafe on four of the five velocity tasks (costs 48 to 189 against budget 20) even though its selected trajectories are low-cost, and safe on parts of navigation with thinner margins than the value filter (Appendix~\ref{app:extended}). Score correlations complete the account (Table~\ref{tab:scorecorr}, Appendix~\ref{app:extended}). The score tracks episodic cost on every task (Spearman $-0.57$ to $-0.91$), is at most weakly aligned with return on the velocity tasks ($-0.35$ to $+0.18$), and anti-correlates with return only on navigation, where return and cost are themselves positively correlated ($+0.27$ to $+0.89$), as any safety-tracking score there must.
+\paragraph{Calibration supervision.} Replacing the labeled calibration entirely with held-out preferences (threshold at the $0.9$ quantile of dispreferred-parent scores) is safe on four of fifteen tasks and unsafe on the rest, including every low-safe-rate velocity task. Labeled calibration earns its keep exactly where safety is scarce.
+\paragraph{Calibration size and guarantee level.} Certification rate falls gracefully with $n$ (Figure~\ref{fig:coverage}, right); at $n = 50$ the procedure certifies rarely and the guarantee still holds, so the cost of a small calibration budget is conservatism, never silent failure. Sweeping $\alpha$ on the nine analysis tasks maps the certified operating curve (Figure~\ref{fig:alphacurve}, Appendix~\ref{app:extended}). At $n = 200$, $\alpha = 0.05$ certifies nowhere, $\alpha = 0.10$ only on PointGoal1, $\alpha = 0.25$ is the practical operating point, and $\alpha = 0.40$ certifies broadly except on Hopper, which never certifies at any level, correctly; certification grows with $n$ throughout, so tighter guarantees are a matter of labels, and tighter $\alpha$ yields safer, lower-reward policies; Figure~\ref{fig:paretotargets} (Appendix~\ref{app:cdtsweep}) plots the reward-cost trade across $\alpha$ levels per task against the V-filter, BC-Safe, and CDT's own cost-target curve.
+\paragraph{Preference noise, labeler models, and budget.} Flipping up to 30 percent of labels, a Boltzmann labeler that errs on borderline pairs, or a budget of 100 pairs degrades filter precision only mildly and never produces a false certification. Validity flows from the clean calibration sample, not from score quality (Appendix~\ref{app:extended}).
+\paragraph{Mean-cost certificate.} The same machinery certifies the budget-native risk, the selection's mean episodic cost, in a strictly more conservative variant that certifies only on PointGoal1 with zero false certifications; Appendix~\ref{app:extended} details it and its imitation-theoretic bridge to policy cost.
+\paragraph{Labels-only filtering.} The calibration sample could train a filter instead of auditing one. A supervised classifier on only the $n$ labels, with our architecture, scoring rule, and fractions, is safe on 11 to 13 of fifteen across budgets $n \in \{50, 100, 200, 400\}$, and splitting the budget between training and calibration certifies at a rate comparable to ours. At matched budget, preferences buy neither additional safety nor certification; their measured advantage is the weaker supervisor they assume. Labels-only presumes a cost function that returns a number, while comparisons require only that two clips can be ordered. This answers the opening question in its sharpest form. Safety here is decodable from state alone, easily, so what distinguishes methods is not scorer accuracy but certification and the kind of supervisor each route assumes (Appendices~\ref{app:extended} and~\ref{app:labelsonly}).
+
+
+\paragraph{Action-conditioned value and pipeline sanity.} $Q(s, a)$ under the identical Bradley-Terry loss leaves four of five representative tasks unchanged and is suggestively worse on Hopper, while forfeiting the state-only value's direct state-level readings and policy-agnostic scoring. Oracle reward-to-go through the identical extraction raises reward while cost explodes, so the pipeline transmits whatever signal the value carries (Appendix~\ref{app:extended}).
+
+\section{Limitations}
+\label{sec:limits}
+The certificate covers the composition of the training set, not the cost of the resulting policy; the mapping from composition to policy behavior is empirically favorable here, but a starved selection can underfit into an unsafe policy, mitigated but not eliminated by the fallback's minimum selection size. The guarantee consumes 200 labeled trajectories; the preference-only variant removes them at the cost of the certificate. All preferences are synthesized from ground-truth episodic costs, so the weak-oracle regime that motivates the method is modeled, including under label noise and a Boltzmann labeler, rather than entered with human or automated labelers. The extreme tail of the trajectory score is unreliable, which the capped threshold grid works around; tail-robust scoring remains open. The return-weighted operator sharpens the certificate dependence into an operational rule. On the worst observed out-of-specification selection its safety survives only at the gentlest intensity, so it must not be run on uncertified selections. Three scoping notes follow. A classifier trained on the calibration labels alone matches the calibrated filter's safe-task count, so the comparison route's measured advantage is the weaker supervisor it assumes, not raw coverage or certification rate; the action-conditioned ablation covers five tasks; and composability is characterized on the three certifying tasks across three distinct selections each, degrading with realized contamination at $\alpha = 0.40$ (Appendix~\ref{app:composea40}).
+
+\section{Conclusion}
+\label{sec:conclusion}
+We presented certified safety curation, a safe offline RL method that assumes no cost function and instead learns a state-only safety value from segment comparisons, selects whole trajectories with it, calibrates the threshold with Learn-then-Test, and clones the certified selection under a distribution-free guarantee on its composition. We show that safety in these domains is decodable from state alone when read at trajectory scale, and decodable from supervision far weaker than a cost function. A classifier trained on the calibration labels alone matches that coverage, so what separates methods here is not the scorer but the certificate, its refusals, and the kind of supervisor each route assumes. The certificate is also a decision signal, and the certified selection transfers to other learners when their violations come from the data rather than from their own optimization. The strongest full-label baseline, retrained on it, becomes safe on navigation tasks it otherwise violates. A return-weighted cloning operator derived from the pipeline recovers reward on certified selections with safety independent of how aggressively it curates, exactly where the certificate holds. Offline, the dataset is the ceiling on what any method can safely achieve; when the data is the ceiling, certifying the data is the guarantee that matters.
+
+\subsubsection*{Reproducibility statement}
+All experiments use public DSRL datasets. Every table regenerates from archived evaluation records via the scripts accompanying the paper, and the guarantee figure regenerates from archived calibration statistics. Hyperparameters are listed in Appendix~\ref{app:hyper}; no per-task tuning is used for the calibrated method.
+
+\bibliography{references}
+\bibliographystyle{iclr2026_conference}
+
+\appendix
+
+\section{Algorithm}
+\label{app:algo}
+\begin{center}
+\fbox{\parbox{0.92\linewidth}{
+\textbf{Certified safety curation.}
+\begin{enumerate}
+\item Train $K$ value networks on $\Dpref$ by Equation~\ref{eq:bt}; set $\Vbar$ to the ensemble mean.
+\item Score every trajectory: $g(\tau) = \frac{1}{|\tau|}\sum_{s_t \in \tau} \Vbar(s_t)$.
+\item Draw $n$ calibration trajectories uniformly; label episodic costs.
+\item Fixed-sequence LTT over score quantiles $0.85$ down to $0.30$ with exact hypergeometric tests at level $\delta$ against risk target $\alpha$; return the last certified threshold, or an uncertified selection at the calibration-estimated safe-mass fraction with an explicit no-certificate report.
+\item If certified, optionally curate for reward, retaining the top half by return or resampling trajectories with probability proportional to $\exp(\mathrm{clip}(z(R), \pm \kappa))$.
+\item Behavior-clone the selection.
+\end{enumerate}}}
+\end{center}
+
+\section{Proof of Proposition~\ref{prop:guarantee}}
+\label{app:proof}
+
+Fix the threshold grid $\lambda_1 > \lambda_2 > \cdots > \lambda_J$ in advance. For each $j$ write $S_j = S(\lambda_j) \subseteq \Doff$, $N_j = |S_j|$, and let $U_j$ denote the number of unsafe trajectories in $S_j$. The null hypothesis at step $j$ is $H_j: U_j > \alpha N_j$, equivalently $U_j \ge U_j^{*}$ with $U_j^{*} = \lfloor \alpha N_j \rfloor + 1$.
+
+\textbf{Lemma 1 (conditional distribution).} Let $\mathcal{C}$ be drawn uniformly without replacement from $\Doff$, and condition on $m_j = |\mathcal{C} \cap S_j|$. Then $\mathcal{C} \cap S_j$ is a uniform without-replacement sample of size $m_j$ from $S_j$, so $k_j \mid m_j \sim \mathrm{Hyp}(N_j, U_j, m_j)$.
+
+\emph{Proof.} A uniform draw of $n$ items from $\Doff$ is exchangeable; conditioning on which draws land in $S_j$ leaves every $m_j$-subset of $S_j$ equally likely. $\square$
+
+\textbf{Lemma 2 (super-uniformity).} Define $p_j = F_{\mathrm{hyp}}(k_j; N_j, U_j^{*}, m_j)$. If $H_j$ holds, then $\Pr[p_j \le \delta \mid m_j] \le \delta$ for every $m_j$, and hence marginally.
+
+\emph{Proof.} The hypergeometric family is stochastically increasing in its success count, because adding one unsafe trajectory to the selection can only increase the sampled unsafe count, by a coupling that replaces a safe item with an unsafe one. Under $H_j$, $U_j \ge U_j^{*}$, so $k_j$ stochastically dominates $\mathrm{Hyp}(N_j, U_j^{*}, m_j)$ and $p_j$ stochastically dominates the p-value computed under the least-favorable null, which is super-uniform by the probability integral transform for discrete CDFs. $\square$
+
+\textbf{Proposition.} Let $t$ be the index of the first true null in the fixed order, if any exists; if none exists, no certification can be false and the claim is vacuous. The strict stopping rule tests $H_1, H_2, \ldots$ in order and stops at the first failure to reject. Reaching $H_t$ requires rejecting $H_1, \ldots, H_{t-1}$, all of which are false nulls, so no error is committed before step $t$. A false certification, that is, a certified $\hat\lambda$ whose selection violates the composition bound of Equation~\ref{eq:guarantee}, requires $H_t$ to be tested and rejected, an event of probability at most $\delta$ by Lemma 2. The bound holds without any monotonicity assumption on $j \mapsto U_j / N_j$; monotonicity only affects which hypotheses are reachable, that is, power. $\square$
+
+One dependence deserves an explicit statement. The score $g$ is trained on preferences synthesized from the episodic costs of the same pool $\Doff$, so $g$, and hence every $S_j$, is a function of the pool's labels. Validity is unaffected: $g$ and the sets $S_j$ are fixed before $\mathcal{C}$ is drawn and do not depend on which trajectories land in $\mathcal{C}$, so Lemma 1's exchangeability argument applies verbatim. What the construction does forfeit is independent test data for the score itself, which is why the guarantee is on the selection's composition and not on any property of $g$. As a further remark, calibration trajectories whose labels reveal them unsafe could be excluded from the selection, which can only improve its composition; the reported results do not apply this and are conservative in that respect.
+
+A corollary transfers the composition bound to the return-weighted operator of Section~\ref{sec:gating}. Resampling the certified selection with weights $w_i \in [e^{-c}, e^{c}]$ multiplies its unsafe-to-safe odds by at most $e^{2c}$, so the certified bound $\alpha$ on the unsafe fraction becomes a bound of $e^{2c}\alpha / (e^{2c}\alpha + 1 - \alpha)$ on the unsafe mass of the resampling distribution. The bound is informative only at small $c$ (at $\alpha = 0.25$ it already exceeds one half by $c = 1$), so the intensity-robustness observed in Section~\ref{sec:results} is an empirical property of the score-return geometry of certified selections rather than a consequence of the guarantee; the guarantee's role is to pin the composition the operator starts from. Certifying the operator's weighted risk directly, rather than through this corollary, does not help at our label budget. The resampling weights are a function of returns and of the selection, so the normalizer is known exactly and only the weighted unsafe mass needs estimating, but that quantity ranges over $[e^{-c}, e^{c}]$, and at $c = 2$ a distribution-free bound needs roughly $10^3$ labeled trajectories \emph{inside} the selection, about $6700$ calibration labels at a 15 percent selection, against the 200 we spend. The composition risk is certifiable at this budget precisely because it is a bounded count rather than a weighted average.
+
+\paragraph{A construction separating the operator classes.} The following minimal CMDP makes the operator half of Obstacle 1 provable rather than only measured. Consider a deterministic $T$-step corridor whose state is the time index, so the state records no action history; at every step two actions are available, one safe (per-step cost 0) and one risky (cost 1), the budget is 0, and the behavior policy takes the safe action with probability $p \in (0, 1)$ independently at each step. We state the population version; empirical action frequencies concentrate around $p$ at each step by Hoeffding's inequality.
+
+\begin{proposition}
+\label{prop:corridor}
+In the corridor CMDP, per-transition weighted cloning with weights $w(s, a)$ and safe-to-risky weight ratio $W$ at every state yields the product policy with per-step safe probability $p' = pW / (pW + 1 - p)$. Consequently: (i) state-only weights give $W = 1$, so the cloned policy equals the behavior policy, with all-safe probability $p^{T}$; (ii) reaching all-safe probability $1 - \epsilon$ requires $W \ge \frac{1-p}{p}\,\big((1-\epsilon)^{-1/T} - 1\big)^{-1}$, which approaches $\frac{1-p}{p} \cdot T / \ln\frac{1}{1-\epsilon}$, linear in the horizon, so weights bounded by any fixed clip fail beyond a horizon threshold; (iii) trajectory-level selection of the zero-cost trajectories followed by unweighted cloning yields the exactly safe policy whenever the dataset contains at least one such trajectory, an event of expected count $N p^{T}$.
+\end{proposition}
+
+\emph{Proof.} Weighted cloning at state $s$ maximizes $\sum_a p(a) w(s, a) \log \pi(a \mid s)$ over the simplex, whose optimum is $\pi(a \mid s) \propto p(a)\, w(s, a)$, giving $p'$ as stated; rollout steps are independent because the state carries no action history. (i) is immediate. For (ii), $(p')^{T} \ge 1 - \epsilon$ forces $p' \ge q$ with $q = (1-\epsilon)^{1/T}$, and $pW/(pW + 1 - p) \ge q$ rearranges to $W \ge \frac{1-p}{p} \cdot \frac{q}{1-q} = \frac{1-p}{p}\big((1-\epsilon)^{-1/T} - 1\big)^{-1} \to \frac{1-p}{p} \cdot \frac{T}{\ln\frac{1}{1-\epsilon}}$. For (iii), every transition in a zero-cost trajectory takes the safe action, so cloning the selection reproduces it deterministically. $\square$
+
+The construction is faithful to the paper's setting twice over. Segment-sum preference training receives zero signal here, since every trajectory visits the identical state sequence, so a state-only value necessarily lands in case (i); and advantage weights built from observed per-step costs have the fixed ratio $W = e^{1/\beta}$, which case (ii) defeats at long horizons, the deployed clip of 20 included. The two operator classes thus pay different prices. Reweighting needs a weight range growing with the horizon, while selection needs a safe trajectory to exist, at expected count $N p^{T}$ under per-step-independent behavior. The benchmarks supply safe trajectories at 9 to 46 percent of each pool precisely because real behavior is correlated across steps rather than independent, and that correlation is what whole-trajectory selection preserves and per-transition reweighting fragments. The corridor isolates the operator's structural limitation; the benchmark-scale claim continues to rest on the empirical sweep, since real states partially record consequences. Figure~\ref{fig:corridor} simulates the construction with a benchmark-like behavior mixture (20 percent all-safe expert trajectories, per-step-independent otherwise): unweighted cloning collapses immediately, the deployed clip of 20 collapses by the benchmarks' horizon of 1000, a clip of 400 is already bending, and selection holds at one throughout because the expert subset always exists, with theory (dashed) matching simulation (markers).
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.6\linewidth]{figures/corridor.pdf}
+\end{center}
+\caption{The corridor construction, simulated ($p = 0.7$, expert mass $0.2$, $N = 10^4$, 50 replicates): all-safe probability of the cloned policy against horizon for per-transition operators at three weight clips and for trajectory selection; dashed lines are Proposition~\ref{prop:corridor}'s closed forms.}
+\label{fig:corridor}
+\end{figure}
+
+\section{Full extraction sweep}
+\label{app:extraction}
+
+
+The full oracle-value ablation appears in the main text (Table~\ref{tab:oracle}). One cell has an oracle improving on the learned value: on Swimmer the per-step oracle extracts a cost-safe policy (19 against the learned value's 61). The improvement requires the dense ground-truth per-step cost, which is unavailable under preference supervision, and Swimmer is the task no configuration in the study solves from preferences, so the exception sharpens the supervision boundary without touching the operator-class reading on the six diagnostic tasks. Table~\ref{tab:extraction} reports the per-transition operator sweep on the nine analysis tasks (three seeds; the exp/$k{=}1$ reference appears in Table~\ref{tab:oracle}). Columns: rank and binary weight transforms; counterfactual scoring with the learned value (per-state-normalized softmax); and the action-conditioned oracle, a value distilled from full ground-truth cost-to-go and scored counterfactually through the dynamics ensemble. On the failing navigation tasks (CarGoal2, PointGoal1, PointGoal2), no weight transform escapes the cost plateau; only the action-conditioned oracle, which consumes dense cost labels unavailable under preference supervision, reaches safety there, at severe reward cost. On the velocity tasks the transforms trade reward for cost without dominating the exponential reference, and on CarGoal1, the one navigation task where per-transition extraction is cost-safe throughout, the weighted variants attain somewhat higher reward at two to three times the selection route's cost.
+
+\paragraph{Matched-supervision disagreement control.} To separate the Bradley-Terry null space from ordinary seed variance, we compute the same cross-seed advantage statistics for cost-to-go ensembles trained with dense per-step supervision (three seeds, identical architecture, 5000 fixed transitions per task). Disagreement is not specific to preference training. On seven of the nine analysis tasks the supervised ensembles agree less by advantage rank correlation than the preference ensembles on the same samples, and top-one-percent overlaps are similar in range. The null-space argument still explains why preference training cannot identify per-transition values; the control shows that dense supervision does not identify them either at these sample sizes, so the granular scale is unreliable under both supervisions, which is the fact the design responds to. The identification deficit is quantifiable. The 1000 training pairs constrain 1.4 to 4.2 percent of each pool's states, with segment overlap below half a percent, so roughly 97 percent of visited states receive no direct constraint and, within the covered states, each appears in about one segment sum; the score's behavior everywhere else is generalization, which is exactly what the oracle comparison of Section~\ref{sec:analysis} finds to be the essential signal.
+
+\begin{table}[h]
+\caption{Extraction operator sweep on the nine analysis tasks (three seeds, mean $\pm$ 95\% CI; bold marks mean cost within budget). The oracle substitutions and the exponential reference appear in Table~\ref{tab:oracle}.}
+\label{tab:extraction}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{Rank} & \multicolumn{2}{c}{Binary} & \multicolumn{2}{c}{CF (learned)} & \multicolumn{2}{c}{CF (AC oracle)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/extraction.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+\section{Value diagnostics: anticipation, traces, and the safety landscape}
+\label{app:landscape}
+Figure~\ref{fig:interp} reports the two temporal diagnostics behind the inspection paragraph of Section~\ref{sec:analysis}. Binned by steps until the next violation, the ensemble mean falls by two to four within-task standard deviations between the most distant bin and imminent violation on all nine tasks; individual bins reverse by up to 0.9 standard deviations, so the signal is a graded early warning rather than a strictly ordered countdown. In the single-trajectory trace, per-state values swing across several units while their rolling mean moves stably through the episode's cost-event bands, which is Observation~\ref{obs:granularity} at the resolution of one episode. The same network is noisy per state and reliable in aggregate.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.98\linewidth]{figures/interpretability.pdf}
+\end{center}
+\caption{Left: $\Vbar$ declines as violations approach (per-task z-scores). Right: per-state values along one unsafe trajectory (episodic cost 40, budget 20) are noisy while their rolling mean is stable.}
+\label{fig:interp}
+\end{figure}
+
+Figure~\ref{fig:landscape-layouts} renders the learned value over the workspace on three independently sampled PointGoal1 layouts with the same value network (100 rollouts per layout; BC-All and BC-Safe policies with action-noise episodes for coverage). The low-value basin tracks the hazard field in each layout, with cell-level Spearman correlations of 0.68, 0.67, and 0.53 between binned $\Vbar$ and distance to the nearest hazard; state-level correlations (0.48, 0.48, 0.35) are lower because per-state values also encode speed and heading, variance that spatial binning averages out. Two secondary structures are visible. Hazard clusters produce deeper basins than isolated hazards, which the behavior data rarely visits. And in the second layout the goal itself lies inside the hazard field, since reaching it requires transiting low-value states, the geometric signature of tasks where any safety filter must either sacrifice reward or refuse.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.98\linewidth]{figures/landscape_pointgoal1_layouts.pdf}
+\end{center}
+\caption{Safety landscape on three independently sampled PointGoal1 layouts (reset seeds 7, 11, 23), same value network (dashed circles: ground-truth hazards; G: goal; gray: unvisited). Right: radial profiles of $\Vbar$ against distance to the nearest hazard, with cell-level correlations.}
+\label{fig:landscape-layouts}
+\end{figure}
+
+
+\section{External baselines and labeling cost}
+\label{app:baselines}
+
+\begin{table}[t]
+\caption{Normalized cost ($C_n = C/\text{budget}$; safe when $C_n \le 1$, bold) across all methods in the study, for at-a-glance comparison in the benchmark's standard units; rewards and intervals appear in Table~\ref{tab:main} and Appendix~\ref{app:baselines}.}
+\label{tab:normcost}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rrrrr rrr r}
+\toprule
+Task & BC-All & BC-Safe & Safe-Seg & V-filter & Calib. & CDT & CPQ & COpt. & CPL \\
+\midrule
+\tabinput{data/tables/normalized_main.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+Table~\ref{tab:baselines} reports the full-label baselines and CPL per task; Figure~\ref{fig:pareto} summarizes the study by supervision consumed against tasks kept within budget. Two details support the main-text reading. CDT's navigation costs run from roughly 1.5 times budget on the Goal tasks to nearly 5 times on the Button tasks, and Appendix~\ref{app:cdtsweep} shows they stay there at every conditioning target. CPQ's safety is largely degenerate, pairing near-zero cost with collapsed reward on three of its four safe cells (Walker2d, Ant, Swimmer); PointGoal1 is its one safe cell with intact reward. COptiDICE's two safe cells, HalfCheetah and CarGoal1, give up 23 to 36 percent of BC-All's reward. In the figure, full-label methods are placed at their best configuration, CDT at the most conservative target of its sweep; none exceeds the calibrated filter's eleven safe tasks, CDT reaching seven of fifteen. BC-Safe-Seg, which clones the ground-truth-safe \emph{segments} rather than trajectories, is safe on two of fifteen despite full labels. Selection at segment scale fragments the multi-step avoidance behaviors that carry safety, a selection-level counterpart of the granularity principle at the scale between per-transition reweighting and whole-trajectory selection. Table~\ref{tab:normcost} gives the normalized-cost comparison across all methods; normalized reward $R_n$ uses dataset return extrema and is recoverable from the raw values reported here.
+
+
+
+\begin{table}[h]
+\caption{External baselines: full-label offline safe RL trained in-codebase (three seeds; CDT at cost target 20, with its full target sweep in Appendix~\ref{app:cdtsweep}), CPL on our exact preference data, and BC-Safe-Seg, the segment-level full-label clone (five seeds). Bold cost cells are within budget.}
+\label{tab:baselines}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rr rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{CDT} & \multicolumn{2}{c}{CPQ} & \multicolumn{2}{c}{COptiDICE} & \multicolumn{2}{c}{CPL} & \multicolumn{2}{c}{BC-Safe-Seg} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/baselines.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.62\linewidth]{figures/pareto.pdf}
+\end{center}
+\caption{Labeling cost against safety coverage. Each method is placed by the fraction of trajectories whose cost labels it consumes (ours: the 200-trajectory calibration sample, 5 to 22 percent per task; full-label methods: all of them) and the number of the fifteen tasks it keeps within budget. CPL and our method additionally consume the identical 1000 preference pairs per task; BC-All uses no supervision. Reward comparisons appear in Tables~\ref{tab:main} and~\ref{tab:baselines}; on the tasks whose safe subsets are reward-rich, CDT retains a reward advantage at equal safety. The calibrated filter is the only method in the study that also reports a certificate or an explicit refusal.}
+\label{fig:pareto}
+\end{figure}
+
+\section{Extended ablation discussions}
+\label{app:extended}
+This appendix carries the selection-signal control table, the full versions of the ablation discussions summarized in Section~\ref{sec:ablations}, and per-cell detail for the gated variant of Section~\ref{sec:results}.
+
+\paragraph{Selection-signal controls.} Table~\ref{tab:controls} reports both matched-size controls in full. Return selection buys reward on all fifteen tasks and pays for it with higher cost than random selection on thirteen of the fifteen, so ranking by return is not merely uninformative about safety but anti-aligned with it in these datasets; random selection's cost, by contrast, tracks each pool's base contamination and reads as a no-information reference for the selection operator. Table~\ref{tab:scorecorr} reports the score's Spearman correlations with episodic cost and return per task, and the cost-return correlation that makes some anti-alignment with return unavoidable on the navigation tasks. The V-filter's second fraction completes a small sweep over selection size: at a fixed top 25 percent it is safe on ten of fifteen, close to the estimated fraction everywhere except Hopper, whose ground-truth safe pool is 11 percent of its dataset, so a 25 percent selection necessarily dilutes it (cost 66 against 18 at the matched size). Safety tracks whether the fraction stays within the task's safe mass, which is exactly the quantity the calibrated threshold adapts to per task. The bottom-return column is the sharpest of the three controls. Its selected data is genuinely low-cost (on HalfCheetah, kept-set mean trajectory cost 39.9 against the pool's 115.4), yet its clone runs at cost 109: low-return trajectories are behaviorally incoherent, and cloning them reproduces neither their returns nor their costs, a second demonstration that training-set composition alone does not determine policy safety. Where bottom-return is safe, it is safe by collapse (Swimmer, reward 4 at cost 1) or with thinner margins than the value filter at the same selection size (PointGoal1 cost 20.1 against 9.3), and it breaks on PointGoal2 (44.1) where the value filter is safe at 18.5. On PointCircle1, where cost and return are nearly collinear ($+0.89$), the score itself approaches an anti-ranking of return ($-0.97$) and anti-return selection is accordingly safe there; the velocity tasks are where the two signals separate.
+
+\begin{table}[h]
+\caption{Spearman correlations of the trajectory score $g$ with episodic cost and episodic return (mean over V-ensemble seeds), and between cost and return, per task.}
+\label{tab:scorecorr}
+\begin{center}
+\small
+\begin{tabular}{l rrr}
+\toprule
+Task & $\rho(g, \text{cost})$ & $\rho(g, \text{return})$ & $\rho(\text{cost}, \text{return})$ \\
+\midrule
+\tabinput{data/tables/score_corr.tex}
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[h]
+\caption{Selection-signal controls at matched selection sizes (five seeds, mean $\pm$ 95\% CI; bold marks mean cost within budget). Ranking by return, the percentile-BC analogue, is unsafe on every task; random selection is unsafe on fourteen of fifteen; bottom-return selection is safe on eight of fifteen and catastrophically unsafe on the velocity tasks. The safety value is doing the work.}
+\label{tab:controls}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{Random selection} & \multicolumn{2}{c}{Return selection} & \multicolumn{2}{c}{Bottom-return} & \multicolumn{2}{c}{V-score (ours)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/controls.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+\paragraph{Gated reward-aware variant: per-cell detail.} On the three certified tasks the gated sub-selection keeps cost within budget in every cell: HalfCheetah 8 to 0, CarGoal1 6.4 to 6.5, and PointGoal1 5.9 to 7.1, the latter two within confidence intervals, with reward held within confidence intervals throughout. Ungated, the identical top-half sub-selection applied to Hopper's contaminated selection multiplies mean cost to 148, reaching 487 on one seed; the certificate's refusal is what prevents this, the decision-signal role of Section~\ref{sec:gating} in action.
+
+\paragraph{Pipeline sanity and the action-conditioned oracle.} Two further controls close the analysis. Feeding oracle reward-to-go through the identical extraction machinery, a single-task control on HalfCheetah over three seeds, raises reward above behavior cloning on every seed while cost explodes, confirming the pipeline transmits whatever signal the value carries; its gentleness, a few percent of movement, is the compositional mechanism of Obstacle 1. And granting the per-transition route everything it lacks at once, an action-conditioned, long-horizon, generalizing value distilled from full ground-truth cost labels, scored counterfactually through the dynamics ensemble, does reach safety (PointGoal1 cost $14.7$, CarGoal2 cost $8.1$, PointGoal2 cost $15.5$ on average) at severe reward cost (on PointGoal2, reward $1.4$ against the selection route's $6.6$); this delineates the missing ingredients precisely, and each is unavailable under preference supervision.
+
+
+\paragraph{Action-conditioned value.} Replacing $V(s)$ with $Q(s, a)$ trained by the identical Bradley-Terry segment-sum loss, changing only the input to the concatenation of state and action, leaves four of five representative tasks unchanged (HalfCheetah, PointGoal1, PointGoal2, CarButton1: safe, comparable reward). On Hopper, the task with the scarcest safe fraction, $Q$ exceeds the budget on two of three seeds (costs 35.8, 37.2, 14.2; mean 29.1) where $V$ is safe at $18 \pm 7$ over five seeds; given Hopper's seed variance this is suggestive rather than conclusive, but the direction is consistent with the mechanism we would expect, since conditioning on actions ties the score to the behavior policy's action choices at exactly the states where selection is hardest. Action-conditioning also costs the properties that the state-only value provides elsewhere in the paper. The safety landscape and constraint-saliency analyses of Section~\ref{sec:analysis} read $V$ directly as a function of the state, while $Q$ admits no such reading without first marginalizing over actions under some policy. And although $V$ is shaped by the behavior distribution it was trained on, it does not condition on actions, so the same scorer applies to any trajectory regardless of which policy produced it, whereas $Q$'s scores are meaningful only on the support of the behavior policy's actions.
+
+
+\paragraph{Segment length.} Rerunning the entire pipeline at $H \in \{10, 50\}$ on the nine analysis tasks (re-segmentation, preference regeneration, value ensembles, calibrated filter, three seeds each) leaves the deployed filter's safe count unchanged at 7 of 9 for every $H$, with the identical failures (Hopper, Swimmer). Certification is the more sensitive quantity, but three seeds estimate it far too coarsely to compare arms, so we resample $2000$ calibration draws per task and seed and report rates. Mean certification rate declines monotonically as segments shorten, $0.204$ at $H = 50$, $0.157$ at $H = 30$, and $0.102$ at $H = 10$, tracking the mean purity margin over the same arms ($-0.002$, $-0.015$, $-0.072$). This is a decline rather than a collapse, and it is worth stating that the realized three-seed counts suggest otherwise: PointGoal1 happened to certify on none of its three $H = 10$ seeds despite a true rate of $0.69$, which is the kind of artifact a seed count produces and a resampled rate does not. Across all $27$ task-length cells the margin predicts the rate almost exactly (Spearman $0.988$, $p < 10^{-20}$), an independent replication of the law of Section~\ref{sec:guarantee-validation} under a design change rather than across tasks: cells with negative margin certify at mean rate $0.015$ and never above $0.057$, while positive-margin cells average $0.284$. The guarantee holds in every arm, with worst unconditional false-certification $0.044$, $0.057$, and $0.054$ against $\delta = 0.1$. Segment length is therefore not a load-bearing choice for whether the resulting policy is safe, and it moves certification only through the purity it leaves attainable.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.98\linewidth]{figures/alpha_curve.pdf}
+\end{center}
+\caption{The certification operating curve on both suites. Certification rate against the guarantee level $\alpha$ ($n = 200$; resampled calibration draws; mean over V-ensemble seeds). Rates rise with $\alpha$ in the order of each pool's safe mass; tasks whose selections cannot meet a level certify at rate zero there.}
+\label{fig:alphacurve}
+\end{figure}
+
+
+\paragraph{Conditional false-certification.} Table~\ref{tab:condviol} reports, per task at $n = 200$ and $\alpha = 0.25$ from the 2000-draw resample, the certification rate, the unconditional false-certification rate the theorem bounds, and the conditional violation rate a certificate-holder faces. The unconditional rate is below $\delta$ everywhere; the conditional rate is governed by the certification rate and ranges from $0.07$ (PointGoal1) to near one on tasks certifying in under five percent of draws, where the handful of certificates that do fire are disproportionately the optimistic draws. The practical reading is in Section~\ref{sec:guarantee-validation}. Certification rate is itself a trust signal.
+
+\begin{table}[h]
+\caption{Certification rate, unconditional false-certification, and conditional violation rate at $n = 200$, $\alpha = 0.25$ (2000 draws per seed, seed means; final column: certified draws pooled over seeds).}
+\label{tab:condviol}
+\begin{center}
+\small
+\begin{tabular}{l rrrr}
+\toprule
+Task & cert.\ rate & $\Pr[\text{cert} \wedge \text{viol}]$ & $\Pr[\text{viol} \mid \text{cert}]$ & certified draws \\
+\midrule
+\tabinput{data/tables/cond_viol.tex}
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\paragraph{Multiple-testing procedures over the grid.} Fixed-sequence testing could in principle be beaten by procedures that reach deep thresholds without passing shallow ones. On the archived scores (2000 draws per cell), Bonferroni and Holm at level $\delta$ over the twelve-point grid certify far less everywhere, PointGoal1 at $0.54$ against fixed-sequence's $0.86$ and near zero elsewhere, with validity intact for all three. The $\delta/J$ penalty costs more than deep-threshold access returns at $n = 200$. Certification yield is limited by per-test power at this calibration size, not by the choice of procedure, and the deployed fixed-sequence walk is the power-optimal option among those tested.
+
+\paragraph{Label complexity of certification.} Table~\ref{tab:labelcomplexity} reports the calibration budget at which each task first certifies in half of draws, obtained by extending the resampling sweep to $n \in \{800, 1600, 3200\}$ on the tasks with positive purity margin. Regressing the crossing point on the margin gives $\log n_{50} = -1.57 \log(\text{margin}) + 1.72$ with $R^2 = 0.996$. Two tasks with small positive margins (Swimmer at $0.031$, Walker2d at $0.014$) do not reach half certification even at $n = 3200$, consistent with the fit's prediction of budgets in the thousands; every task with a non-positive margin certifies at essentially zero for every budget, as Proposition~\ref{prop:dichotomy} requires.
+
+\begin{table}[h]
+\caption{Calibration budget $n_{50}$ at which certification reaches half of draws, against the purity margin (nine analysis tasks and five transfer tasks; resampling at $n$ up to $3200$).}
+\label{tab:labelcomplexity}
+\begin{center}
+\small
+\begin{tabular}{l rr}
+\toprule
+Task & purity margin & $n_{50}$ \\
+\midrule
+CarRun & $0.209$ & $64$ \\
+PointGoal1 & $0.127$ & $140$ \\
+CarGoal1 & $0.061$ & $460$ \\
+DroneRun & $0.046$ & $728$ \\
+CarGoal2 & $0.037$ & $1064$ \\
+HalfCheetah & $0.032$ & $1078$ \\
+Swimmer & $0.031$ & $> 3200$ \\
+Walker2d & $0.014$ & $> 3200$ \\
+\midrule
+six tasks with margin $\le 0$ & $-0.011$ to $-0.380$ & never \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\paragraph{A two-tier fallback, tried and rejected.} The originally deployed fallback, a fixed top-20-percent fraction, was the pipeline's one arbitrary constant, and we evaluated two principled replacements. The first, reported here, reruns the identical fixed-sequence test at even-odds evidence ($\delta = 0.5$) and take the deepest passing threshold. On eight fallback-bound and control tasks the variant does not dominate. It converts Swimmer (26.2 to 9.3) and improves BallCircle, but leaves Hopper and CarCircle unsafe, worsens PointButton2 and PointCircle2, and breaks DroneRun (2.1 to 17.6), because the even-odds walk selects deep exactly where the calibration estimate is optimistically noisy. The strict evidence standard is load-bearing, and the principled way to relax the procedure is the $\alpha$ lever, which keeps a certificate, rather than the evidence standard, which keeps none. The fixed fraction itself was later replaced by the calibration-estimated safe-mass fraction (Section~\ref{sec:experiments}), which repairs the failures caused by the arbitrary constant without touching the evidence standard.
+
+\paragraph{Preference noise and budget.} Flipping preference labels degrades the pipeline gracefully and never breaks the certificate. Across noise levels up to 30 percent and budgets down to 100 pairs, the worst false-certification rate remains at $\delta$, because validity flows from the clean calibration sample rather than from score quality. Filter precision is nearly flat under noise on the navigation tasks and degrades mildly on velocity tasks at the highest levels; 100 preference pairs already match the full budget within a few points of precision on every analysis task. One effect deserves note: on Walker2d, mild label noise \emph{improves} the score (precision $0.77$ to $0.86$, certification rate $0.01$ to $0.76$ at five percent noise), acting as a regularizer on precisely the score tail whose pathology the threshold grid works around; the guarantee holds throughout. A Boltzmann labeler, which errs preferentially on borderline pairs ($P(\text{prefer safer}) = \sigma(\text{cost gap}/T)$, $T = 3$, realized error rates 5 to 6 percent), leaves navigation-task precision unchanged within $\pm 0.01$ and degrades velocity tasks mildly (at worst $-0.20$ on Swimmer), again without a single false certification: structured, boundary-concentrated labeler error behaves no worse for the certificate than uniform flips.
+
+\paragraph{Mean-cost certificate.} The same machinery certifies a budget-native risk directly, by replacing the unsafe-fraction risk with the mean episodic cost of the selection (Hoeffding-without-replacement p-values, target, namely selection mean cost at or below the budget) yields a strictly more conservative variant that certifies only on PointGoal1 (25 to 31 percent of draws at $n = 200$) and records zero false certifications anywhere. The unsafe-fraction form remains the practical operating certificate; the mean-cost form documents that the framework extends to CMDP-native risks without modification. It also admits a loose bridge to policy cost: writing $\pi_S$ for the behavior policy of the selection and $\epsilon$ for the cloning error in average total variation, standard imitation arguments give $J_c(\pi) \le J_c(\pi_S) + 2T^2 c_{\max}\, \epsilon$, and $J_c(\pi_S)$ concentrates around the selection mean cost that this certificate bounds. The $T^2$ compounding makes the bound far too loose to certify in practice, but it separates the remaining gap into exactly two quantities. The certified selection mean and the cloning error.
+
+\paragraph{Labels-only filtering.} The calibration sample itself could train a filter instead of auditing one. This control trains a supervised state-level safety classifier on only the $n$ labeled trajectories, using the same architecture, trajectory scoring rule, and matched selection fractions as the preference route, and clones its selection. Across label budgets $n \in \{50, 100, 200, 400\}$ it is safe on 11, 12, 11, and 13 of fifteen tasks, competitive on average, and evidence that filter-then-clone, not the preference machinery alone, carries much of the safety on this benchmark. Two properties separate the routes. First, which tasks come out safe under labels-only depends on the label draw. Its safe-task set overlaps across independent draws at a mean Jaccard of 0.78, dropping to 0.61 at $n = 100$, with Swimmer's cost ranging from 21 to 174 across budgets, Hopper safe only at $n = 400$, and PointButton2 and PointCircle2 alternating without pattern. The variation is attributable to the draw rather than the learner, retrained with three initializations on one fixed draw, the labels-only safe-task set overlaps at 0.95, above the preference route's 0.85 across value-ensemble seeds, so safe-set stability is not an advantage of the preference route. What the draw sensitivity does mark is that the labels-only deliverable depends on which $n$ trajectories were labeled, and a practitioner holding one draw cannot tell which tasks failed; the preference route's score does not consume the labels at all. Second, at every budget the labels-only route consumes its labels in training, so no valid certificate or refusal can be issued from the same sample; matching our deliverable would require a second labeled sample of equal size. The preference route separates the two supervision roles by construction. Preferences carry the scoring, and the labels remain held out to certify or refuse. Splitting the label budget between the two roles completes the comparison, with our exact total budget divided 100 for training and 100 for calibration, the labels-only route certifies at a rate comparable to ours (9 against 11 percent of seed-runs) and is equally safe, and at double the budget it certifies more often (24 percent) and again matches on safety. The certifications concentrate on disjoint task sets, ours on HalfCheetah, CarGoal1, and PointGoal1 and the split's on Walker2d and PointCircle1, so the two scorers are complementary rather than redundant. Each concentrates certifiable purity where the other's score has a weak tail. At matched label budget, preferences therefore buy neither additional safety nor additional certification on this benchmark; their measured advantage is the graded selection on Hopper and, above all, the weaker supervisor they assume. The two routes are not distinguished by how much supervision they consume, which is comparable, but by what kind. Labels-only presumes a cost function that can be evaluated to a number on demand; the preference route presumes only that two clips can be ordered and that an episode can occasionally be judged over budget. Which route is available is a property of the application, not of the budget. Appendix~\ref{app:labelsonly} reports the full sweep.
+
+\paragraph{Why labels-only works.} An episodic label is not one bit. It weakly labels every state of a thousand-step trajectory, so 200 trajectory labels yield roughly 200{,}000 labeled states. A subsampling test shows this multiplication is not the mechanism. Shrinking the states seen per labeled trajectory a hundredfold, to roughly 2{,}000 states in total, degrades selection purity only from 0.29 to 0.35 kept-unsafe and leaves the safe-task count essentially unchanged (13 and 10 of fifteen at tenfold and hundredfold reduction, against 11 at full). Labels-only is strong because trajectory-level safety in these environments is carried by low-dimensional, strongly separable state features, the same structure the saliency and landscape analyses of Section~\ref{sec:analysis} identify. This answers the paper's opening question in its sharpest form. Safety in these tasks is decodable from state alone, easily enough that the discriminating questions are not whether a scorer can be learned but whether its selections can be certified and how little supervision, of what kind, the certification requires.
+
+\section{Labels-only control across label budgets}
+\label{app:labelsonly}
+Table~\ref{tab:labelsonly} reports the labels-only filtering control of Section~\ref{sec:ablations} at every label budget (three seeds per cell; the classifier, scoring rule, and matched selection fractions are identical to the preference route). Safe-task counts are stable in aggregate while the membership of the safe set shifts across budgets, which is the instability the main text describes. In the split variants the certified population is the dataset minus the classifier's training trajectories, over which the calibration half is exactly a uniform without-replacement sample, so Proposition~\ref{prop:guarantee} applies unchanged; training trajectories that are individually labeled safe are then added to the cloned selection, which can only lower its unsafe fraction below the certified level.
+
+\begin{table}[h]
+\caption{Labels-only filtering control across calibration budgets $n$ (three seeds, mean $\pm$ 95\% CI; bold marks mean cost within budget).}
+\label{tab:labelsonly}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{$n = 50$} & \multicolumn{2}{c}{$n = 100$} & \multicolumn{2}{c}{$n = 200$} & \multicolumn{2}{c}{$n = 400$} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/labelsonly.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+\section{Composability at the looser certified level}
+\label{app:composea40}
+Table~\ref{tab:composea40} reports CDT and behavior cloning retrained on $\alpha = 0.40$ certified selections for the eight tasks that certify at that level (three seeds each; the pipeline's deployed certified selection per task, with the full three-selection grid below; Hopper never certifies), alongside full-data CDT with and without augmentation for reference. BC is safe on all eight; CDT is safe on six and violates on PointGoal1 and PointGoal2, the tasks whose selections carry the largest usable unsafe tails. The no-augmentation control seals the attribution across the table: full-data CDT without augmentation is safe on the velocity tasks but severely unsafe on all four navigation tasks (costs 47 to 109), so wherever certified-selection CDT is safe on navigation, the safety is due to the certified data and not to the disabled augmentation. Against full-data CDT, the $\alpha = 0.40$ selection lowers cost on six of the eight tasks and leaves Walker2d unchanged near zero; the exception is PointGoal1, where the loosely curated pool is worse than no curation at all (41.5 against 36.8), consistent with the selection concentrating high-return marginal violators that return conditioning then exploits. Against the tighter level on the three shared tasks, $\alpha = 0.25$ is safer for CDT on both navigation tasks (costs 5.5 and 10.5 against 15.2 and 41.5) and equivalent on HalfCheetah (1.8 against 0.6, both far within budget), which is the dose-response the main text summarizes.
+
+\paragraph{Selection robustness across distinct certified selections.} Independent calibration draws frequently select the identical threshold, with repeated draws coinciding for five of the eight tasks at $\alpha = 0.40$ and two of three at $\alpha = 0.25$, and a 500-draw resample shows the certified threshold concentrating, on Swimmer's top quantile in 85 percent of certified draws. The concentration is itself a deployment-stability property, so the grids below are built on the three most probable \emph{distinct} certified selections per task, ordered by realized contamination $\hat\alpha$ (Table~\ref{tab:a40draws}); the distribution's rare tail contains the certificate's worst outputs, and the grids deliberately include them. At $\alpha = 0.25$, all nine distinct selections across the three tasks are CDT-safe, 27 of 27 runs, including three out-of-specification selections (HalfCheetah at realized $0.287$ and $0.351$, costs $0.03$ and $0.77$; CarGoal1 at $0.266$, cost $5.93$), with per-task mean costs spanning at most $5.2$. At $\alpha = 0.40$ both learners degrade with realized contamination, at very different thresholds. CDT violates on every navigation task on at least one selection, CarGoal1 moving safe, borderline, unsafe as contamination rises ($0.187$, $0.353$, $0.375$). Behavior cloning is safe on 22 of 24 task-selections; its two failures are Swimmer's tail selections at realized $0.382$ and $0.462$, the latter above even the certified level, so the averaging learner's tolerance has a measured boundary rather than being unbounded, and on the $0.382$ selection the roles reverse, CDT safe at $18.3$ while BC violates at $23.6$. One exception is honest to note: on PointGoal2, CDT's cost falls as its selections grow and their contamination rises ($26.5$, $17.3$, $13.4$ at contamination $0.269$, $0.335$, $0.382$), so selection size interacts with composition and the contamination reading is a strong tendency, not a law. The composite picture stands. At the tight level realized composition is pinned and every distinct selection composes, while at the loose level the certified band is wide enough that consumer safety depends on which selection the certificate outputs.
+
+\begin{table}[h]
+\caption{Distinct-selection grid at $\alpha = 0.40$: the three most probable distinct certified selections per task, ordered by increasing realized contamination $\hat\alpha$, with CDT and BC mean cost on the identical selection (three seeds each; bold marks mean cost within budget). The pipeline's deployed selection per task, whose position in the ordering varies, is the one reported in Table~\ref{tab:composea40}.}
+\label{tab:a40draws}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l rrr rrr rrr}
+\toprule
+& \multicolumn{3}{c}{selection 1} & \multicolumn{3}{c}{selection 2} & \multicolumn{3}{c}{selection 3} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+Task & $\hat\alpha$ & CDT & BC & $\hat\alpha$ & CDT & BC & $\hat\alpha$ & CDT & BC \\
+\midrule
+\tabinput{data/tables/a40_draws.tex}
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[h]
+\caption{Composability at $\alpha = 0.40$ (three seeds, mean $\pm$ 95\% CI; bold marks mean cost within budget).}
+\label{tab:composea40}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{CDT (full data)} & \multicolumn{2}{c}{CDT (full, no aug.)} & \multicolumn{2}{c}{CDT ($\alpha = 0.40$ cert.)} & \multicolumn{2}{c}{BC ($\alpha = 0.40$ cert.)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/compose_a40.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+\paragraph{The composition-to-cost mapping, measured.} Figure~\ref{fig:contamcost} plots clone cost over budget against realized contamination for 235 archived selection-clone pairs spanning certified selections, ground-truth and control selections, and both V-filter fractions across the fifteen main tasks. Task-demeaned, contamination alone explains $R^2 = 0.38$ of clone cost, so the mapping the paper calls empirically favorable is a measured, monotone tendency rather than an assertion; the remaining variance is carried partly by the selection's score margin (adding margin statistics raises $R^2$ to $0.50$) and partly by learner effects the composability grids characterize.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.6\linewidth]{figures/contam_cost.pdf}
+\end{center}
+\caption{Clone cost against realized selection contamination $\hat\alpha$, 235 selection-clone pairs over fifteen tasks (colors: tasks; dashed line: budget; symlog cost axis).}
+\label{fig:contamcost}
+\end{figure}
+
+\paragraph{The return-weighted operator across intensities.} Table~\ref{tab:operator} reports certified return-weighted cloning (Section~\ref{sec:gating}) on the same distinct $\alpha = 0.25$ selections, at clips $\kappa \in \{1, 2, 3\}$ and the hard top-half rule, plus the CarRun certified selection from the transfer suite. The grid substantiates the two claims made in Section~\ref{sec:results}. Every within-specification cell is safe at every intensity, with reward on HalfCheetah rising in the return-seeking intensity, and the single selection whose realized contamination substantially exceeds the certified level ($0.351$) is safe only at $c = 1$, with the stronger settings mining the contaminated return tail exactly as the gating rationale predicts. The milder out-of-specification selections ($0.266$, $0.287$) remain safe in every arm, so the failure requires both a contaminated selection and an aggressive intensity; the certificate removes the first factor and thereby makes the second free to tune.
+
+\begin{table}[h]
+\caption{Certified return-weighted cloning across intensities on the distinct $\alpha = 0.25$ certified selections and the CarRun echo selection (three seeds, mean $\pm$ 95\% CI; bold marks mean cost within budget; $\hat\alpha$ is the selection's realized contamination).}
+\label{tab:operator}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c rr rr rr rr}
+\toprule
+& & \multicolumn{2}{c}{$c = 1$} & \multicolumn{2}{c}{$c = 2$} & \multicolumn{2}{c}{$c = 3$} & \multicolumn{2}{c}{Top half} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
+Task & $\hat\alpha$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/operator_grid.tex}
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+\section{CDT cost-target sweep}
+\label{app:cdtsweep}
+CDT conditions on a target cost at deployment, so reporting it at a single target risks understating it. We retrain CDT on full data at each task's budget (three seeds, identical protocol) and evaluate every checkpoint across cost targets down to a fifth of the budget, 100 episodes per cell (Tables~\ref{tab:cdttargets} and~\ref{tab:cdttargetsb}).
+
+The sweep separates two regimes. Where the pool admits it, conditioning below budget delivers real safety at high reward. All five velocity tasks, both Circle tasks, and, at target 2, all five BulletSafetyGym tasks, in each case with reward above every filter in the study. Where safety requires selectivity, the knob does not work at all: on the eight Goal and Button tasks CDT violates at every target, and realized cost is nearly flat in the target, moving from $40.9$ to $37.8$ on CarGoal1 and sitting near $100$ on PointButton1 across the whole range against budget 25. Figure~\ref{fig:paretotargets} shows the two families side by side. The entire CDT curve lies right of the budget on the Goal tasks, whichever target is chosen, while our $\alpha$ sweep traverses a frontier left of it. The gap between a conditioning target and realized cost is itself the diagnosis: CDT fits a return-cost frontier that these datasets do not contain, so asking for a lower cost cannot produce trajectories the data never demonstrated. This is the same reading the granularity analysis gives from the other direction, and it is why retraining CDT on a certified selection succeeds on exactly the tasks where its own conditioning fails (Section~\ref{sec:results}).
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.98\linewidth]{figures/pareto_targets.pdf}
+\end{center}
+\caption{Reward against cost over budget on the nine analysis tasks (dashed line: the budget). Blue: CDT on full data across its cost-target sweep, one point per target (values in Table~\ref{tab:cdttargets}). Orange: our calibrated filter across $\alpha \in \{0.10, 0.25, 0.40\}$, tighter $\alpha$ moving down-left. Teal: the V-filter at the calibration-estimated fraction. Green: BC-Safe with full labels. On the Goal tasks the entire CDT curve sits right of the budget line, so no target choice reaches the constraint, while the $\alpha$ sweep traverses a genuine frontier left of it, at or inside BC-Safe's cost on every navigation task.}
+\label{fig:paretotargets}
+\end{figure}
+
+\begin{table}[h]
+\caption{CDT on full data across cost targets, fifteen DSRL tasks (reward/cost, three seeds, 100 episodes per cell; bold marks mean cost within the task budget of 20 or 25). The final column is the budget-matched target; velocity tasks have no target 15.}
+\label{tab:cdttargets}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l rrrr}
+\toprule
+Task & target 5 & target 10 & target 15 & target = budget \\
+\midrule
+\tabinput{data/tables/cdt_targets.tex}
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[h]
+\caption{CDT on full data across cost targets, five BulletSafetyGym tasks (reward/cost, three seeds; bold marks mean cost within budget 10).}
+\label{tab:cdttargetsb}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l rrr}
+\toprule
+Task & target 2 & target 5 & target 10 \\
+\midrule
+\tabinput{data/tables/cdt_targets_bullet.tex}
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Transfer to BulletSafetyGym}
+\label{app:bullet}
+Table~\ref{tab:bullet} reports the pipeline on five BulletSafetyGym tasks (BallRun, BallCircle, CarCircle, CarRun, DroneRun; 651 to 1990 trajectories; episode lengths 100 to 300; DroneRun is the one dataset in the study with true terminal states) at budget 10, the strictest of the DSRL protocol's three evaluation thresholds (10, 20, 40), with every hyperparameter unchanged from the main study and no per-task tuning. The slice is hard: ground-truth safe fractions are 9.0, 9.7, 11.4, 46.2, and 28.0 percent, and the 200 calibration labels are 10 to 31 percent of these smaller pools, extending the main study's 5-to-22-percent range. Short episodes are a different regime rather than a harder one for segment supervision, since a length-30 segment covers up to 30 percent of an episode; episode lengths are fixed except on DroneRun, where the score is essentially uncorrelated with length ($\rho = 0.13$). The score transfers. Its Spearman correlation with episodic cost is $-0.81$ to $-0.94$ on every task, and it is doing the work. Random selection at the identical matched fractions is unsafe on four of five tasks (costs 32 to 79), safe only on CarRun's 46-percent-safe pool. The strongest full-label baseline behaves differently here than on the main suite: full-data CDT at the budget-matched target 10 is unsafe on four of five tasks (costs 11.1 to 14.5), but conditioning its target down to 2 makes it safe on all five (costs 0.1 to 9.4) at reward far above every filter (Appendix~\ref{app:cdtsweep}). Unlike the Goal and Button tasks, where the same sweep leaves cost flat and far above budget, these pools are conditioning-tractable, so the transfer suite tests the pipeline's portability rather than exhibiting a baseline failure. Cloning everything is unsafe on three of five tasks (costs 32 to 61); the calibrated procedure satisfies the budget on all five, one of them (DroneRun) by a reward collapse shared by every filter on that pool, and the estimated-fraction V-filter on four of five (DroneRun, 17.2). Certification concentrates where safe mass supports it: CarRun certifies on five of five seeds and every other task refuses on every seed, with the 2000-draw validation holding in every cell (worst unconditional false-certification rate $0.06$, 95 percent Clopper-Pearson $0.050$ to $0.071$). The operating curve transfers as well (Figure~\ref{fig:alphacurve}): resampling the calibration at looser levels, certification rates rise in safe-mass order, DroneRun from $0.14$ at $\alpha = 0.25$ to $0.78$ at $0.40$ and $0.97$ at $0.50$, BallRun from $0.00$ to $0.29$ across the same range, while CarRun certifies always and CarCircle never, so the $\alpha$ lever behaves on the new domain exactly as on the main suite.
+
+Two cells carry the section's real lessons, one a limitation. On DroneRun, cloning everything is already safe (cost 7.8) at high reward (401), and every filter, ours and the full-label one, satisfies the budget but destroys reward. The pipeline has no mechanism for detecting that a pool is within budget and that filtering is unwarranted, a limitation this suite exposes for the first time. Secondarily, full-label BC-Safe additionally violates the budget there (21.5) while both preference-trained filters remain safe, the boundary-inheritance mechanism on a new domain. On CarCircle the original fixed top-20-percent fallback failed (18.3) with the score exonerated ($\rho = -0.91$; the V-filter at the matched 11.4 percent fraction is safe at 5.9), diagnosing the fallback fraction as the sole cause; replacing it with the calibration-estimated safe-mass fraction repairs the cell (6.1), a pre-registered prediction confirmed, and the same rule leaves Hopper's marginal failure unchanged, so the fraction is the CarCircle mechanism and not the Hopper one. The CarCircle repair is now the deployed fallback rule. The DroneRun lesson does not: a pre-registered check ran the certification machinery on the trivial selection $S = \Doff$, in both its composition and mean-cost forms, and it fires nowhere, because DroneRun's pool has mean cost 50.5 against budget 10 and 72 percent unsafe trajectories while its clone is safe by policy averaging. Neither composition-level test can detect that filtering is unwarranted; the detection appears to require a policy-level signal, which is the composition-to-policy gap of Section~\ref{sec:guarantee-validation} in its converse direction.
+
+\paragraph{Composability is regime-dependent.} A pre-registered rule ran the composability echo on CarRun once full-data CDT violated there: on CarRun's certified selection (realized contamination $0.138$, half the pool), behavior cloning is safe at cost $0.14$, but CDT remains unsafe on all three seeds ($11.4$ to $19.6$ against budget 10). Unlike the main suite, where certified selections tamed CDT in all 27 runs, curation does not help here, and the reason is diagnostic: on CarRun even cloning the whole pool is safe (BC-All at cost $0.0$), so CDT's violation is caused by its operator rather than by the data, and curation cannot remove a violation the data did not cause. The certified return-weighted operator completes the diagnosis. On the same certified selection it is safe at all four intensities (reward 560 to 562, cost at most 0.5, Table~\ref{tab:operator}), so return-seeking as such is not what violates on CarRun; extrapolative return conditioning is. Across the four composability cases the pattern is consistent. Certified curation cures the full-label learner exactly where cloning the full pool is itself unsafe (all three main-suite tasks, BC-All costs 34 to 86), and cannot where the pool is benign and the operator alone violates, the boundary the granularity analysis predicts.
+
+\begin{table}[h]
+\caption{BulletSafetyGym transfer at budget 10 (mean $\pm$ 95\% CI where multiple seeds; bold marks mean cost within budget; BC-All deterministic; CDT trained on the full data and evaluated at its most conservative target, 10). CarRun certifies on five of five seeds; every other task refuses on every seed.}
+\label{tab:bullet}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l rr rr rr rr rr}
+\toprule
+& \multicolumn{2}{c}{BC-All} & \multicolumn{2}{c}{BC-Safe} & \multicolumn{2}{c}{V-filter} & \multicolumn{2}{c}{Calibrated} & \multicolumn{2}{c}{CDT} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\midrule
+\tabinput{data/tables/bullet_main.tex}
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Hyperparameters}
+\label{app:hyper}
+Value ensembles: $K = 3$, two-layer MLPs of width 256, 300 epochs, batch 512, Adam $3 \times 10^{-4}$, 1000 preference pairs of length 30 per task. Preference pairs are sampled from parent trajectories in the bottom and top quartiles of episodic cost, and labeled by the two segments' own summed costs, ties skipped. Behavior cloning: 100 epochs, batch 512. Calibration: $\alpha = 0.25$, $\delta = 0.1$, $n = 200$, threshold grid at score quantiles $\{0.85, 0.80, \dots, 0.30\}$, uncertified fallback fraction from the one-sided Clopper-Pearson lower bound (level $\delta$) on pool safe mass, minimum selection 50 trajectories. Reward-aware sub-selection: top 50 percent by episodic return, applied only under certification. Certified return-weighted cloning, meaning trajectory resampling with probability proportional to $\exp(\mathrm{clip}(z(R), \pm \kappa))$, return standardized within the selection, selection size preserved, $\kappa \in \{1, 2, 3\}$ reported with $\kappa = 2$ in Table~\ref{tab:compose}, applied only under certification. Advantage-weighted extraction (analysis section): weights $\exp(A/\beta)$ with $\beta = 1$, weight clip 20, $k = 1$ unless stated. Evaluation: 100 episodes, deterministic policy mean. Sensitivity: individual ensemble members match the $K = 3$ filter precision within $0.006$ on all nine analysis tasks, so the ensemble size is not load-bearing for selection and serves the aggregation diagnostics; a segment-length sweep appears in Appendix~\ref{app:extended}.
+
+\end{document}
