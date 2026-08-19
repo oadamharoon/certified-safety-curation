@@ -78,14 +78,14 @@ def main():
         ax.plot(-0.35 + 0.95 * tt, yb + 0.13 * np.sin(4.2 * tt + k), color=col, lw=1.1)
     ax.text(0.72, 1.20, r"$\sigma^{+}$", fontsize=6.8, color="#4d4d4d", va="center")
     ax.text(0.72, 0.72, r"$\sigma^{-}$", fontsize=6.8, color="#b0b0b0", va="center")
-    ax.text(-0.35, 0.12, "only which of the two is safer, never by how much",
-            fontsize=6.4, color=GREY, va="center", ha="left")
+    ax.text(-0.35, 0.12, "which is safer, not by how much", fontsize=6.4,
+            color=GREY, va="center", ha="left")
     ax.set_title("one number per trajectory", fontsize=9, color=INK, pad=14)
     ax.text(5.0, 10.0, "aggregating over a trajectory is where\npreferences identify the value",
             ha="center", va="bottom", fontsize=7, color=GREY, linespacing=1.4)
 
     # ================= (3) cut, audit, certify or refuse =======================
-    ax = fig.add_subplot(gs[0, 2]); ax.set_xlim(-0.6, 15.9); ax.set_ylim(0, 12); ax.axis("off")
+    ax = fig.add_subplot(gs[0, 2]); ax.set_xlim(-0.6, 15.2); ax.set_ylim(0, 12); ax.axis("off")
     ax.fill_between(xs, 1.6, 1.6 + sc * du, color=ORANGE, alpha=0.20, lw=0, zorder=2)
     ax.fill_between(xs, 1.6, 1.6 + sc * ds, color=BLUE, alpha=0.20, lw=0, zorder=3)
     TAU = 6.05
@@ -119,10 +119,8 @@ def main():
             va="center", fontsize=7.0, color=GREY, linespacing=1.4, style="italic")
     ax.annotate("", xy=(11.9, 1.05), xytext=(10.95, 1.05),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
-    ax.text(12.1, 1.30, "clone the\nselection", ha="left", va="center", fontsize=7.0,
+    ax.text(12.1, 1.05, "clone the\nselection", ha="left", va="center", fontsize=7.0,
             color=INK, linespacing=1.4)
-    ax.text(12.1, 0.25, "reward-aware curation\nfirst, if certified", ha="left",
-            va="center", fontsize=6.4, color=GREEN, linespacing=1.35, style="italic")
     ax.set_title("cut, then audit what survives", fontsize=9, color=INK, pad=14)
     ax.text(5.2, 10.0, "the guarantee is about the training set,\nnot the policy trained on it",
             ha="center", va="bottom", fontsize=7, color=GREY, linespacing=1.4)
