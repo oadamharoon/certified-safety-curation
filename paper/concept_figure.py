@@ -73,13 +73,13 @@ def main():
     ax.text(3.3, 1.6 + sc * du.max() + 0.5, "unsafe", ha="center", fontsize=7.4, color=ORANGE)
     ax.text(7.0, 1.6 + sc * ds.max() + 0.5, "safe", ha="center", fontsize=7.4, color=BLUE)
     # the supervision that trains the value, which the pipeline otherwise hides
-    for k, (yb, col) in enumerate([(1.20, BLUE), (0.72, ORANGE)]):
+    for k, (yb, col) in enumerate([(1.20, "#4d4d4d"), (0.72, "#b0b0b0")]):
         tt = np.linspace(0, 1, 40)
         ax.plot(-0.35 + 0.95 * tt, yb + 0.13 * np.sin(4.2 * tt + k), color=col, lw=1.1)
-    ax.text(0.72, 1.12, r"$\sigma^{+}$", fontsize=6.8, color=BLUE, va="center")
-    ax.text(0.72, 0.62, r"$\sigma^{-}$", fontsize=6.8, color=ORANGE, va="center")
-    ax.text(-0.35, 0.12, "many such comparisons train $\\bar V$", fontsize=6.4,
-            color=GREY, va="center", ha="left")
+    ax.text(0.72, 1.20, r"$\sigma^{+}$", fontsize=6.8, color="#4d4d4d", va="center")
+    ax.text(0.72, 0.72, r"$\sigma^{-}$", fontsize=6.8, color="#b0b0b0", va="center")
+    ax.text(-0.35, 0.12, "only which of the two is safer, never by how much",
+            fontsize=6.4, color=GREY, va="center", ha="left")
     ax.set_title("one number per trajectory", fontsize=9, color=INK, pad=14)
     ax.text(5.0, 10.0, "aggregating over a trajectory is where\npreferences identify the value",
             ha="center", va="bottom", fontsize=7, color=GREY, linespacing=1.4)
