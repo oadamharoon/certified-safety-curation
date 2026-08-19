@@ -28,7 +28,7 @@ min_total_reward: 0.05      # at least some forward progress over the segment
 drop_zero_segments: true    # drop segments with both ~0 reward and ~0 cost
 
 # ---- Pair sampling ----
-num_pairs: 3000             # scaled up for full run
+num_pairs: 1000   # value used for every task reported in the paper             # scaled up for full run
 cost_safe_threshold: 0.0
 cost_contrast_min: 1.0
 max_active_segments: 100000
