@@ -46,7 +46,8 @@ def main():
     # colour is derived from the geometry, not asserted: a path is drawn orange
     # exactly when it enters a hazard disc. Asserting the labels independently
     # let blue paths run straight through hazards.
-    unsafe = [(1.6, 4.3, 1.5), (5.1, 3.5, -1.7), (8.6, 5.6, 1.0)]
+    unsafe = [(1.6, 4.3, 1.5), (5.1, 3.5, -1.7), (8.6, 5.6, 1.0),
+              (6.5, 2.6, 0.7)]
     safe = [(1.6, 4.2, -1.4), (2.8, 3.4, -1.4), (3.9, 4.5, 1.8), (5.1, 4.1, -1.1),
             (6.3, 8.8, 1.0), (7.4, 3.4, -1.6), (8.6, 3.4, 1.8)]
     hz = np.array(haz)
@@ -55,8 +56,8 @@ def main():
         d = np.min(np.linalg.norm(np.stack([x, y], 1)[:, None] - hz[None], axis=2))
         through = d < 0.80                       # hazard radius drawn below
         ax.plot(x, y, color=ORANGE if through else BLUE,
-                lw=1.35 if through else 1.15,
-                alpha=0.85 if through else 0.55, zorder=3 if through else 2)
+                lw=1.25 if through else 1.15,
+                alpha=0.80 if through else 0.68, zorder=3 if through else 2)
     ax.set_title("a pool of whole trajectories", fontsize=9, color=INK, pad=14)
     ax.text(5.0, 10.0, "some pass through hazards, most do not;\nwhich is which is never given to the method",
             ha="center", va="bottom", fontsize=7, color=GREY, linespacing=1.4)
