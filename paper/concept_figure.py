@@ -46,9 +46,9 @@ def main():
     # colour is derived from the geometry, not asserted: a path is drawn orange
     # exactly when it enters a hazard disc. Asserting the labels independently
     # let blue paths run straight through hazards.
-    unsafe = [(1.2, 9.1, 0.1), (5.0, 7.1, 1.7), (8.8, 5.3, -1.4)]
-    safe = [(1.2, 2.6, -0.5), (2.5, 5.7, 1.2), (3.7, 4.7, 1.6), (5.0, 1.9, 0.0),
-            (6.3, 8.0, 1.5), (7.5, 4.3, 1.4), (8.8, 7.4, 1.7)]
+    unsafe = [(1.6, 4.3, 1.5), (5.1, 3.5, -1.7), (8.6, 5.6, 1.0)]
+    safe = [(1.6, 4.2, -1.4), (2.8, 3.4, -1.4), (3.9, 4.5, 1.8), (5.1, 4.1, -1.1),
+            (6.3, 8.8, 1.0), (7.4, 3.4, -1.6), (8.6, 3.4, 1.8)]
     hz = np.array(haz)
     for y0, y1, b in safe + unsafe:
         x, y = path(y0, y1, b)
