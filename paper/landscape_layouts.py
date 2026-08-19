@@ -151,7 +151,7 @@ def render(panels):
                      bbox_to_anchor=(1.055, 0.0, 1, 1),
                      bbox_transform=axes[2].transAxes, borderpad=0)
     cb = fig.colorbar(im, cax=cax)
-    cb.set_label(r"mean ensemble $\bar V(s)$", fontsize=9)
+    cb.set_label(r"mean ensemble $\bar V(s)$", fontsize=8)
     cb.ax.tick_params(labelsize=7)
 
     ax = axes[3]
@@ -164,11 +164,11 @@ def render(panels):
     ax.axvline(panels[0]["hr"], color="0.4", ls=":", lw=1)
     _lo, _hi = ax.get_ylim()
     ax.text(panels[0]["hr"], _hi - 0.06 * (_hi - _lo), " hazard radius",
-            fontsize=8.5, color="0.35", va="top", rotation=90)
+            fontsize=7.5, color="0.35", va="top", rotation=90)
     ax.set_xlabel("distance to nearest hazard", fontsize=8)
     ax.set_ylabel(r"learned $\bar V(s)$", fontsize=8)
     ax.set_title("radial profiles", fontsize=9)
-    ax.tick_params(labelsize=7); ax.legend(fontsize=6.5, frameon=False)
+    ax.tick_params(labelsize=7); ax.legend(fontsize=7.5, frameon=False)
     ax.grid(alpha=0.25, lw=0.5)
 
     dst = os.path.join(BASE, "figures", "landscape_pointgoal1_layouts")
