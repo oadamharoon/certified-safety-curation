@@ -43,14 +43,20 @@ def main():
         x = 0.7 + 8.6 * t
         y = y0 + (y1 - y0) * t + bow * np.sin(np.pi * t)
         return x, y + 0.16 * np.sin(6.5 * t + y0)
-    # unsafe paths are drawn through the hazard discs, safe ones around them
-    unsafe = [(5.2, 7.6, 0.6), (4.4, 3.0, -0.7), (6.0, 5.2, 1.5)]
-    safe = [(1.6, 1.6, 0.5), (8.8, 8.6, -0.4), (2.2, 9.0, 0.8), (8.6, 1.6, -0.7),
-            (1.3, 8.8, -0.6), (9.0, 3.0, 0.5), (1.9, 5.0, -1.4)]
-    for y0, y1, b in safe:
-        x, y = path(y0, y1, b); ax.plot(x, y, color=BLUE, lw=1.15, alpha=0.55, zorder=2)
-    for y0, y1, b in unsafe:
-        x, y = path(y0, y1, b); ax.plot(x, y, color=ORANGE, lw=1.35, alpha=0.85, zorder=3)
+    # colour is derived from the geometry, not asserted: a path is drawn orange
+    # exactly when it enters a hazard disc. Asserting the labels independently
+    # let blue paths run straight through hazards.
+    unsafe = [(1.2, 9.1, 0.1), (5.0, 7.1, 1.7), (8.8, 5.3, -1.4)]
+    safe = [(1.2, 2.6, -0.5), (2.5, 5.7, 1.2), (3.7, 4.7, 1.6), (5.0, 1.9, 0.0),
+            (6.3, 8.0, 1.5), (7.5, 4.3, 1.4), (8.8, 7.4, 1.7)]
+    hz = np.array(haz)
+    for y0, y1, b in safe + unsafe:
+        x, y = path(y0, y1, b)
+        d = np.min(np.linalg.norm(np.stack([x, y], 1)[:, None] - hz[None], axis=2))
+        through = d < 0.80                       # hazard radius drawn below
+        ax.plot(x, y, color=ORANGE if through else BLUE,
+                lw=1.35 if through else 1.15,
+                alpha=0.85 if through else 0.55, zorder=3 if through else 2)
     ax.set_title("a pool of whole trajectories", fontsize=9, color=INK, pad=14)
     ax.text(5.0, 10.0, "some pass through hazards, most do not;\nwhich is which is never given to the method",
             ha="center", va="bottom", fontsize=7, color=GREY, linespacing=1.4)
