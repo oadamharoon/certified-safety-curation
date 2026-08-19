@@ -28,7 +28,7 @@ def kde(x, pts, bw):
 
 def main():
     fig = plt.figure(figsize=(12.0, 3.5))
-    gs = fig.add_gridspec(1, 3, width_ratios=[0.95, 1.10, 1.45], wspace=0.26,
+    gs = fig.add_gridspec(1, 3, width_ratios=[0.92, 1.06, 1.58], wspace=0.13,
                           left=0.015, right=0.985, top=0.84, bottom=0.10)
 
     # ================= (1) trajectories through a hazard field =================
@@ -73,19 +73,19 @@ def main():
     ax.text(3.3, 1.6 + sc * du.max() + 0.5, "unsafe", ha="center", fontsize=7.4, color=ORANGE)
     ax.text(7.0, 1.6 + sc * ds.max() + 0.5, "safe", ha="center", fontsize=7.4, color=BLUE)
     # the supervision that trains the value, which the pipeline otherwise hides
-    for k, (yb, col) in enumerate([(1.12, BLUE), (0.62, ORANGE)]):
+    for k, (yb, col) in enumerate([(1.20, BLUE), (0.72, ORANGE)]):
         tt = np.linspace(0, 1, 40)
         ax.plot(-0.35 + 0.95 * tt, yb + 0.13 * np.sin(4.2 * tt + k), color=col, lw=1.1)
     ax.text(0.72, 1.12, r"$\sigma^{+}$", fontsize=6.8, color=BLUE, va="center")
     ax.text(0.72, 0.62, r"$\sigma^{-}$", fontsize=6.8, color=ORANGE, va="center")
-    ax.text(1.25, 0.87, "segment comparisons\ntrain $\\bar V$", fontsize=6.4,
-            color=GREY, va="center", linespacing=1.35)
+    ax.text(-0.35, 0.12, "many such comparisons train $\\bar V$", fontsize=6.4,
+            color=GREY, va="center", ha="left")
     ax.set_title("one number per trajectory", fontsize=9, color=INK, pad=14)
     ax.text(5.0, 10.0, "aggregating over a trajectory is where\npreferences identify the value",
             ha="center", va="bottom", fontsize=7, color=GREY, linespacing=1.4)
 
     # ================= (3) cut, audit, certify or refuse =======================
-    ax = fig.add_subplot(gs[0, 2]); ax.set_xlim(-0.6, 14.6); ax.set_ylim(0, 12); ax.axis("off")
+    ax = fig.add_subplot(gs[0, 2]); ax.set_xlim(-0.6, 15.9); ax.set_ylim(0, 12); ax.axis("off")
     ax.fill_between(xs, 1.6, 1.6 + sc * du, color=ORANGE, alpha=0.20, lw=0, zorder=2)
     ax.fill_between(xs, 1.6, 1.6 + sc * ds, color=BLUE, alpha=0.20, lw=0, zorder=3)
     TAU = 6.05
@@ -119,17 +119,23 @@ def main():
             va="center", fontsize=7.0, color=GREY, linespacing=1.4, style="italic")
     ax.annotate("", xy=(11.9, 1.05), xytext=(10.95, 1.05),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
-    ax.text(12.1, 1.05, "clone the\nselection", ha="left", va="center", fontsize=7.0,
+    ax.text(12.1, 1.30, "clone the\nselection", ha="left", va="center", fontsize=7.0,
             color=INK, linespacing=1.4)
+    ax.text(12.1, 0.25, "reward-aware curation\nfirst, if certified", ha="left",
+            va="center", fontsize=6.4, color=GREEN, linespacing=1.35, style="italic")
     ax.set_title("cut, then audit what survives", fontsize=9, color=INK, pad=14)
     ax.text(5.2, 10.0, "the guarantee is about the training set,\nnot the policy trained on it",
             ha="center", va="bottom", fontsize=7, color=GREY, linespacing=1.4)
 
     # stage arrows
-    for x in (0.333, 0.650):
-        fig.add_artist(FancyArrowPatch((x, 0.42), (x + 0.022, 0.42),
+    fig.canvas.draw()
+    axl = fig.get_axes()
+    for a, b in ((axl[0], axl[1]), (axl[1], axl[2])):
+        x0, x1 = a.get_position().x1, b.get_position().x0
+        mid = 0.5 * (x0 + x1)
+        fig.add_artist(FancyArrowPatch((mid - 0.011, 0.42), (mid + 0.011, 0.42),
                                        transform=fig.transFigure, arrowstyle="-|>",
-                                       mutation_scale=13, lw=1.3, color=INK))
+                                       mutation_scale=12, lw=1.3, color=INK))
     dst = os.path.join(BASE, "figures", "concept")
     fig.savefig(dst + ".pdf"); fig.savefig(dst + ".png", dpi=200)
     print("  saved figures/concept.{pdf,png}")
