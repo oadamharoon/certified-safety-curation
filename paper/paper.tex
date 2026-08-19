@@ -59,7 +59,25 @@ Safe offline reinforcement learning assumes a cost function evaluated on every t
 
 Offline reinforcement learning promises policy improvement from logged data alone, and its safety-constrained variant additionally requires the learned policy to keep expected cost below a budget \citep{liu2024dsrl}. Existing safe offline RL methods require a cost function, evaluated on every transition of the dataset \citep{liu2023cdt, zheng2024fisor, gong2025trac}. On benchmarks that function is given, and applying it costs nothing. The difficulty is upstream, in writing it down. Specifying a cost that faithfully captures what one means by unsafe is the same problem reward engineering has proven to be, and it is why preference-based learning exists at all \citep{christiano2017deep}. Where no trustworthy cost function can be specified, a practitioner may still be able to say which of two short clips looks safer, and to judge occasionally whether an episode went over budget. This paper asks what safe offline RL can still deliver from those two weaker signals alone. Recent work has begun importing preferences into safe offline RL \citep{gong2026presa, burnwal2026osil}. None of it, however, carries a statistical guarantee relating supervision to the safety of what is learned.
 
-The question we study is whether a \emph{state-only} safety value, one that never sees actions and is trained only from comparisons, can identify safe training data well enough to be certified. Our answer is certified safety curation, a filter-then-clone method whose central deliverable is a statistical guarantee on the data it trains on. Controls throughout make precise what the comparisons contribute and what they do not. Our pipeline learns a state-only safety value from pairwise segment preferences, scores whole trajectories with it, selects a subset by thresholding the score, and behavior-clones the selection. The threshold is chosen by Learn-then-Test calibration \citep{angelopoulos2025ltt} against a small labeled sample, which yields a distribution-free guarantee. With probability at least $1-\delta$ over the calibration draw, the unsafe-trajectory fraction of the selected training set is at most $\alpha$. The guarantee consumes 200 budget-exceedance judgments, one bit per sampled trajectory, where competing methods require a cost value on every transition of every trajectory.
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=\linewidth]{figures/concept.pdf}
+\end{center}
+\caption{Certified safety curation. The dataset is a pool of whole trajectories,
+some of which pass through hazards; which ones is never given to the method. A
+state-only value trained from segment comparisons, which carry an ordering and
+no magnitudes, scores each trajectory, and the readout is the trajectory-level
+aggregate rather than any per-transition quantity. A threshold cuts the score
+axis and $200$ episodic budget labels audit what survives, either certifying the
+selection at $(\alpha, \delta)$ or refusing and returning a conservative
+selection reported as uncertified; either way the selection is cloned, and a
+certified selection may first be curated for reward
+(Section~\ref{sec:gating}). The figure is schematic: the paths and densities are
+illustrative, not measured.}
+\label{fig:concept}
+\end{figure}
+
+The question we study is whether a \emph{state-only} safety value, one that never sees actions and is trained only from comparisons, can identify safe training data well enough to be certified. Our answer is certified safety curation (Figure~\ref{fig:concept}), a filter-then-clone method whose central deliverable is a statistical guarantee on the data it trains on. Controls throughout make precise what the comparisons contribute and what they do not. Our pipeline learns a state-only safety value from pairwise segment preferences, scores whole trajectories with it, selects a subset by thresholding the score, and behavior-clones the selection. The threshold is chosen by Learn-then-Test calibration \citep{angelopoulos2025ltt} against a small labeled sample, which yields a distribution-free guarantee. With probability at least $1-\delta$ over the calibration draw, the unsafe-trajectory fraction of the selected training set is at most $\alpha$. The guarantee consumes 200 budget-exceedance judgments, one bit per sampled trajectory, where competing methods require a cost value on every transition of every trajectory.
 
 An empirical analysis of independent interest grounds the design. The natural alternative, advantage-weighted regression \citep{peng2019awr}, fails for two compounding reasons, and both point the same way. The value should be used where preference training identifies it and where selection keeps behaviors intact, which is at the scale of whole trajectories.
 
