@@ -82,15 +82,41 @@ def from_osrl(algo):
 
 mean_frac = np.mean([200.0 / NTRAJ[t] for t in T15])
 
+_CDT_SWEEP = json.load(open(os.path.join(BASE, "data", "review_response",
+                                         "cdt_target_sweep.json")))
+
+
+def deployed_getter(t):
+    """The calibrated filter as actually deployed: the LTT threshold where the
+    run certifies, the uncertified conservative fallback otherwise."""
+    # calfilt_csf is the deployed procedure end to end: it runs the full
+    # Learn-then-Test walk and falls back to the Clopper-Pearson selection only
+    # when nothing certifies. No task-level ltt/csf switch is needed.
+    use = snap.get(t, {}).get("calfilt_csf", {})
+    if not use:
+        return None
+    return (np.mean([v["R"] for v in use.values()]),
+            np.mean([v["C"] for v in use.values()]))
+
+
+def cdt_sweep_getter(t):
+    """CDT at the safest target of its cost-target sweep, per the caption."""
+    d = _CDT_SWEEP.get(t)
+    if not d:
+        return None
+    C, tg = min((v["C"], k) for k, v in d.items())
+    return (d[tg]["R"], C)
+
+
 METHODS = [
     # (label, supervision rung, getter, color, marker)
     #   0 none | 1 ordinal comparisons | 2 comparisons + sparse budget judgments
     #   3 budget label on every trajectory | 4 cost value on every transition
     ("BC-All", 0, from_snap("bc_all"), "#999999", "o"),
     ("CPL (prefs)", 1, from_snap("cpl_gt"), "#D55E00", "^"),
-    ("Ours (calibrated)", 2, from_snap("calfilt_ltt"), "#0072B2", "*"),
+    ("Ours (calibrated)", 2, deployed_getter, "#0072B2", "*"),
     ("BC-Safe", 3, from_snap("bcsafe"), "#009E73", "s"),
-    ("CDT", 4, from_osrl("cdt"), "#CC79A7", "D"),
+    ("CDT", 4, cdt_sweep_getter, "#CC79A7", "D"),
     ("CPQ", 4, from_osrl("cpq"), "#E69F00", "v"),
     ("COptiDICE", 4, from_osrl("coptidice"), "#8c564b", "X"),
 ]

@@ -100,10 +100,13 @@ emit("noise_policy.tex", ["calfilt_noise20", "calfilt_ltt"], order=ANALYSIS_ORDE
 def main_gated():
     gated = {}
     for task in ORDER:
-        ltt = SNAP.get(task, {}).get("calfilt_ltt", {})
+        # calfilt_csf is the deployed procedure: Learn-then-Test with the
+        # Clopper-Pearson fallback the paper describes. calfilt_ltt is a
+        # pre-standardization tag whose fallback rule the code no longer has.
+        base = SNAP.get(task, {}).get("calfilt_csf", {})
         r50 = SNAP.get(task, {}).get("calfilt_lttR50", {})
         Rs, Cs = [], []
-        for seed, e in ltt.items():
+        for seed, e in base.items():
             cert = e.get("meta", {}).get("certified", False)
             src = r50.get(seed, e) if cert else e
             Rs.append(src["R"]); Cs.append(src["C"])
@@ -116,10 +119,10 @@ def main_gated():
             row += f" & {cell(task, cfg, 'R', d)} & {cell(task, cfg, 'C', d, True)}"
         # calibrated column: calsafe fallback on uncertified tasks, gated (dagger)
         # values on the certified three
-        certified = task in ("halfcheetah_velocity", "cargoal1_dsrl", "pointgoal1_dsrl")
-        if not certified and SNAP.get(task, {}).get("calfilt_csf"):
-            ent = SNAP[task]["calfilt_csf"]
-            gated[task] = ([e["R"] for e in ent.values()], [e["C"] for e in ent.values()])
+        # derived from the runs themselves: a task is certified when at least one
+        # calibration run returns a certificate. Hardcoding this list let it drift.
+        certified = any(e.get("meta", {}).get("certified", False)
+                        for e in SNAP.get(task, {}).get("calfilt_csf", {}).values())
         Rs, Cs = gated[task]
         mR, hR, mC, hC = np.mean(Rs), ci(Rs), np.mean(Cs), ci(Cs)
         dag = r"$^\dagger$" if certified else ""
@@ -154,8 +157,7 @@ for task in ORDER:
         cn = np.mean(vals) / lim
         t = f"{cn:.2f}"
         return " & " + (f"\\textbf{{{t}}}" if cn <= 1.0 else t)
-    _cert3 = ("halfcheetah_velocity", "cargoal1_dsrl", "pointgoal1_dsrl")
-    _calib = "calfilt_ltt" if task in _cert3 else "calfilt_csf"
+    _calib = "calfilt_csf"   # the deployed procedure, uniform across tasks
     for cfgname in ("bc_all", "bcsafe", "bcsafeseg", "vfilt_calsafe", _calib):
         ent = SNAP.get(task, {}).get(cfgname, {}) or SNAP.get(task, {}).get("calfilt_ltt", {}) if cfgname == _calib else SNAP.get(task, {}).get(cfgname, {})
         row += _cn([e["C"] for e in ent.values()])
@@ -372,17 +374,36 @@ with open(os.path.join(BASE, "data", "tables", "bullet_main.tex"), "w") as f:
 print("wrote bullet_main.tex")
 
 # Certified return-weighted operator grid (distinct alpha=0.25 selections + CarRun echo)
+# alpha-hat is the selection's realized contamination, averaged over the three
+# ensemble seeds because each seed scores with its own ensemble and therefore
+# selects a different set at the same quantile. Derived from the recorded
+# contamination profile rather than typed in; the previous literals had drifted
+# from the regenerated ensembles by up to 0.037.
+_PROF = json.load(open(os.path.join(BASE, "data", "review_response",
+                                    "profile_by_H.json")))
+_PQS, _P30 = _PROF["quantiles"], _PROF["arms"]["H30"]
+
+
+def _alpha_hat(task, sel, fallback=None):
+    if not sel.startswith("q") or task not in _P30:
+        return fallback           # CarRun echo is not a quantile of the grid
+    q = float("0." + sel[1:])
+    return _P30[task]["u_profile_mean"][_PQS.index(q)]
+
+
 _OPSEL = [
-    ("halfcheetah_velocity", "HalfCheetah", [("q85", 0.219), ("q80", 0.287), ("q75", 0.351)]),
-    ("cargoal1_dsrl", "CarGoal1", [("q85", 0.171), ("q80", 0.212), ("q75", 0.266)]),
-    ("pointgoal1_dsrl", "PointGoal1", [("q85", 0.086), ("q70", 0.158), ("q65", 0.178)]),
-    ("carrun_b", "CarRun (echo)", [("echo", 0.138)]),
+    ("halfcheetah_velocity", "HalfCheetah", ["q85", "q80", "q75"]),
+    ("cargoal1_dsrl", "CarGoal1", ["q85", "q80", "q75"]),
+    ("pointgoal1_dsrl", "PointGoal1", ["q85", "q70", "q65"]),
+    ("carrun_b", "CarRun (echo)", ["echo"]),
 ]
+_ECHO = {"carrun_b": 0.138}
 lines = []
 for task, name, sels in _OPSEL:
     lim = LIMITS.get(task, 10)
     rd = 0 if ("velocity" in task or task == "carrun_b") else 1
-    for sel, ku in sels:
+    for sel in sels:
+        ku = _alpha_hat(task, sel, _ECHO.get(task))
         row = f"{name} & {ku:.2f}"
         for var in ("wbc1", "wbc", "wbc3", "toph"):
             ent = SNAP.get(task, {}).get(f"{var}_{sel}", {})

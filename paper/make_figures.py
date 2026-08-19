@@ -260,8 +260,17 @@ def alpha_curve_figure():
         ax1.plot(alphas, rates, color=color, marker=marker, markersize=4.5,
                  linewidth=1.4, markeredgewidth=0, label=label)
     for (task, label), color, marker in zip(BTASKS, PALETTE, MARKERS):
-        alphas = [0.25, 0.40, 0.50]
-        rates = [bullet[task][str(a)] for a in ("0.25", "0.4", "0.5")]
+        # regenerated with the current ensembles, same nested shape and same
+        # alpha grid as the DSRL panel so the two axes are directly comparable
+        if task not in bullet:
+            continue
+        alphas, rates = [], []
+        for a in ("0.05", "0.1", "0.25", "0.4"):
+            vals = [bullet[task][s][a]["cert_rate"] for s in bullet[task]
+                    if a in bullet[task][s]]
+            if vals:
+                alphas.append(float(a))
+                rates.append(np.mean(vals))
         ax2.plot(alphas, rates, color=color, marker=marker, markersize=4.5,
                  linewidth=1.4, markeredgewidth=0, label=label)
     for ax, title in ((ax1, "DSRL (nine analysis tasks)"),

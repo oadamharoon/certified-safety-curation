@@ -20,8 +20,10 @@ PATTERNS = {
     "vfilt_q25": r"^vfilt_q25_seed(\d+)$",
     "vfilt_return": r"^vfilt_return_matchgt_seed(\d+)$",
     "vfilt_random": r"^vfilt_random_matchgt_seed(\d+)$",
-    "calfilt_ltt": r"^calfilt_lttv2_seed(\d+)$",
-    "calfilt_lttR50": r"^calfilt_lttv2R50_seed(\d+)$",
+    "calfilt_ltt_legacy": r"^calfilt_lttv2_seed(\d+)$",
+    "calfilt_ltt": r"^calfilt_ltt_seed(\d+)$",
+    "calfilt_lttR50_legacy": r"^calfilt_lttv2R50_seed(\d+)$",
+    "calfilt_lttR50": r"^calfilt_lttR50_seed(\d+)$",
     "calfilt_pref": r"^calfilt_pref_seed(\d+)$",
     "xlab_oracle_step": r"^xlab_oracle_step_exp_k1_seed(\d+)$",
     "xlab_oracle_ctg": r"^xlab_oracle_ctg_exp_k1_seed(\d+)$",
@@ -60,7 +62,8 @@ PATTERNS = {
     "bc_a40selq75": r"^bca40selq75_seed(\d+)$",
     "bc_a40selq80": r"^bca40selq80_seed(\d+)$",
     "bc_a40selq85": r"^bca40selq85_seed(\d+)$",
-    "calfilt_tier2": r"^calfilt_t2_seed(\d+)$",
+    "calfilt_tier2_legacy": r"^calfilt_t2_seed(\d+)$",
+    "calfilt_tier2": r"^calfilt_tier2_seed(\d+)$",
     "bc_echo": r"^bcecho_carrun_seed(\d+)$",
     "wbc_q85": r"^wbcq85_seed(\d+)$",
     "wbc_q80": r"^wbcq80_seed(\d+)$",
@@ -78,6 +81,7 @@ PATTERNS = {
     "xagg_min": r"^xagg_min_seed(\d+)$",
     "xagg_p10": r"^xagg_p10_seed(\d+)$",
     "calfilt_csf": r"^calfilt_csf_seed(\d+)$",
+    "calfilt_hcsf": r"^calfilt_hcsf_seed(\d+)$",
     "mwbc1_q85": r"^mc1q85_seed(\d+)$",
     "mwbc2_q85": r"^mc2q85_seed(\d+)$",
     "mwbc3_q85": r"^mc3q85_seed(\d+)$",
@@ -141,20 +145,40 @@ def main():
                     "R": r["avg_reward"], "C": r["avg_cost"],
                     "viol": r.get("constraint_violation_rate", None)}
                 break
-    # calibration metadata
+    # calibration metadata.
+    # Parse the tag generically rather than matching a fixed alternation. Any
+    # OUT_TAG that appears on disk becomes calfilt_<tag> unless it is one of the
+    # explicit aliases below. An earlier fixed list silently dropped the
+    # metadata of every tag nobody remembered to add, and mapped two distinct
+    # tags onto one key so glob order decided which survived.
+    _ALIAS = {"lttv2": "calfilt_ltt_legacy", "lttv2R50": "calfilt_lttR50_legacy"}
+    _dropped = set()
     for f in glob.glob(os.path.join(REPO, "outputs/*/calfilt_meta_*.json")):
         task = f.split("/")[-2]
         name = os.path.basename(f)
-        m = re.search(r"calfilt_(lttv2R50|lttv2|pref|a10|a40|noise20)_seed(\d+)", name)
+        m = re.match(r"calfilt_meta_(.+)_seed(\d+)\.json$", name)
         if not m:
             continue
-        key = {"lttv2": "calfilt_ltt", "lttv2R50": "calfilt_lttR50",
-               "pref": "calfilt_pref", "a10": "calfilt_a10",
-               "a40": "calfilt_a40", "noise20": "calfilt_noise20"}[m.group(1)]
-        seed = m.group(2)
-        meta = json.load(open(f))
+        tag, seed = m.group(1), m.group(2)
+        tag = tag[len("calfilt_"):] if tag.startswith("calfilt_") else tag
+        key = _ALIAS.get(tag, "calfilt_" + tag)
+        if key not in snap[task]:
+            _dropped.add(key)
+            continue
         if seed in snap[task][key]:
-            snap[task][key][seed]["meta"] = meta
+            snap[task][key][seed]["meta"] = json.load(open(f))
+    if _dropped:
+        print("  [meta] no matching results for tags: " + ", ".join(sorted(_dropped)))
+    # Regenerated arms take precedence; legacy (pre-standardization) tags fill
+    # in only for tasks that were never regenerated.
+    for task, cfgs in snap.items():
+        for new, leg in (("calfilt_ltt", "calfilt_ltt_legacy"),
+                         ("calfilt_lttR50", "calfilt_lttR50_legacy"),
+                         ("calfilt_tier2", "calfilt_tier2_legacy")):
+            if leg in cfgs:
+                if new not in cfgs or not cfgs[new]:
+                    cfgs[new] = cfgs[leg]
+                del cfgs[leg]
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "results_snapshot.json"), "w") as fo:
         json.dump(snap, fo, indent=1)
