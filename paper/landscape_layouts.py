@@ -124,7 +124,7 @@ def render(panels):
     EXT = 1.8
     fig = plt.figure(figsize=(13.6, 3.1))
     from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-    outer = fig.add_gridspec(1, 2, width_ratios=[3.3, 1.2], wspace=0.36,
+    outer = fig.add_gridspec(1, 2, width_ratios=[3.3, 1.32], wspace=0.20,
                              left=0.045, right=0.985)
     left = outer[0, 0].subgridspec(1, 3, wspace=0.09)
     axes = [fig.add_subplot(left[0, i]) for i in (0, 1, 2)]
@@ -148,7 +148,7 @@ def render(panels):
     axes[0].set_ylabel("y", fontsize=8)
     for ax in axes[1:3]: ax.set_yticklabels([])
     cax = inset_axes(axes[2], width="4.5%", height="100%", loc="lower left",
-                     bbox_to_anchor=(1.008, 0.0, 1, 1),
+                     bbox_to_anchor=(1.055, 0.0, 1, 1),
                      bbox_transform=axes[2].transAxes, borderpad=0)
     cb = fig.colorbar(im, cax=cax)
     cb.set_label(r"mean ensemble $\bar V(s)$", fontsize=9)
@@ -162,8 +162,9 @@ def render(panels):
         bv = np.array([p["v"][k == i].mean() for i in range(12) if (k == i).any()])
         ax.plot(bd, bv, ls, lw=1.5, label=f"seed {p['seed']} ($\\rho$ = {p['rho_state']:.2f})")
     ax.axvline(panels[0]["hr"], color="0.4", ls=":", lw=1)
-    ax.text(panels[0]["hr"], ax.get_ylim()[1], " hazard radius", fontsize=8.5,
-            color="0.35", va="top", rotation=90)
+    _lo, _hi = ax.get_ylim()
+    ax.text(panels[0]["hr"], _hi - 0.06 * (_hi - _lo), " hazard radius",
+            fontsize=8.5, color="0.35", va="top", rotation=90)
     ax.set_xlabel("distance to nearest hazard", fontsize=8)
     ax.set_ylabel(r"learned $\bar V(s)$", fontsize=8)
     ax.set_title("radial profiles", fontsize=9)
