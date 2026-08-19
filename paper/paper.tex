@@ -358,7 +358,7 @@ The construction is faithful to the paper's setting twice over. Segment-sum pref
 \begin{center}
 \includegraphics[width=0.6\linewidth]{figures/corridor.pdf}
 \end{center}
-\caption{The corridor construction, simulated ($p = 0.7$, expert mass $0.2$, $N = 10^4$, 50 replicates): all-safe probability of the cloned policy against horizon for per-transition operators at three weight clips and for trajectory selection; dashed lines are Proposition~\ref{prop:corridor}'s closed forms.}
+\caption{The corridor construction, simulated ($p = 0.7$, expert mass $0.2$, $N = 10^4$, 50 replicates): all-safe probability of the cloned policy against horizon. Open markers are simulation; dashed lines are the closed forms of Proposition~\ref{prop:corridor} for the three per-transition weight clips, which the simulation tracks closely. Trajectory selection (solid, filled) has no closed form here.}
 \label{fig:corridor}
 \end{figure}
 
@@ -458,7 +458,7 @@ Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
 \begin{center}
 \includegraphics[width=0.62\linewidth]{figures/pareto.pdf}
 \end{center}
-\caption{Supervision required against safety coverage. Each method is placed by the kind of supervision it consumes, from none, through clip comparisons, to a cost value on every transition, against the number of the fifteen tasks it keeps within budget. Our method and CPL consume the identical 1000 preference pairs per task, and ours additionally spends 200 episodic budget judgments on calibration; BC-All uses no supervision. Full-label methods are shown at their best configuration, CDT at the safest target of its cost-target sweep (Appendix~\ref{app:cdtsweep}). Reward comparisons appear in Tables~\ref{tab:main} and \ref{tab:baselines}; on the tasks whose safe subsets are reward-rich, CDT retains a reward advantage at equal safety. The calibrated filter is the only method in the study that also reports a certificate or an explicit refusal.}
+\caption{Supervision consumed against safety coverage. Each method is placed by the kind of supervision it consumes, from none, through clip comparisons, to a cost value on every transition, against the number of the fifteen tasks it keeps within budget. Our method and CPL consume the identical 1000 preference pairs per task, and ours additionally spends 200 episodic budget judgments on calibration; BC-All uses no supervision. Full-label methods are shown at their best configuration, CDT at the safest target of its cost-target sweep (Appendix~\ref{app:cdtsweep}). Reward comparisons appear in Tables~\ref{tab:main} and \ref{tab:baselines}; on the tasks whose safe subsets are reward-rich, CDT retains a reward advantage at equal safety. The calibrated filter is the only method in the study that also reports a certificate or an explicit refusal.}
 \label{fig:pareto}
 \end{figure}
 

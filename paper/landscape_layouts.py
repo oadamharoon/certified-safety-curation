@@ -123,9 +123,8 @@ def main():
 def render(panels):
     EXT = 1.8
     fig = plt.figure(figsize=(13.6, 3.1))
-    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
     outer = fig.add_gridspec(1, 2, width_ratios=[3.3, 1.32], wspace=0.20,
-                             left=0.045, right=0.985)
+                             left=0.045, right=0.985, bottom=0.16, top=0.90)
     left = outer[0, 0].subgridspec(1, 3, wspace=0.09)
     axes = [fig.add_subplot(left[0, i]) for i in (0, 1, 2)]
     axes.append(fig.add_subplot(outer[0, 1]))
@@ -147,9 +146,13 @@ def render(panels):
         ax.set_xlim(-EXT, EXT); ax.set_ylim(-EXT, EXT)
     axes[0].set_ylabel("y", fontsize=8)
     for ax in axes[1:3]: ax.set_yticklabels([])
-    cax = inset_axes(axes[2], width="4.5%", height="100%", loc="lower left",
-                     bbox_to_anchor=(1.055, 0.0, 1, 1),
-                     bbox_transform=axes[2].transAxes, borderpad=0)
+    # place the colorbar in absolute figure coordinates taken from panel 3.
+    # An inset anchored outside its parent resolves differently under the PDF
+    # and PNG backends once bbox_inches="tight" recomputes the canvas, which
+    # made the bar drift between the two formats.
+    fig.canvas.draw()
+    bb = axes[2].get_position()
+    cax = fig.add_axes([bb.x1 + 0.011, bb.y0, 0.0085, bb.height])
     cb = fig.colorbar(im, cax=cax)
     cb.set_label(r"mean ensemble $\bar V(s)$", fontsize=8)
     cb.ax.tick_params(labelsize=7)
@@ -172,8 +175,8 @@ def render(panels):
     ax.grid(alpha=0.25, lw=0.5)
 
     dst = os.path.join(BASE, "figures", "landscape_pointgoal1_layouts")
-    fig.savefig(dst + ".pdf", bbox_inches="tight")
-    fig.savefig(dst + ".png", dpi=200, bbox_inches="tight")
+    fig.savefig(dst + ".pdf")
+    fig.savefig(dst + ".png", dpi=200)
     json.dump({str(p["seed"]): {"rho_cell": p["rho"], "rho_state": p["rho_state"],
                                 "n_cells": int(len(p["v"]))}
                for p in panels},

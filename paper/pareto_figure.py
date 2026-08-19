@@ -155,7 +155,7 @@ for label, x, getter, color, marker in METHODS:
     ax.annotate(label, (x, y),
                 xytext=(dx, -2), textcoords="offset points", fontsize=6.8,
                 ha=ha, color=INK)
-ax.set_xlabel("supervision the method requires")
+ax.set_xlabel("supervision the method consumes")
 ax.set_xticks([0, 1, 2, 3, 4])
 ax.set_xticklabels(["none", "clip\ncomparisons", "comparisons\n+ 200 budget\njudgments",
                     "budget label\nper trajectory", "cost value\nper transition"], fontsize=6)

@@ -410,9 +410,13 @@ def corridor_figure():
                 pprime = qhat * W / (qhat * W + 1 - qhat)
                 acc.append(np.prod(pprime))
             sims.append(np.mean(acc))
-        ax.plot(Ts, theo, color=color, linestyle="--", linewidth=1)
-        ax.plot(Ts, sims, color=color, marker="o", markersize=3.5,
-                linewidth=1.4, markeredgewidth=0, label=lbl)
+        # simulation as markers only and theory as a dashed line, so the two
+        # are separately visible. Drawn as overlapping lines the agreement is
+        # exact enough that the dashed curve disappears underneath.
+        ax.plot(Ts, theo, color=color, linestyle="--", linewidth=1.3, zorder=2)
+        ax.plot(Ts, sims, color=color, marker="o", markersize=4.5,
+                linestyle="none", markerfacecolor="none", markeredgewidth=1.2,
+                label=lbl, zorder=3)
     sel = []
     for T in Ts:
         ok = []
@@ -420,7 +424,9 @@ def corridor_figure():
             n_zero = rng.binomial(N, rho + (1 - rho) * p ** T)
             ok.append(1.0 if n_zero > 0 else 0.0)
         sel.append(np.mean(ok))
-    ax.plot(Ts, sel, color=PALETTE[3], marker="s", markersize=3.5,
+    # selection has no closed form here, so it keeps a solid line and filled
+    # markers, visually distinct from the per-transition arms
+    ax.plot(Ts, sel, color=PALETTE[3], marker="s", markersize=4,
             linewidth=1.4, markeredgewidth=0, label="trajectory selection")
     ax.set_yscale("log")
     ax.set_xscale("log")
