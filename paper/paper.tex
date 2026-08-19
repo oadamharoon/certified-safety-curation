@@ -652,7 +652,7 @@ Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
 \label{fig:contamcost}
 \end{figure}
 
-\paragraph{The return-weighted operator across intensities.} Table~\ref{tab:operator} reports certified return-weighted cloning (Section~\ref{sec:gating}) on the same distinct $\alpha = 0.25$ selections, at clips $\kappa \in \{1, 2, 3\}$ and the hard top-half rule, plus the CarRun certified selection from the transfer suite. The grid substantiates the two claims made in Section~\ref{sec:results}. Every within-specification cell is safe at every intensity, with reward on HalfCheetah rising in the return-seeking intensity, and the single selection whose realized contamination substantially exceeds the certified level ($0.351$) is safe only at $c = 1$, with the stronger settings mining the contaminated return tail exactly as the gating rationale predicts. The milder out-of-specification selections ($0.266$, $0.287$) remain safe in every arm, so the failure requires both a contaminated selection and an aggressive intensity; the certificate removes the first factor and thereby makes the second free to tune.
+\paragraph{The return-weighted operator across intensities.} Table~\ref{tab:operator} reports certified return-weighted cloning (Section~\ref{sec:gating}) on the same distinct $\alpha = 0.25$ selections, at clips $\kappa \in \{1, 2, 3\}$ and the hard top-half rule, plus the CarRun certified selection from the transfer suite. The grid substantiates the two claims made in Section~\ref{sec:results}. Every within-specification cell is safe at every intensity, with reward on HalfCheetah rising in the return-seeking intensity, and the single selection whose realized contamination substantially exceeds the certified level ($0.351$) is safe only at $\kappa = 1$, with the stronger settings mining the contaminated return tail exactly as the gating rationale predicts. The milder out-of-specification selections ($0.266$, $0.287$) remain safe in every arm, so the failure requires both a contaminated selection and an aggressive intensity; the certificate removes the first factor and thereby makes the second free to tune.
 
 \begin{table}[h]
 \caption{Certified return-weighted cloning across intensities on the distinct $\alpha = 0.25$ certified selections and the CarRun echo selection (three seeds, mean $\pm$ 95\% CI; bold marks mean cost within budget; $\hat\alpha$ is the selection's realized contamination).}
@@ -663,7 +663,7 @@ Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l c rr rr rr rr}
 \toprule
-& & \multicolumn{2}{c}{$c = 1$} & \multicolumn{2}{c}{$c = 2$} & \multicolumn{2}{c}{$c = 3$} & \multicolumn{2}{c}{Top half} \\
+& & \multicolumn{2}{c}{$\kappa = 1$} & \multicolumn{2}{c}{$\kappa = 2$} & \multicolumn{2}{c}{$\kappa = 3$} & \multicolumn{2}{c}{Top half} \\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
 Task & $\hat\alpha$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
 \midrule
