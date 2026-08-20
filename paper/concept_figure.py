@@ -104,7 +104,7 @@ def main():
             fontsize=10.79, color=INK)
     ax.annotate("", xy=(11.2, 1.6), xytext=(-0.4, 1.6),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
-    ax.text(8.2, 3.15, "selected", ha="center", fontsize=10.79, color=INK)
+    ax.text(7.6, 3.15, "selected", ha="center", fontsize=10.79, color=INK)
     ax.text(3.0, 3.15, "discarded", ha="center", fontsize=10.79, color=GREY)
     # the labeled audit sample
     smp = rng.uniform(TAU + 0.3, 10.15, 11)
