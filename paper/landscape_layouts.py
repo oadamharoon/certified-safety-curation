@@ -122,9 +122,9 @@ def main():
 
 def render(panels):
     EXT = 1.8
-    fig = plt.figure(figsize=(13.6, 3.1))
-    outer = fig.add_gridspec(1, 2, width_ratios=[3.3, 1.32], wspace=0.20,
-                             left=0.045, right=0.985, bottom=0.16, top=0.90)
+    fig = plt.figure(figsize=(13.6, 3.4))
+    outer = fig.add_gridspec(1, 2, width_ratios=[3.3, 1.32], wspace=0.46,
+                             left=0.060, right=0.985, bottom=0.20, top=0.88)
     left = outer[0, 0].subgridspec(1, 3, wspace=0.09)
     axes = [fig.add_subplot(left[0, i]) for i in (0, 1, 2)]
     axes.append(fig.add_subplot(outer[0, 1]))
@@ -137,14 +137,14 @@ def render(panels):
                        vmin=vmin, vmax=vmax, interpolation="nearest")
         for h in p["haz"]:
             ax.add_patch(plt.Circle(h, p["hr"], fill=False, color="w",
-                                    ls="--", lw=1.0))
-        ax.add_patch(plt.Circle(p["goal"], 0.18, fill=False, color="w", lw=1.4))
+                                    ls="--", lw=1.6))
+        ax.add_patch(plt.Circle(p["goal"], 0.18, fill=False, color="w", lw=2.2))
         ax.text(*p["goal"], "G", color="w", ha="center", va="center",
-                fontsize=8, fontweight="bold")
-        ax.set_title(f"layout seed {p['seed']}", fontsize=9)
-        ax.set_xlabel("x", fontsize=8); ax.tick_params(labelsize=7)
+                fontsize=14.0, fontweight="bold")
+        ax.set_title(f"layout seed {p['seed']}", fontsize=15.75)
+        ax.set_xlabel("x", fontsize=14.0); ax.tick_params(labelsize=12.25)
         ax.set_xlim(-EXT, EXT); ax.set_ylim(-EXT, EXT)
-    axes[0].set_ylabel("y", fontsize=8)
+    axes[0].set_ylabel("y", fontsize=14.0)
     for ax in axes[1:3]: ax.set_yticklabels([])
     # place the colorbar in absolute figure coordinates taken from panel 3.
     # An inset anchored outside its parent resolves differently under the PDF
@@ -152,10 +152,10 @@ def render(panels):
     # made the bar drift between the two formats.
     fig.canvas.draw()
     bb = axes[2].get_position()
-    cax = fig.add_axes([bb.x1 + 0.011, bb.y0, 0.0085, bb.height])
+    cax = fig.add_axes([bb.x1 + 0.013, bb.y0, 0.011, bb.height])
     cb = fig.colorbar(im, cax=cax)
-    cb.set_label(r"mean ensemble $\bar V(s)$", fontsize=8)
-    cb.ax.tick_params(labelsize=7)
+    cb.set_label(r"mean $\bar V(s)$", fontsize=14.0)
+    cb.ax.tick_params(labelsize=12.25)
 
     ax = axes[3]
     for p, ls in zip(panels, ("-", "--", ":")):
@@ -163,20 +163,23 @@ def render(panels):
         k = np.clip(np.digitize(p["d"], b[1:-1]), 0, 11)
         bd = np.array([p["d"][k == i].mean() for i in range(12) if (k == i).any()])
         bv = np.array([p["v"][k == i].mean() for i in range(12) if (k == i).any()])
-        ax.plot(bd, bv, ls, lw=1.5, label=f"seed {p['seed']} ($\\rho$ = {p['rho_state']:.2f})")
-    ax.axvline(panels[0]["hr"], color="0.4", ls=":", lw=1)
+        ax.plot(bd, bv, ls, lw=2.2, label=f"seed {p['seed']} ($\\rho$ = {p['rho_state']:.2f})")
+    ax.axvline(panels[0]["hr"], color="0.4", ls=":", lw=1.6)
     _lo, _hi = ax.get_ylim()
     ax.text(panels[0]["hr"], _hi - 0.06 * (_hi - _lo), " hazard radius",
-            fontsize=7.5, color="0.35", va="top", rotation=90)
-    ax.set_xlabel("distance to nearest hazard", fontsize=8)
-    ax.set_ylabel(r"learned $\bar V(s)$", fontsize=8)
-    ax.set_title("radial profiles", fontsize=9)
-    ax.tick_params(labelsize=7); ax.legend(fontsize=7.5, frameon=False)
-    ax.grid(alpha=0.25, lw=0.5)
+            fontsize=13.12, color="0.35", va="top", rotation=90)
+    ax.set_xlabel("distance to nearest hazard", fontsize=14.0)
+    ax.set_ylabel(r"$\bar V(s)$", fontsize=14.0)
+    ax.set_title("radial profiles", fontsize=15.75)
+    ax.tick_params(labelsize=12.25); ax.legend(fontsize=11.0, frameon=False, loc="lower right",
+              handlelength=1.6, borderaxespad=0.2, labelspacing=0.25)
+    ax.margins(y=0.05)          # headroom below so the legend clears the curves
+    _l, _h = ax.get_ylim(); ax.set_ylim(_l - 0.55 * (_h - _l), _h)
+    ax.grid(alpha=0.25, lw=0.8)
 
     dst = os.path.join(BASE, "figures", "landscape_pointgoal1_layouts")
-    fig.savefig(dst + ".pdf")
-    fig.savefig(dst + ".png", dpi=200)
+    fig.savefig(dst + ".pdf", bbox_inches="tight", pad_inches=0.02)
+    fig.savefig(dst + ".png", dpi=200, bbox_inches="tight", pad_inches=0.02)
     json.dump({str(p["seed"]): {"rho_cell": p["rho"], "rho_state": p["rho_state"],
                                 "n_cells": int(len(p["v"]))}
                for p in panels},

@@ -59,8 +59,8 @@ def main():
                 lw=1.25 if through else 1.15,
                 alpha=0.80 if through else 0.68, zorder=3 if through else 2)
     ax.set_title("a pool of whole trajectories", fontsize=13.05, color=INK, pad=14)
-    ax.text(5.0, 10.45, "some pass through hazards, most do not;\nwhich is which is never given to the method",
-            ha="center", va="bottom", fontsize=8.96, color=GREY, linespacing=1.4)
+    ax.text(0.5, 0.8708, "some pass through hazards, most do not;\nwhich is which is never given to the method",
+            ha="center", va="bottom", fontsize=8.96, color=GREY, linespacing=1.4, transform=ax.transAxes)
     ax.text(0.3, 0.15, "hazard field", fontsize=8.84, color=ORANGE, ha="left", va="bottom")
 
     # ================= (2) each trajectory collapses to one number =============
@@ -88,8 +88,8 @@ def main():
     ax.text(-0.35, -0.58, "which is safer,\nnot by how much", fontsize=8.32,
             color=GREY, va="center", ha="left")
     ax.set_title("one number per trajectory", fontsize=13.05, color=INK, pad=14)
-    ax.text(5.0, 10.45, "aggregating over a trajectory is where\npreferences identify the value",
-            ha="center", va="bottom", fontsize=8.96, color=GREY, linespacing=1.4)
+    ax.text(0.5, 0.8708, "aggregating over a trajectory is where\npreferences identify the value",
+            ha="center", va="bottom", fontsize=8.96, color=GREY, linespacing=1.4, transform=ax.transAxes)
 
     # ================= (3) cut, audit, certify or refuse =======================
     ax = fig.add_subplot(gs[0, 2]); ax.set_xlim(-0.6, 15.2); ax.set_ylim(0, 12); ax.axis("off")
@@ -104,8 +104,8 @@ def main():
             fontsize=10.79, color=INK)
     ax.annotate("", xy=(11.2, 1.6), xytext=(-0.4, 1.6),
                 arrowprops=dict(arrowstyle="-|>", color=INK, lw=1.1))
-    ax.text(8.6, 2.85, "selected", ha="center", fontsize=10.79, color=INK)
-    ax.text(2.6, 2.85, "discarded", ha="center", fontsize=10.79, color=GREY)
+    ax.text(8.2, 3.15, "selected", ha="center", fontsize=10.79, color=INK)
+    ax.text(3.0, 3.15, "discarded", ha="center", fontsize=10.79, color=GREY)
     # the labeled audit sample
     smp = rng.uniform(TAU + 0.3, 10.15, 11)
     ax.scatter(smp, np.full_like(smp, 8.85), s=17, marker="o",
@@ -129,8 +129,8 @@ def main():
     ax.text(12.35, 1.05, "clone the\nselection", ha="left", va="center", fontsize=9.03,
             color=INK, linespacing=1.4)
     ax.set_title("cut, then audit what survives", fontsize=13.05, color=INK, pad=14)
-    ax.text(5.2, 10.45, "the guarantee is about the training set,\nnot the policy trained on it",
-            ha="center", va="bottom", fontsize=8.96, color=GREY, linespacing=1.4)
+    ax.text(0.5, 0.8708, "the guarantee is about the training set,\nnot the policy trained on it",
+            ha="center", va="bottom", fontsize=8.96, color=GREY, linespacing=1.4, transform=ax.transAxes)
 
     # stage arrows
     fig.canvas.draw()
