@@ -59,7 +59,7 @@ def main():
                 lw=1.25 if through else 1.15,
                 alpha=0.80 if through else 0.68, zorder=3 if through else 2)
     ax.set_title("a pool of whole trajectories", fontsize=13.05, color=INK, pad=14)
-    ax.text(0.5, 0.8708, "some pass through hazards, most do not;\nwhich is which is never given to the method",
+    ax.text(0.5, 0.8708, "some pass through hazards, most do not;\nno trajectory arrives labeled",
             ha="center", va="bottom", fontsize=8.96, color=GREY, linespacing=1.4, transform=ax.transAxes)
     ax.text(0.3, 0.15, "hazard field", fontsize=8.84, color=ORANGE, ha="left", va="bottom")
 
