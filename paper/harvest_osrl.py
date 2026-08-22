@@ -57,8 +57,15 @@ def main():
         if "--subset_h5" in args:
             import re as _re
             _m = _re.search(r"_(a25|a40)selq(\d+)_", args)
+            # A3 wrote its selections as <task>_a25_q65.hdf5 rather than the
+            # older _a25selq65_ form. Without this branch those runs fall
+            # through to the bare "_a40"/"_cert" cases below and overwrite
+            # unrelated results, since "_a40_q85" contains "_a40_".
+            _m3 = _re.search(r"_(a25|a40)_q(\d+)\.hdf5", args)
             if _m:
                 variant = f"_{_m.group(1)}selq{_m.group(2)}"
+            elif _m3:
+                variant = f"_{_m3.group(1)}selq{_m3.group(2)}"
             elif "_a40d3_" in args:
                 variant = "_a40_draw3"
             elif "_a40d2_" in args:
