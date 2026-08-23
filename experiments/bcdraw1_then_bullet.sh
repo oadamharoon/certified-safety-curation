@@ -45,6 +45,8 @@ for kj in $S/certified_h5/*_a40d1_*_kept.json; do
   done
 done
 log_run "BC jobs: $(wc -l < "$JOBS")"
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$JOBS" -L1 -P 6 bash -c 'run_bc "$@"' _
 log_run "BC DRAW-1 ARM DONE"
 

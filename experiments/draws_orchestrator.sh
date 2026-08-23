@@ -95,6 +95,8 @@ run_bc () {
 }
 export -f run_bc
 
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$BJOBS" -L1 -P 6 bash -c 'run_bc "$@"' _ &
 BCPID=$!
 xargs -a "$CJOBS" -L1 -P 5 bash -c 'run_cdt "$@"' _

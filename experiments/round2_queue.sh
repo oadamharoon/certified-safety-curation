@@ -76,6 +76,8 @@ done
 log_run "CPU jobs: $(wc -l < $J) (tier2 24 + random 25)"
 dispatch () { local kind=$1; shift; if [ "$kind" = t2 ]; then run_t2 "$@"; else run_rand "$@"; fi; }
 export -f dispatch
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$J" -L1 -P 2 bash -c 'dispatch "$@"' _
 log_run "CPU STAGE DONE"
 

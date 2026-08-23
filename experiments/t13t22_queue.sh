@@ -59,6 +59,8 @@ for t in $UNCERT; do for s in 0 1 2 3 4; do echo "t22 $t $s" >> "$J"; done; done
 log_run "t13t22 jobs: $(wc -l < $J)"
 dispatch () { local k=$1; shift; if [ "$k" = t13 ]; then run_t13 "$@"; else run_t22 "$@"; fi; }
 export -f dispatch
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$J" -L1 -P 4 bash -c 'dispatch "$@"' _
 cd /home/omniverse/workspace/safevlmcpl/iclr2027
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1

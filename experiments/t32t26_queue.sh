@@ -64,6 +64,8 @@ done
 log_run "t32t26 jobs: $(wc -l < $J)"
 dispatch () { local k=$1; shift; if [ "$k" = awr ]; then run_awr "$@"; else run_agg "$@"; fi; }
 export -f dispatch
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$J" -L1 -P 6 bash -c 'dispatch "$@"' _
 cd /home/omniverse/workspace/safevlmcpl/iclr2027
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1

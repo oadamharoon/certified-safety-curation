@@ -63,6 +63,8 @@ for kj in $S/certified_h5/*a40selq*_kept.json; do
   for seed in 0 1 2; do echo "$kj $seed" >> "$BJ"; done
 done
 log_run "CDT jobs: $(wc -l < $CJ) | BC jobs: $(wc -l < $BJ)"
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$BJ" -L1 -P 6 bash -c 'run_bc "$@"' _ &
 BCPID=$!
 xargs -a "$CJ" -L1 -P 5 bash -c 'run_cdt "$@"' _

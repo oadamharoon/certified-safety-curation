@@ -34,6 +34,8 @@ for seed in 0 1 2; do
   for e in $VEL; do echo "$e $seed 20" >> "$J"; done
 done
 log_run "CDT sweep trainings: $(wc -l < $J)"
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$J" -L1 -P 5 bash -c 'train_one "$@"' _
 log_run "TRAIN STAGE DONE"
 

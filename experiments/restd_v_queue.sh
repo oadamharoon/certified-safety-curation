@@ -36,5 +36,7 @@ for t in halfcheetah_velocity walker2d_velocity ant_velocity hopper_velocity swi
   done
 done
 log_run "stage2 V retrainings: $(wc -l < $J)"
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$J" -L1 -P 6 bash -c 'train_v "$@"' _
 log_run "STAGE2 V RETRAIN DONE ($(ls $LOGDIR/done_* 2>/dev/null | wc -l) ok)"

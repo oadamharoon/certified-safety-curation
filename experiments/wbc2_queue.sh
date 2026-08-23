@@ -49,6 +49,8 @@ for seed in 0 1 2; do
   echo "carrun_b $KJE thecho t - $seed" >> "$J"
 done
 log_run "wbc2 jobs: $(wc -l < $J)"
+# log_run is called inside the xargs subshells, so it must be exported
+export -f log_run
 xargs -a "$J" -L1 -P 6 bash -c 'run_arm "$@"' _
 cd /home/omniverse/workspace/safevlmcpl/iclr2027
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
