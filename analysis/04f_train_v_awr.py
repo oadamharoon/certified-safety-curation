@@ -82,6 +82,10 @@ def main() -> None:
         cfg["awr_k_step"] = int(os.environ["AWR_K_STEP"])
     if "AWR_NORMALIZE" in os.environ:
         cfg["awr_normalize_adv"] = int(os.environ["AWR_NORMALIZE"])
+    # 04q and 04p both honour SEED_OVERRIDE; this script did not, so every
+    # seed of the T3.2 sweep trained bit-identical weights.
+    if "SEED_OVERRIDE" in os.environ:
+        cfg["seed"] = int(os.environ["SEED_OVERRIDE"])
     set_seed(cfg["seed"])
     os.makedirs(cfg["output_dir"], exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
