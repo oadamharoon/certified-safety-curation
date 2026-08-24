@@ -39,8 +39,8 @@ def seeded_by_runner():
             if not fn.endswith(".sh"):
                 continue
             src = open(os.path.join(p, fn), errors="ignore").read()
-            for blk in re.findall(r"SEED_OVERRIDE=[^\n]*?python\s+\S*?([\w.]+\.py)",
-                                  src, re.S):
+            src = src.replace("\\\n", " ")      # join line continuations first
+            for blk in re.findall(r"SEED_OVERRIDE=\S+[^\n]*?python\s+(\S+\.py)", src):
                 out.add(os.path.basename(blk))
     return out
 
@@ -61,7 +61,7 @@ SEEDED_BY_RUNNER = set()
 def main():
     global SEEDED_BY_RUNNER
     SEEDED_BY_RUNNER = seeded_by_runner()
-    hits = {1: [], 2: [], 3: [], 4: []}
+    hits = {1: [], 2: [], 3: [], 4: [], 5: []}
 
     for f in files(".py"):
         src = open(f, errors="ignore").read()
@@ -89,12 +89,33 @@ def main():
             if "/tmp" in m.group(1) or "scratchpad" in m.group(1):
                 hits[4].append(f"{f}  LOGDIR={m.group(1)}")
 
+    # 5: live tree vs release mirror. vlm-with-cpl/new_data/scripts is what the
+    # runners execute; certified-safety-curation is the cleaned public copy. A
+    # fix applied only to the mirror does nothing, which cost a 135-job relaunch.
+    LIVE = os.path.join(ROOT, "vlm-with-cpl/new_data/scripts")
+    hits[5] = []
+    if os.path.isdir(LIVE):
+        for fn in sorted(os.listdir(LIVE)):
+            if not fn.endswith(".py"):
+                continue
+            for sub in ("certified-safety-curation/pipeline",
+                        "certified-safety-curation/analysis"):
+                m = os.path.join(ROOT, sub, fn)
+                if os.path.exists(m):
+                    a = open(os.path.join(LIVE, fn), errors="ignore").read()
+                    b = open(m, errors="ignore").read()
+                    if a != b:
+                        hits[5].append(f"{fn}  live and mirror differ "
+                                       f"({sub.split('/')[-1]})")
+                    break
+
     titles = {1: "double-escaped regex in raw string",
               2: "training script ignoring SEED_OVERRIDE",
               3: "bash function used in subshell but not exported",
-              4: "done-markers in an ephemeral directory"}
+              4: "done-markers in an ephemeral directory",
+              5: "live script and release mirror out of sync"}
     bad = 0
-    for k in (1, 2, 3, 4):
+    for k in (1, 2, 3, 4, 5):
         print(f"[{k}] {titles[k]}: {len(hits[k])}")
         for h in hits[k]:
             print(f"      {h.replace(ROOT + '/', '')}")
