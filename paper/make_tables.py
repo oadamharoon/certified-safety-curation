@@ -85,6 +85,17 @@ def emit(fname, configs, digits_map=None, skip_empty=False, order=None):
 emit("main.tex", ["bc_all", "bcsafe", "vfilt_matchgt", "calfilt_ltt",
                   "calfilt_lttR50"])
 emit("vfilt_variants.tex", ["vfilt_matchgt", "vfilt_q25"])
+
+# T3.2 extraction temperature/clip sweep and T2.6 score aggregators, on the
+# nine analysis tasks. Pre-registered 2026-08-10; the first pass was void
+# because 04f ignored SEED_OVERRIDE and produced identical seeds.
+ANALYSIS = ["halfcheetah_velocity", "walker2d_velocity", "ant_velocity",
+            "hopper_velocity", "swimmer_velocity", "cargoal1_dsrl", "cargoal2",
+            "pointgoal1_dsrl", "pointgoal2"]
+emit("t32_sweep.tex",
+     ["vawr_b01", "vawr_b03", "vawr_5seed", "vawr_b3", "vawr_c5", "vawr_c100"],
+     order=ANALYSIS)
+emit("t26_agg.tex", ["xagg_min", "xagg_p10", "vfilt_calsafe"], order=ANALYSIS)
 # Controls ablation
 emit("controls.tex", ["vfilt_random", "vfilt_return", "vfilt_retbot", "vfilt_matchgt"])
 # Alpha sweep policies
