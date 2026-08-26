@@ -148,13 +148,17 @@ The algorithm of Appendix~\ref{app:algo} clones a \emph{selection}. The value pi
 The analysis separates two obstacles. The first concerns how the value is used and holds even when the value is exact; the second concerns what preference training leaves undetermined in the value itself. Throughout, \emph{per-transition} use means weighting each state-action pair by its own advantage, while \emph{trajectory-scale} use means aggregating the value over a whole trajectory and selecting on that aggregate.
 
 \paragraph{Obstacle 1: reweighting transitions does not produce trajectory-level safety, even with exact values.}
-We substitute two ground-truth values into the identical advantage-weighted extraction on all nine tasks. The per-step oracle $V = -c$, which is the exact generator of the preferences and has no identifiability ambiguity, and the discounted cost-to-go oracle (discount $0.99$). Neither improves on the learned value in any cell but one: Swimmer under the per-step oracle (Table~\ref{tab:oracle}), which requires dense supervision unavailable under preferences (Appendix~\ref{app:extraction}). On the failing navigation tasks all sources sit in the same cost band, well above budget; on three of the five velocity tasks, where the learned value yields safe policies under this extraction, the oracles are dramatically unsafe, up to an order of magnitude over budget. Sweeping the extraction's temperature and weight clip rather than its value source reaches the budget on PointGoal1, and on neither of the other two failing navigation tasks, by giving up a third of the reward (Appendix~\ref{app:t32t26}); the obstacle is therefore scoped to two of the three rather than absolute. The learned value's generalization, which spreads sparse cost events onto neighboring states, is therefore essential signal rather than approximation error. Multi-step advantages, which form the advantage over an $h$-step window, degrade safety through credit blurring. At $h = 5$, cost worsens on seven of the nine analysis tasks relative to $h = 1$ (HalfCheetah 4.8 to 121), monotonically in $h$ (Appendix~\ref{app:extraction}). Applying the same reweighting on top of the ground-truth-filtered BC-Safe policy destroys its safety on five of the seven tasks where that policy satisfies the budget. The mechanism is compositional. Exponentiated per-step weights gently reweight actions the dataset already contains at each state, while safety on these tasks is carried by whole multi-step avoidance behaviors that reweighting fragments rather than preserves. Value quality is not what limits this route; the way the value is used is, and Appendix~\ref{app:proof} gives a minimal construction (Proposition~\ref{prop:corridor}) in which the failure is provable: bounded per-transition weights need a range growing linearly with the horizon, while trajectory selection succeeds whenever a safe trajectory exists. One enriched configuration does force safety through this route, an action-conditioned value distilled from dense ground-truth cost labels and scored counterfactually through a dynamics ensemble (Table~\ref{tab:extraction}); it succeeds only at severe reward cost with supervision unavailable under preferences: no state-only, preference-compatible configuration we tested produces trajectory-level safety this way.
+We substitute two ground-truth values into the identical advantage-weighted extraction on all nine tasks. The per-step oracle $V = -c$, which is the exact generator of the preferences and has no identifiability ambiguity, and the discounted cost-to-go oracle (discount $0.99$). Neither improves on the learned value in any cell but one: Swimmer under the per-step oracle (Table~\ref{tab:oracle}), which requires dense supervision unavailable under preferences (Appendix~\ref{app:extraction}). On the failing navigation tasks all sources sit in the same cost band, well above budget; on three of the five velocity tasks, where the learned value yields safe policies under this extraction, the oracles are dramatically unsafe, up to an order of magnitude over budget. Sweeping the extraction's temperature and weight clip rather than its value source reaches the budget on PointGoal1, and on neither of the other two failing navigation tasks, by giving up a third of the reward (Appendix~\ref{app:t32t26}); the obstacle is therefore scoped to two of the three rather than absolute. The learned value's generalization, which spreads sparse cost events onto neighboring states, is therefore essential signal rather than approximation error. Multi-step advantages, which form the advantage over an $h$-step window, degrade safety through credit blurring. At $h = 5$, cost worsens on seven of the nine analysis tasks relative to $h = 1$ (HalfCheetah 4.8 to 121), monotonically in $h$ (Appendix~\ref{app:extraction}). Applying the same reweighting on top of the ground-truth-filtered BC-Safe policy destroys its safety on five of the seven tasks where that policy satisfies the budget. The mechanism is compositional. Exponentiated per-step weights gently reweight actions the dataset already contains at each state, while safety on these tasks is carried by whole multi-step avoidance behaviors that reweighting fragments rather than preserves. Value quality is not what limits this route; the way the value is used is, and Appendix~\ref{app:proof} gives a minimal construction (Proposition~\ref{prop:corridor}) in which the failure is provable: bounded per-transition weights need a range growing linearly with the horizon, while trajectory selection succeeds whenever a safe trajectory exists. One enriched configuration does force safety through this route, an action-conditioned value distilled from dense ground-truth cost labels and scored counterfactually through a dynamics ensemble (Table~\ref{tab:extraction}); it succeeds only at severe reward cost with supervision unavailable under preferences. Among state-only, preference-compatible configurations the one exception is the sharpest extraction temperature on PointGoal1 (Appendix~\ref{app:t32t26}); no configuration we tested produces trajectory-level safety this way on CarGoal2 or PointGoal2.
 
 \paragraph{Obstacle 2: preference training additionally underdetermines the learned value at per-transition scale.}
-The learned value carries a second burden the oracles do not, and Table~\ref{tab:obstacle2} quantifies it at the two scales: trajectory-level ranking is reliable while every per-transition statistic sits at or below the value's own noise floor. The tail that exponential weighting concentrates on is seed-specific, consistent with the Bradley-Terry loss's null space, whose sum-preserving perturbations are invisible to training; a matched control with dense per-step supervision shows comparable cross-seed disagreement (Appendix~\ref{app:extraction}), so seed variance contributes as well, and the per-transition scale is unreliable under either supervision. Because candidate actions at a fixed state separate by less than the noise floor, counterfactual scoring through learned dynamics models verifiably engages and commits to noise, and held-out accuracy does not predict per-transition extraction quality: Hopper ($0.980$) and Swimmer ($0.988$) carry two of the best values into the two worst policies. Appendix~\ref{app:extraction} reports the full sweep.
+The learned value carries a second burden the oracles do not, and Table~\ref{tab:obstacle2} quantifies it at the two scales. Trajectory-level ranking is reliable everywhere, at $0.798$ to $1.000$ held-out accuracy, while per-transition agreement is not uniform: cross-seed advantage rank correlation spans $0.36$ to $0.97$ and top-one-percent overlap $0.15$ to $0.89$, so the per-transition scale is unreliable on some tasks and not others, CarGoal1 being the weakest at $\rho = 0.49$. The tail that exponential weighting concentrates on is seed-specific, consistent with the Bradley-Terry loss's null space, whose sum-preserving perturbations are invisible to training; a matched control with dense per-step supervision shows comparable cross-seed disagreement (Appendix~\ref{app:extraction}), so seed variance contributes as well, and the per-transition scale is unreliable under either supervision. Held-out accuracy does not predict per-transition extraction quality: Hopper ($0.980$) and Swimmer ($0.988$) carry two of the best values into the two worst policies. Neither does per-transition reliability itself, which is why the tasks with high cross-seed agreement are not rescued by it. Swimmer has the strongest agreement of the nine ($\rho = 0.97$) and the worst per-transition policy, at cost $61.2$ against a budget of $20$, while CarGoal1 has the weakest ($\rho = 0.49$) and a safe one, at $16.2$ against $25$; across the nine tasks the route is safe on two of the five with $\rho \geq 0.85$ and on two of the three below it. What limits the per-transition route is therefore the operator rather than the value it is given, which is the same conclusion Obstacle 1 reaches from the oracle substitutions. Appendix~\ref{app:extraction} reports the full sweep.
 
 \begin{table}[h]
-\caption{The value at two scales, across the nine analysis tasks (ranges over tasks; ensembles over three seeds). Accuracy means the fraction of held-out pairs the value orders the same way as their ground-truth summed costs.}
+\caption{The value at two scales on the nine analysis tasks, three seeds each.
+Accuracy ranges over tasks and is the fraction of held-out pairs the value
+orders the same way as their ground-truth summed costs, on pairs drawn from the
+bottom and top cost quartiles. The per-transition rows range over every
+seed pair of every task, on 5000 matched transitions.}
 \label{tab:obstacle2}
 \begin{center}
 \small
@@ -162,10 +166,7 @@ The learned value carries a second burden the oracles do not, and Table~\ref{tab
 \toprule
 Scale & Quantity & Range \\
 \midrule
-Trajectory & held-out segment-pair accuracy & $0.816$ to $1.000$ \\
-Per-transition & cross-seed advantage rank correlation $\rho$ & $0.63$ to $0.84$ \\
-Per-transition & top-1-percent transition overlap (Jaccard) & $0.15$ to $0.41$ \\
-Per-transition & action-value separation at a fixed state & $0.015$ to $0.08$ units \\
+\tabinput{data/tables/obstacle2.tex}
 \bottomrule
 \end{tabular}
 \end{center}
@@ -411,18 +412,20 @@ are reported here, whether or not the prediction survived.
 
 \paragraph{Extraction temperature and weight clip.} Table~\ref{tab:t32sweep}
 varies the advantage-weighted extraction's temperature $\beta$ over
-$\{0.1, 0.3, 1, 3\}$ at clip $20$, and the weight clip over $\{5, 100\}$ at
-$\beta = 1$, on the nine analysis tasks at three seeds. The registered
+$\{0.1, 0.3, 3\}$ at clip $20$, and the weight clip over $\{5, 100\}$ at
+$\beta = 1$, on the nine analysis tasks at three seeds. All six cells share one
+trainer and one seed protocol, so the columns are directly comparable; the
+deployed arm elsewhere in the paper uses an ensemble value and five seeds and is
+not a controlled comparison against them. The registered
 prediction was that no setting reaches the budget on the three failing
 navigation tasks, since the weight range the corridor argument requires grows
 with the horizon and the sweep's largest ratio is far below it. Sharpening the
 weights trades cost against reward monotonically, and the prediction holds on
 two of the three. On CarGoal2 no setting falls below $29.0$ and on PointGoal2
-none below $41.8$, against a budget of $25$. On PointGoal1 it fails. At
-$\beta = 0.1$ the extraction reaches $16.40 \pm 0.71$ and at $\beta = 0.3$ it
-reaches $22.05 \pm 1.33$, both inside the budget, against $32.44$ at the
-deployed $\beta = 1$. The safety is paid for in reward, which falls from
-$17.18$ to $10.80$ across that range. We therefore scope Obstacle 1 rather than
+none below $41.8$, against a budget of $25$. On PointGoal1 it fails. Cost falls monotonically as the weights sharpen, from
+$30.53 \pm 1.67$ at $\beta = 3$ to $22.05 \pm 1.33$ at $\beta = 0.3$ and
+$16.40 \pm 0.71$ at $\beta = 0.1$, the last two inside the budget. The safety is
+paid for in reward, which falls from $17.53$ to $10.80$ across that range. We therefore scope Obstacle 1 rather than
 state it without qualification. Per-transition reweighting reaches the budget at
 no swept setting on two of the three failing navigation tasks, and on the third
 only by sharpening far enough to give up a third of the reward, where it still
@@ -433,20 +436,20 @@ is where the benchmark departs from the idealized corridor.
 
 \begin{table}[h]
 \caption{Extraction temperature and weight clip on the nine analysis tasks
-(three seeds, mean $\pm$ 95\% CI; bold marks mean cost within budget). The
-$\beta = 1$, clip $20$ column is the deployed reference.}
+(three seeds, mean $\pm$ 95\% CI; bold marks mean cost within budget). These are
+the five registered cells, all from one trainer at one seed protocol.}
 \label{tab:t32sweep}
 \begin{center}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{l rr rr rr rr rr rr}
+\begin{tabular}{l rr rr rr rr rr}
 \toprule
 & \multicolumn{2}{c}{$\beta{=}0.1$} & \multicolumn{2}{c}{$\beta{=}0.3$}
-& \multicolumn{2}{c}{$\beta{=}1$} & \multicolumn{2}{c}{$\beta{=}3$}
+& \multicolumn{2}{c}{$\beta{=}3$}
 & \multicolumn{2}{c}{clip $5$} & \multicolumn{2}{c}{clip $100$} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}\cmidrule(lr){12-13}
-Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+Task & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ & $R$ & $C$ \\
 \midrule
 \tabinput{data/tables/t32_sweep.tex}
 \bottomrule

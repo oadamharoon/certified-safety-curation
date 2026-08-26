@@ -89,13 +89,36 @@ emit("vfilt_variants.tex", ["vfilt_matchgt", "vfilt_q25"])
 # T3.2 extraction temperature/clip sweep and T2.6 score aggregators, on the
 # nine analysis tasks. Pre-registered 2026-08-10; the first pass was void
 # because 04f ignored SEED_OVERRIDE and produced identical seeds.
+# PROVENANCE WARNING. osrl_results holds five alpha=0.25 arms that are NOT part
+# of the nine-selection design: halfcheetah/cargoal1 cdt_a25selq75 (pre-A3, old
+# naming, not in runs/selections) and pointgoal1 cdt_a25selq65/70/80 (A3,
+# 2026-08-18). Counting them alongside cdt_cert/draw2/draw3 would merge three
+# experiments run at different times into one grid. The paper reports nine
+# distinct selections; do not raise that number without checking membership.
 ANALYSIS = ["halfcheetah_velocity", "walker2d_velocity", "ant_velocity",
             "hopper_velocity", "swimmer_velocity", "cargoal1_dsrl", "cargoal2",
             "pointgoal1_dsrl", "pointgoal2"]
 emit("t32_sweep.tex",
-     ["vawr_b01", "vawr_b03", "vawr_5seed", "vawr_b3", "vawr_c5", "vawr_c100"],
+     ["vawr_b01", "vawr_b03", "vawr_b3", "vawr_c5", "vawr_c100"],
      order=ANALYSIS)
 emit("t26_agg.tex", ["xagg_min", "xagg_p10", "vfilt_calsafe"], order=ANALYSIS)
+
+# tab:obstacle2, regenerated from obstacle2_stats.json. Previously hardcoded
+# with a lost source: its accuracy row omitted a task and its per-transition
+# rows were HalfCheetah seed-pair statistics presented as cross-task ranges.
+_o2 = json.load(open(os.path.join(BASE, "data", "obstacle2_stats.json")))
+_acc = [np.mean(v["accuracy"]) for v in _o2.values()]
+_rho = [r for v in _o2.values() for r in v["rho"]]
+_jac = [j for v in _o2.values() for j in v["jaccard"]]
+with open(os.path.join(BASE, "data", "tables", "obstacle2.tex"), "w") as f:
+    f.write(
+        f"Trajectory & held-out segment-pair accuracy & "
+        f"${min(_acc):.3f}$ to ${max(_acc):.3f}$ \\\\\n"
+        f"Per-transition & cross-seed advantage rank correlation $\\rho$ & "
+        f"${min(_rho):.2f}$ to ${max(_rho):.2f}$ \\\\\n"
+        f"Per-transition & top-1-percent transition overlap (Jaccard) & "
+        f"${min(_jac):.2f}$ to ${max(_jac):.2f}$ \\\\\n")
+print("wrote obstacle2.tex")
 # Controls ablation
 emit("controls.tex", ["vfilt_random", "vfilt_return", "vfilt_retbot", "vfilt_matchgt"])
 # Alpha sweep policies
