@@ -119,6 +119,36 @@ with open(os.path.join(BASE, "data", "tables", "obstacle2.tex"), "w") as f:
         f"Per-transition & top-1-percent transition overlap (Jaccard) & "
         f"${min(_jac):.2f}$ to ${max(_jac):.2f}$ \\\\\n")
 print("wrote obstacle2.tex")
+
+# tab:labelcomplexity, previously hardcoded. n50 comes from the resampling fit
+# in label_complexity.json; margins from margin_vs_yield.json (all 14 tasks);
+# ">3200" marks tasks whose certification rate never reaches half at the
+# largest budget swept, per label_complexity_ext.json.
+_lc = json.load(open(os.path.join(BASE, "data", "review_response", "label_complexity.json")))
+_ext = json.load(open(os.path.join(BASE, "data", "review_response", "label_complexity_ext.json")))
+_mvy = {r["task"]: r for r in json.load(
+    open(os.path.join(BASE, "data", "review_response", "margin_vs_yield.json")))}
+_LCNAME = {"carrun_b": "CarRun", "pointgoal1_dsrl": "PointGoal1",
+           "cargoal1_dsrl": "CarGoal1", "dronerun_b": "DroneRun",
+           "cargoal2": "CarGoal2", "halfcheetah_velocity": "HalfCheetah",
+           "swimmer_velocity": "Swimmer", "walker2d_velocity": "Walker2d"}
+_rows, _pos = [], []
+for _t, _nm in _LCNAME.items():
+    _m = _mvy.get(_t, {}).get("margin")
+    if _m is None:
+        _m = _ext.get(_t, {}).get("margin")
+    _n = _lc["n50"].get(_t)
+    _cell = f"${round(_n)}$" if _n is not None else r"$> 3200$"
+    _pos.append((_m, _nm, _cell))
+for _m, _nm, _cell in sorted(_pos, key=lambda x: -x[0]):
+    _rows.append(f"{_nm} & ${_m:.3f}$ & {_cell} \\\\")
+_neg = [r["margin"] for r in _mvy.values() if r["margin"] <= 0]
+_rows.append(r"\midrule")
+_rows.append(f"{len(_neg)} tasks with margin $\\le 0$ & ${max(_neg):.3f}$ to "
+             f"${min(_neg):.3f}$ & never \\\\")
+with open(os.path.join(BASE, "data", "tables", "labelcomplexity.tex"), "w") as f:
+    f.write("\n".join(_rows) + "\n")
+print("wrote labelcomplexity.tex")
 # Controls ablation
 emit("controls.tex", ["vfilt_random", "vfilt_return", "vfilt_retbot", "vfilt_matchgt"])
 # Alpha sweep policies
