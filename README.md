@@ -53,8 +53,8 @@ Certified Safety Curation for LLM Fine-Tuning*, released separately.
                  repository from the research tree, and the archive builder.
     paper/       scripts/ regenerates every table and figure and runs the audit;
                  data/ holds the archived evaluation records they read;
-                 figures/ the rendered figures. The paper source is not here: it
-                 is on arXiv, and a stale copy would be worse than none.
+                 figures/ the rendered figures. The paper source is not part of
+                 this repository; a stale copy of it would be worse than none.
     runs/        the 2000-episode evaluation logs behind the deployment
                  certificate, and the selection summary the tables read. The rest
                  of the campaign output is raw training data and is not tracked.
