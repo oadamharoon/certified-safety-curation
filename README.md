@@ -69,17 +69,18 @@ Every file here is reached by a result the paper reports.
 
 From a clone, with no datasets and no trained artifacts:
 
-    python paper/scripts/make_tables.py               # all 27 tables
-    python paper/scripts/make_figures.py              # five figures
-    FIG=alpha python paper/scripts/make_figures.py    # the alpha operating curve
-    python paper/scripts/concept_figure.py            # the schematic
-    python paper/scripts/e_contamination_sweep.py     # controlled contamination
+    python paper/scripts/make_tables.py                        # all 27 tables
+    python paper/scripts/make_figures.py                      # five figures
+    FIG=alpha python paper/scripts/make_figures.py            # the alpha operating curve
+    python paper/scripts/concept_figure.py                    # the schematic
+    python paper/scripts/e_contamination_sweep.py             # controlled contamination
+    PYTHONPATH=src python paper/scripts/landscape_layouts.py --replot   # safety landscape
 
-All 27 tables come back byte-identical. Seven of the ten figures regenerate here and render
-pixel-identically; their PDFs differ only in embedded timestamps. The other three, the Pareto
-figure, the value-inspection figure and the safety landscape, read trajectory pickles,
-checkpoints and fresh rollouts, so they need the datasets and a trained ensemble; set
-`PYTHONPATH=src` for the builders that import the method.
+All 27 tables come back byte-identical. Eight of the ten figures regenerate here and render
+pixel-identically; their PDFs differ only in embedded timestamps. The other two, the Pareto
+figure and the value-inspection figure, read trajectory pickles and checkpoints, so they need
+the datasets and a trained ensemble. `--replot` on the landscape figure reuses the cached
+panels rather than rolling out again.
 
 ## Checking the numbers
 
