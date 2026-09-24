@@ -2,9 +2,9 @@
 # Build the anonymous code archive for the ICLR supplementary upload.
 #
 # It is the repository's tracked codebase (`git ls-files`) with the authorship block stripped
-# from README.md and the author block redacted from the paper source, so the archive still
-# runs the full audit (the orphan guard reads paper.tex) without naming anybody. A scrub step
-# fails the build if any author name, institution, e-mail or account string survives anywhere.
+# from README.md. The paper source is not in the repository at all, so nothing else needs
+# redacting. A scrub step fails the build if any author name, institution, e-mail or account
+# string survives anywhere in the archive.
 #
 # Usage: bash tools/make_anonymous_zip.sh [outdir]     default outdir: the repository's parent
 set -euo pipefail
@@ -21,7 +21,7 @@ mkdir -p "$DEST"
 git ls-files -z | while IFS= read -r -d '' f; do
   case "$f" in
     tools/make_anonymous_zip.sh) continue ;;   # this builder greps for the names
-    README.md|paper/paper.tex) continue ;;     # both handled below
+    README.md) continue ;;                     # handled below
   esac
   mkdir -p "$DEST/$(dirname "$f")"; cp "$f" "$DEST/$f"
 done
@@ -31,29 +31,6 @@ python - "$ROOT/README.md" "$DEST/README.md" <<'EOF'
 import re, sys
 t = open(sys.argv[1], encoding="utf-8").read()
 t = re.sub(r"<!-- AUTHORSHIP:.*?<!-- END AUTHORSHIP -->\n+", "", t, flags=re.S)
-open(sys.argv[2], "w", encoding="utf-8").write(t)
-EOF
-
-# paper source with the author block and the corresponding-author footnote redacted. The
-# archive keeps the source because the audit's orphan guard reads it: a check that guards a
-# value no longer in the text has to fail here too, or the archive's gate is weaker than ours.
-mkdir -p "$DEST/paper"
-python - "$ROOT/paper/paper.tex" "$DEST/paper/paper.tex" <<'EOF'
-import sys
-
-t = open(sys.argv[1], encoding="utf-8").read()
-# Brace-matched, not a regex: the author block nests \thanks{\texttt{...}} and closes with
-# "}}" on its own line, which every simple pattern for it gets wrong in one direction.
-i = t.index("\\author{")
-j = i + len("\\author{")
-depth = 1
-while depth:
-    if t[j] == "{":
-        depth += 1
-    elif t[j] == "}":
-        depth -= 1
-    j += 1
-t = t[:i] + "\\author{Anonymous authors \\\\\nPaper under double-blind review}" + t[j:]
 open(sys.argv[2], "w", encoding="utf-8").write(t)
 EOF
 

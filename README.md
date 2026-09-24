@@ -53,10 +53,8 @@ Certified Safety Curation for LLM Fine-Tuning*, released separately.
                  repository from the research tree, and the archive builder.
     paper/       scripts/ regenerates every table and figure and runs the audit;
                  data/ holds the archived evaluation records they read;
-                 figures/ the rendered figures; paper.tex the source the audit
-                 reads to check that every guarded value still appears in it
-                 (it ships to be read, not to be built: the ICLR class files it
-                 needs are not here).
+                 figures/ the rendered figures. The paper source is not here: it
+                 is on arXiv, and a stale copy would be worse than none.
     runs/        the 2000-episode evaluation logs behind the deployment
                  certificate, and the selection summary the tables read. The rest
                  of the campaign output is raw training data and is not tracked.
@@ -68,22 +66,36 @@ Nothing here is unused. Every file is reached by a result the paper reports: scr
 produced no reported number, earlier drafts of the drivers, and the online and VLM baselines
 this paper does not run were all removed rather than kept for provenance.
 
-## Checking the numbers
+## Regenerating the paper's tables and figures
 
 From a clone, with no datasets and no trained artifacts:
 
-    python paper/scripts/make_tables.py               # regenerates all 27 tables
-    python paper/scripts/verify_constants.py          # 185 checks, 0 orphaned
-    python paper/scripts/verify_review_commitments.py
+    python paper/scripts/make_tables.py               # all 27 tables
+    python paper/scripts/make_figures.py              # five figures
+    FIG=alpha python paper/scripts/make_figures.py    # the alpha operating curve
+    python paper/scripts/concept_figure.py            # the schematic
+    python paper/scripts/e_contamination_sweep.py     # controlled contamination
 
-`verify_constants.py` binds every number in the paper that is not a table cell to the
-expression that produces it, and its orphan guard fails if a check's claimed value no longer
-appears in `paper/paper.tex` at the precision the check states, so a trim cannot silently
-leave a guard defending nothing.
+All 27 tables come back byte-identical. Seven of the ten figures regenerate here and render
+pixel-identically; their PDFs differ only in embedded timestamps. The other three, the Pareto
+figure, the value-inspection figure and the safety landscape, read trajectory pickles,
+checkpoints and fresh rollouts, so they need the research tree; set `PYTHONPATH=src` for the
+builders that import the method.
+
+## Checking the numbers
+
+    python paper/scripts/verify_constants.py
+
+This is the gate. It binds every number in the paper that is not a table cell to the one
+expression that produces it, and refuses to let a check guard a sentence that is no longer
+there. Two of its rules read the paper's LaTeX source, which is not part of this repository;
+they announce a skip and the remaining 185 checks run. `verify_review_commitments.py` reads
+that source in every rule, so from a clone it skips entirely. Both run in full in the research
+tree, where the orphan guard also runs.
 
 `paper/scripts/completeness_check.py` is the working-tree gate: it re-derives archived records
-by re-running their producers against the raw run outputs and checks provenance by file
-mtime, so it needs the research tree and does not run from a clone alone.
+by re-running their producers against the raw run outputs and checks provenance by file mtime,
+so it needs the research tree and does not run from a clone alone.
 
 ## Rerunning the experiments
 
@@ -108,6 +120,14 @@ from the tree that holds your datasets. One task, end to end:
     SEED_OVERRIDE=0 MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 \
       python pipeline/04q_calibrated_vfilter.py
     python pipeline/05_evaluate.py --policy_file bc_calfilt_policy.pt
+
+## Data and models
+
+Datasets, value-ensemble checkpoints, cloned policies and raw campaign output are not tracked:
+they are large and regenerable, and the DSRL datasets are public. What is tracked is every
+evaluation record the paper's numbers are computed from, the 2000-episode evaluation logs
+behind the deployment certificate, and the selection summary the tables read. Everything the
+paper reports regenerates from those.
 
 ## Experimental conventions
 
@@ -138,6 +158,3 @@ imitation), and an exploratory probe series on readout choice, coverage, DRO and
 whose results the paper does not report either. Both lists are in the importer, by name. The
 registered form of the readout question that the paper *does* report (Table 7, score
 aggregators) is in `analysis/`, not in those probes.
-
-Data and trained artifacts are not tracked. Everything the paper reports regenerates from the
-archived records here.

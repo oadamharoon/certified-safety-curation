@@ -78,32 +78,11 @@ for task, lim in {**ANALYSIS, **BULLET}.items():
 json.dump(t21, open(f"{OUT}/donotfilter.json", "w"), indent=1)
 
 # ---------- T3.3: segment coverage / null space ----------
-t33 = {}
-for task in ANALYSIS:
-    segp = f"outputs/{task}/active_segments.pkl"
-    if not os.path.exists(segp):
-        print(f"T3.3 {task}: no segments file", flush=True)
-        continue
-    segs = pickle.load(open(segp, "rb"))
-    trajs = pickle.load(open(cfg["tasks"][task]["data_pickle"], "rb"))
-    total_states = sum(len(t["observations"]) for t in trajs)
-    slots = set()
-    n_slots = 0
-    for s in segs:
-        ti, st = s.get("traj_idx", s.get("traj_index", -1)), s.get("start", s.get("start_idx", 0))
-        L = len(s.get("costs", [])) or 30
-        n_slots += L
-        for u in range(st, st + L):
-            slots.add((ti, u))
-    covered = len(slots)
-    overlap = 1 - covered / max(n_slots, 1)
-    t33[task] = {"n_segments": len(segs), "states_covered": covered,
-                 "total_pool_states": total_states,
-                 "coverage_frac": covered / total_states,
-                 "within_segment_overlap": overlap}
-    print(f"T3.3 {task}: segs={len(segs)} covered={covered}/{total_states} "
-          f"({covered/total_states:.3f}) overlap={overlap:.3f}", flush=True)
-json.dump(t33, open(f"{OUT}/segment_coverage.json", "w"), indent=1)
+# Moved to analysis/segment_coverage.py. This version counted over ALL active
+# segments rather than over the 1000 sampled pairs the paper's claim is about,
+# and looked the trajectory up under a key the segments do not carry, so it
+# reported the same 1000 covered states for every task. Two writers for one
+# record is worse than none, so this one no longer writes it.
 
 # ---------- T2.3: MT procedures ----------
 t23 = {}

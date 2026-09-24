@@ -234,12 +234,8 @@ def main():
         if os.path.isfile(src) and usable(name):
             plan.append((src, os.path.join(REPO, "paper", "scripts", name)))
 
-    # the paper source: the audit gates read it (the orphan guard checks that every
-    # value a check claims still appears in the text at the precision it states)
-    for name in ("paper.tex", "references.bib"):
-        src = os.path.join(ws, "iclr2027", name)
-        if os.path.exists(src):
-            plan.append((src, os.path.join(REPO, "paper", name)))
+    # The paper source is NOT imported. It is not code, it is on arXiv, and a stale copy
+    # here would be worse than none. The two gate rules that read it announce a skip.
 
     # the method. A working-tree stage enters the repository only where the repository
     # already carries it: the working tree also holds stages for other projects (D4RL

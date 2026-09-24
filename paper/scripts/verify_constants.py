@@ -729,6 +729,22 @@ def _dronerun_pool():
 
 
 _BGN = {t: e["n_trajs"] for t, e in L("data/review_response/bullet_guarantee_2000.json").items()}
+# The paper source is not redistributed with the code archive. Where it is absent the two
+# rules that read it announce a skip; every other check binds a number to its producer and
+# runs unchanged.
+HAVE_TEX = os.path.exists(f"{BASE}/paper.tex")
+_PAPER_SRC = open(f"{BASE}/paper.tex").read() if HAVE_TEX else ""
+_SEGCOV = L("data/review_response/segment_coverage.json")
+
+
+def _segcov():
+    """Coverage, overlap and multiplicity of the 1000 sampled pairs, over the nine tasks."""
+    cov = [e["coverage_frac"] * 100 for e in _SEGCOV.values()]
+    ov = [e["overlap_frac"] * 100 for e in _SEGCOV.values()]
+    mult = [e["mean_multiplicity"] for e in _SEGCOV.values()]
+    return (rnd(min(cov), 1), rnd(max(cov), 1),
+            int(np.floor(min(ov))), int(np.ceil(max(ov))),
+            int(round(100 - float(np.mean(cov)))), rnd(max(mult), 1))
 
 
 def _armC_seeds(task, arm):
@@ -785,7 +801,7 @@ CHECKS = [
     ("App composability: at alpha=0.40 CDT is safe on 14 of the 24 selections", (14, 24), (a40_cdt_sel, len(a40_sel)), 0),
     ("Sec 4 and App composability: CPL on 17 of 24, stated identically in both", 17, a40_cpl_sel, 0),
     ("Sec 4 and App composability: the clone's 22 of 24 is stated identically in both",
-     2, len(re.findall(r"22 of 24", open(f"{BASE}/paper.tex").read())), 0),
+     2, len(re.findall(r"22 of 24", _PAPER_SRC)), 0),
     ("Sec 4 and App composability: the clone on 22 of 24", 22, a40_bc_sel, 0),
     ("App composability: the out-of-specification alpha=0.25 selections are 0.251, 0.263, 0.337",
      (0.251, 0.263, 0.337),
@@ -1246,6 +1262,10 @@ CHECKS = [
      (14.2, 35.8, 37.2, 29.1),
      tuple(rnd(x, 1) for x in sorted(_armC_seeds("hopper_velocity", "qfilt")))
      + (rnd(float(np.mean([v["C"] for v in SNAP["hopper_velocity"]["qfilt"].values()])), 1),), 0.05),
+    ("App extended: the 1000 pairs constrain 1.4 to 4.2 percent of each pool's states, the "
+     "drawn segments overlapping on 1 to 10 percent of their slots, leaving roughly 97 percent "
+     "unconstrained at about one segment sum per covered state",
+     (1.4, 4.2, 1, 10, 97, 1.1), _segcov(), 0.05),
     ("App proofs: 10^3 labels inside a 15 percent selection is about 6700 labels",
      6700, round(1000 / 0.15, -2), 50),
     ("App bullet: pools of 651 to 1990 trajectories, where 200 labels are 10 to 31 percent",
@@ -1259,7 +1279,7 @@ CHECKS = [
 # never verified the paper still SAYS X. After a trim removes a sentence, such a check keeps
 # passing while guarding nothing. This reports every claimed value that no longer appears in
 # paper.tex at the precision the check states, so a trim cannot silently orphan a guard.
-_PAPER = open(f"{BASE}/paper.tex").read()
+_PAPER = _PAPER_SRC
 
 
 def _in_paper(v):
@@ -1315,15 +1335,21 @@ VERBAL = {
 
 orphans = []
 for name, claimed, actual, tol in CHECKS:
-    if name in VERBAL:
+    if name in VERBAL or not HAVE_TEX:
         continue
     vals = claimed if isinstance(claimed, (tuple, list)) else [claimed]
     missing = [v for v in vals if not _in_paper(v)]
     if missing:
         orphans.append((name, missing))
 
+# checks whose "source" is the paper's own text rather than a data artifact
+TEX_DEPENDENT = {"Sec 4 and App composability: the clone's 22 of 24 is stated identically in both"}
+
 fails = 0
 for name, claimed, actual, tol in CHECKS:
+    if name in TEX_DEPENDENT and not HAVE_TEX:
+        print(f"  SKIP  {name}")
+        continue
     if isinstance(claimed, (tuple, list)):
         ok = len(claimed) == len(actual) and all(abs(c - a) <= tol for c, a in zip(claimed, actual))
     else:
@@ -1336,6 +1362,11 @@ if orphans:
           f"(the guarded sentence may have been trimmed):")
     for n, m in orphans:
         print(f"    {n}  -> missing {m}")
+if not HAVE_TEX:
+    print("\n  SKIP  paper.tex is not in this archive, so the orphan guard and the "
+          "cross-section wording check did not run")
 print(f"\nCONSTANTS: {'PASS' if not fails else f'{fails} MISMATCH'} "
-      f"({len(CHECKS)} checks, {len(orphans)} orphaned)")
+      f"({len(CHECKS)} checks, "
+      f"{len(orphans) if HAVE_TEX else 'orphan guard skipped, '}"
+      f"{' orphaned' if HAVE_TEX else 'no paper.tex'})")
 sys.exit(1 if fails else 0)

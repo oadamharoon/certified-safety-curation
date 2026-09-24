@@ -13,6 +13,13 @@ Usage: python scripts/verify_review_commitments.py   (exit 1 on any regression)
 import os, re, sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# The paper source is not redistributed with the code archive; every rule here reads it,
+# so the gate reports a skip rather than failing where it is absent.
+HAVE_TEX = os.path.exists(f"{BASE}/paper.tex")
+if not HAVE_TEX:
+    print("REVIEW COMMITMENTS: SKIP  paper.tex is not in this archive; "
+          "every rule in this gate reads it")
+    raise SystemExit(0)
 TEX = open(f"{BASE}/paper.tex").read()
 CUT = re.search(r"\\appendix|\\section\*?\{Appendix", TEX).start()
 MAIN, APP = TEX[:CUT], TEX[CUT:]
