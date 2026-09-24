@@ -42,7 +42,7 @@ run_cdt () {
   [ -f "$LOGDIR/done_${tag}" ] && return 0
   cd ${CSC_OSRL}
   env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
-    conda run -n safevlmcpl --no-capture-output \
+    ${PYTHON} \
     python examples/train/train_cdt.py --task "$e" --seed "$seed" \
     --cost_limit "$lim" --device cuda --augment_percent 0.0 --random_aug 0.0 \
     --subset_h5 "$h5" --logdir "$LOGDIR/runs" > "$LOGDIR/${tag}.log" 2>&1 \
@@ -55,5 +55,5 @@ for h5 in $W/selections/*.hdf5; do for s in 0 1 2; do echo "$h5 $s" >> "$J"; don
 echo "[$(date +%m/%d-%H:%M:%S)] A3 CDT: $(wc -l < $J) jobs" >> "$LOGDIR/progress.log"
 xargs -a "$J" -L1 -P 5 bash -c 'run_cdt "$@"' _
 cd ${CSC_PAPER}
-conda run -n safevlmcpl --no-capture-output python scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
+${PYTHON} scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
 echo "[$(date +%m/%d-%H:%M:%S)] A3 CDT DONE ($(ls $LOGDIR/done_* 2>/dev/null | wc -l))" >> "$LOGDIR/progress.log"

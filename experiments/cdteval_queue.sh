@@ -8,7 +8,7 @@ eval_one () {
   local base=$(basename $(dirname "$rd"))_$(basename "$rd")
   local out="$LOGDIR/evals/${base}.json"
   [ -f "$out" ] && return 0
-  conda run -n safevlmcpl --no-capture-output python $S/cdt_eval_sweep.py \
+  ${PYTHON} $S/cdt_eval_sweep.py \
     "$rd" "$targets" "$out" >> "$LOGDIR/evals.log" 2>&1 \
     || echo "FAIL EVAL3 $base" >> "$LOGDIR/progress.log"
 }

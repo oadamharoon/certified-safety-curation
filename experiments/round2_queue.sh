@@ -49,10 +49,10 @@ run_t2 () {
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
     MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 TIER2_DELTA=0.5 COST_LIMIT=$lim \
     V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt SEED_OVERRIDE=$seed OUT_TAG=$tag \
-    conda run -n safevlmcpl --no-capture-output python scripts/04q_calibrated_vfilter.py \
+    ${PYTHON} scripts/04q_calibrated_vfilter.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" \
     >> "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"
@@ -68,10 +68,10 @@ run_rand () {
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
     SCORE_MODE=random FILTER_FRAC=$frac COST_LIMIT=$lim \
     V_ENSEMBLE_FILE=v_ensemble_pess_seed0.pt SEED_OVERRIDE=$seed OUT_TAG=$tag \
-    conda run -n safevlmcpl --no-capture-output python scripts/04p_vfilter_bc.py \
+    ${PYTHON} scripts/04p_vfilter_bc.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" \
     >> "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"
@@ -107,7 +107,7 @@ for seed in 0 1 2; do
     [ -f "$LOGDIR/done_${tag}" ] && continue
     cd ${CSC_OSRL}
     env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
-      conda run -n safevlmcpl --no-capture-output \
+      ${PYTHON} \
       python examples/train/train_cdt.py --task "$e" --seed "$seed" \
       --cost_limit 10 --device cuda --logdir "$LOGDIR/runs" \
       > "$LOGDIR/${tag}.log" 2>&1 \
@@ -119,6 +119,6 @@ for seed in 0 1 2; do
   log_run "BULLET CDT WAVE seed=$seed COMPLETE"
 done
 cd ${CSC_PAPER}
-conda run -n safevlmcpl --no-capture-output python scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
-conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
+${PYTHON} scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
+${PYTHON} scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "ROUND-2 QUEUE ALL DONE"

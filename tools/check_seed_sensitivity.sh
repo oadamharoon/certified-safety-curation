@@ -44,7 +44,7 @@ echo "seed check: $SCRIPT on $TASK"
 for s in 0 1; do
   (cd "$D" && env SAFETY_VLM_TASK=$TASK SAFETY_VLM_CONFIG=$TMP/cfg.yaml WANDB_MODE=disabled \
      OMP_NUM_THREADS=2 SEED_OVERRIDE=$s OUT_TAG=seedchk_s$s "$@" \
-     conda run -n safevlmcpl --no-capture-output python scripts/$SCRIPT > "$TMP/s$s.log" 2>&1) \
+     ${PYTHON} scripts/$SCRIPT > "$TMP/s$s.log" 2>&1) \
     || { echo "  FAIL: seed $s exited nonzero"; tail -12 "$TMP/s$s.log" | sed 's/^/    /'; exit 1; }
   echo "  seed $s done"
 done

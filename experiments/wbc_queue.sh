@@ -29,10 +29,10 @@ run_wbc () {
   cd ${CSC_WORK}
   env SAFETY_VLM_TASK=$task KEPT_JSON="$kj" SEED_OVERRIDE=$seed OUT_TAG="$tag" \
     RETURN_WEIGHTED=1 WANDB_MODE=disabled OMP_NUM_THREADS=4 \
-    conda run -n safevlmcpl --no-capture-output python $S/bc_on_subset.py \
+    ${PYTHON} $S/bc_on_subset.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" \
     >> "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"
@@ -59,5 +59,5 @@ log_run "wbc jobs: $(wc -l < $J)"
 export -f log_run
 xargs -a "$J" -L1 -P 6 bash -c 'run_wbc "$@"' _
 cd ${CSC_PAPER}
-conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
+${PYTHON} scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "WBC QUEUE ALL DONE"

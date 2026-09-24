@@ -30,10 +30,10 @@ run_awr () {
   cd ${CSC_WORK}
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
     AWR_BETA=$beta AWR_WEIGHT_CLIP=$clip SEED_OVERRIDE=$seed OUT_TAG=$full \
-    conda run -n safevlmcpl --no-capture-output python scripts/04f_train_v_awr.py \
+    ${PYTHON} scripts/04f_train_v_awr.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_v_awr_${full}_policy.pt" --results_suffix "$full" \
     >> "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"
@@ -46,14 +46,14 @@ run_agg () {
   local key="${task}_${tag}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
   cd ${CSC_WORK}
-  local frac=$(conda run -n safevlmcpl --no-capture-output python $S/t13_frac.py $task $seed | tail -1)
+  local frac=$(${PYTHON} $S/t13_frac.py $task $seed | tail -1)
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
     AGG_MODE=$agg FILTER_FRAC=$frac COST_LIMIT=$lim \
     V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt SEED_OVERRIDE=$seed OUT_TAG=$tag \
-    conda run -n safevlmcpl --no-capture-output python scripts/04p_vfilter_bc.py \
+    ${PYTHON} scripts/04p_vfilter_bc.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" \
     >> "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"
@@ -82,5 +82,5 @@ export -f dispatch
 export -f log_run
 xargs -a "$J" -L1 -P 8 bash -c 'dispatch "$@"' _
 cd ${CSC_PAPER}
-conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
+${PYTHON} scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "T32T26 QUEUE ALL DONE"

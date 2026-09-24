@@ -32,7 +32,7 @@ train_one () {
   [ -f "$LOGDIR/done_${tag}" ] && return 0
   cd ${CSC_OSRL}
   env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
-    conda run -n safevlmcpl --no-capture-output \
+    ${PYTHON} \
     python examples/train/train_cdt.py --task "$env" --seed "$seed" \
     --cost_limit "$lim" --device cuda --logdir "$LOGDIR/runs" \
     > "$LOGDIR/${tag}.log" 2>&1 \
@@ -59,7 +59,7 @@ eval_one () {
   local base=$(basename $(dirname "$rd"))_$(basename "$rd")
   local out="$LOGDIR/evals/${base}.json"
   [ -f "$out" ] && return 0
-  conda run -n safevlmcpl --no-capture-output python $S/cdt_eval_sweep.py \
+  ${PYTHON} $S/cdt_eval_sweep.py \
     "$rd" "$targets" "$out" >> "$LOGDIR/evals.log" 2>&1 \
     || echo "FAIL EVAL $base" >> "$LOGDIR/progress.log"
 }

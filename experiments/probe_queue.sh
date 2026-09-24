@@ -15,6 +15,6 @@ PYTHON="${PYTHON:-python}"
 
 set -u
 cd ${CSC_WORK}
-env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=6 SCRATCH=${TMPDIR:-/tmp} conda run -n safevlmcpl --no-capture-output python ${TMPDIR:-/tmp}/eprocess_sim.py > ${TMPDIR:-/tmp}/eprocess_sim.log 2>&1 || echo "FAIL eprocess" >> ${TMPDIR:-/tmp}/probe_progress.log
-env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=6 SCRATCH=${TMPDIR:-/tmp} conda run -n safevlmcpl --no-capture-output python ${TMPDIR:-/tmp}/margin_probe.py > ${TMPDIR:-/tmp}/margin_probe.log 2>&1 || echo "FAIL margin" >> ${TMPDIR:-/tmp}/probe_progress.log
+env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=6 SCRATCH=${TMPDIR:-/tmp} ${PYTHON} ${TMPDIR:-/tmp}/eprocess_sim.py > ${TMPDIR:-/tmp}/eprocess_sim.log 2>&1 || echo "FAIL eprocess" >> ${TMPDIR:-/tmp}/probe_progress.log
+env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=6 SCRATCH=${TMPDIR:-/tmp} ${PYTHON} ${TMPDIR:-/tmp}/margin_probe.py > ${TMPDIR:-/tmp}/margin_probe.log 2>&1 || echo "FAIL margin" >> ${TMPDIR:-/tmp}/probe_progress.log
 echo "PROBES ALL DONE" >> ${TMPDIR:-/tmp}/probe_progress.log

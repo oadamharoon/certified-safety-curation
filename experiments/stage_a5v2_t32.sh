@@ -45,10 +45,10 @@ run_awr () {
   cd $D
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
     AWR_BETA=$beta AWR_WEIGHT_CLIP=$clip SEED_OVERRIDE=$seed OUT_TAG=$full \
-    conda run -n safevlmcpl --no-capture-output python scripts/04f_train_v_awr.py \
+    ${PYTHON} scripts/04f_train_v_awr.py \
     > "$LOGDIR/${key}.log" 2>&1 || { log_run "FAIL TRAIN $key"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_v_awr_${full}_policy.pt" --results_suffix "$full" \
     >> "$LOGDIR/${key}.log" 2>&1 || { log_run "FAIL EVAL $key"; return 1; }
   touch "$LOGDIR/done_${key}"; log_run "DONE $key"

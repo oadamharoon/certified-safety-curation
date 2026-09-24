@@ -31,23 +31,23 @@ prep_task () {
   local B="env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=4"
   if [ ! -f "$LOGDIR/done_seg_${task}" ]; then
     log_run "SEG $task"
-    $B conda run -n safevlmcpl --no-capture-output python scripts/01_segment_and_filter.py \
+    $B ${PYTHON} scripts/01_segment_and_filter.py \
       > "$LOGDIR/${task}_01.log" 2>&1 || { log_run "FAIL seg $task"; return 1; }
-    $B conda run -n safevlmcpl --no-capture-output python scripts/03b_label_by_cost.py \
+    $B ${PYTHON} scripts/03b_label_by_cost.py \
       >> "$LOGDIR/${task}_01.log" 2>&1 || { log_run "FAIL label $task"; return 1; }
     touch "$LOGDIR/done_seg_${task}"
   fi
   for seed in 0 1 2 3 4; do
     if [ ! -f "$LOGDIR/done_v_${task}_s${seed}" ]; then
       log_run "V $task s$seed"
-      $B SEED_OVERRIDE=$seed conda run -n safevlmcpl --no-capture-output \
+      $B SEED_OVERRIDE=$seed ${PYTHON} \
         python scripts/04n_train_v_only.py > "$LOGDIR/${task}_v${seed}.log" 2>&1 \
         || { log_run "FAIL V $task s$seed"; return 1; }
       touch "$LOGDIR/done_v_${task}_s${seed}"
     fi
   done
   # kept-index files for BC-All / BC-Safe
-  $B conda run -n safevlmcpl --no-capture-output python - <<PYEOF
+  $B ${PYTHON} - <<PYEOF
 import json, pickle, numpy as np, yaml, os
 cfg = yaml.safe_load(open("config.yaml"))
 t = "$task"
@@ -70,22 +70,22 @@ run_arm () {
     calfilt) tag="calfilt_lttv2_seed${seed}"
       cmd="$B MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 COST_LIMIT=$LIM \
         V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt SEED_OVERRIDE=$seed OUT_TAG=$tag \
-        conda run -n safevlmcpl --no-capture-output python scripts/04q_calibrated_vfilter.py";;
+        ${PYTHON} scripts/04q_calibrated_vfilter.py";;
     vfilt) tag="vfilt_matchgt_seed${seed}"
       cmd="$B FILTER_FRAC=$frac COST_LIMIT=$LIM \
         V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt SEED_OVERRIDE=$seed OUT_TAG=$tag \
-        conda run -n safevlmcpl --no-capture-output python scripts/04p_vfilter_bc.py";;
+        ${PYTHON} scripts/04p_vfilter_bc.py";;
     bcall) tag="bc"
       cmd="$B KEPT_JSON=outputs/${task}/kept_all.json SEED_OVERRIDE=0 OUT_TAG=$tag \
-        conda run -n safevlmcpl --no-capture-output python $S/bc_on_subset.py";;
+        ${PYTHON} $S/bc_on_subset.py";;
     bcsafe) tag="bcsafe_seed${seed}"
       cmd="$B KEPT_JSON=outputs/${task}/kept_safe.json SEED_OVERRIDE=$seed OUT_TAG=$tag \
-        conda run -n safevlmcpl --no-capture-output python $S/bc_on_subset.py";;
+        ${PYTHON} $S/bc_on_subset.py";;
   esac
   key="${task}_${tag}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
   eval "$cmd" > "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
-  $B CUDA_VISIBLE_DEVICES="" conda run -n safevlmcpl --no-capture-output \
+  $B CUDA_VISIBLE_DEVICES="" ${PYTHON} \
     python scripts/05_evaluate.py --policy_file "bc_${tag}_policy.pt" \
     --results_suffix "$tag" >> "$LOGDIR/${key}.log" 2>&1 \
     || { echo "FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
@@ -117,10 +117,10 @@ xargs -a "$JOBS" -L1 -P 6 bash -c 'run_arm "$@"' _
 log_run "POLICY STAGE COMPLETE"
 
 # stage 3: guarantee resampling on bullet scores
-env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=8 conda run -n safevlmcpl --no-capture-output \
+env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=8 ${PYTHON} \
   python $S/bullet_guarantee.py > "$LOGDIR/guarantee.log" 2>&1 \
   && log_run "GUARANTEE STAGE COMPLETE" || log_run "FAIL guarantee stage"
 cd ${CSC_PAPER}
-conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py \
+${PYTHON} scripts/collect_results.py \
   >> "$LOGDIR/progress.log" 2>&1 && log_run "HARVEST COMPLETE"
 log_run "BULLETGYM ALL DONE"

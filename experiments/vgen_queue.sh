@@ -28,15 +28,15 @@ run_chain () {
   [ -f "$LOGDIR/done_${key}" ] && return 0
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
     PREF_LABELS_FILE="gt_labels_vgen${arm}.json" SEED_OVERRIDE=$seed V_OUT="$vout" \
-    conda run -n safevlmcpl --no-capture-output python scripts/04n_train_v_only.py \
+    ${PYTHON} scripts/04n_train_v_only.py \
     > "$log" 2>&1 || { echo "FAIL V $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
     MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 COST_LIMIT=$lim \
     V_ENSEMBLE_FILE="$vout" SEED_OVERRIDE=$seed OUT_TAG="$tag" \
-    conda run -n safevlmcpl --no-capture-output python scripts/04q_calibrated_vfilter.py \
+    ${PYTHON} scripts/04q_calibrated_vfilter.py \
     >> "$log" 2>&1 || { echo "FAIL CALFILT $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" \
     >> "$log" 2>&1 || { echo "FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"

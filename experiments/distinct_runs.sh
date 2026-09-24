@@ -39,7 +39,7 @@ run_cdt () {
   [ -f "$LOGDIR/done_${tag}" ] && return 0
   cd ${CSC_OSRL}
   env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
-    conda run -n safevlmcpl --no-capture-output \
+    ${PYTHON} \
     python examples/train/train_cdt.py --task "$e" --seed "$seed" \
     --cost_limit "$lim" --device cuda --augment_percent 0.0 --random_aug 0.0 \
     --subset_h5 "$h5" --logdir "$LOGDIR/runs" > "$LOGDIR/${tag}.log" 2>&1 \
@@ -57,10 +57,10 @@ run_bc () {
   cd ${CSC_WORK}
   env SAFETY_VLM_TASK=$task KEPT_JSON="$kj" SEED_OVERRIDE=$seed OUT_TAG="$tag" \
     WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python $S/bc_on_subset.py \
+    ${PYTHON} $S/bc_on_subset.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL BC $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" \
     >> "$LOGDIR/${key}.log" 2>&1 || { echo "FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"

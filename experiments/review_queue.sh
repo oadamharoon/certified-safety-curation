@@ -50,17 +50,17 @@ run_job () {
       V_ENSEMBLE_FILE=v_ensemble_pess_seed0.pt SEED_OVERRIDE="$seed" \
       SCORE_MODE=return_bottom OUT_TAG="$tag" \
       OMP_NUM_THREADS=3 WANDB_MODE=disabled \
-      conda run -n safevlmcpl --no-capture-output \
+      ${PYTHON} \
       python scripts/04p_vfilter_bc.py > "$log" 2>&1 || { echo "TRAIN FAIL $task $tag" >> "$LOGDIR/progress.log"; return 1; }
   else
     env SAFETY_VLM_TASK="$task" FILTER_FRAC="$frac" COST_LIMIT="$lim" \
       CAL_N=200 SPLIT_CAL=0 LABEL_DRAW_SEED=0 SEED_OVERRIDE="$seed" \
       OUT_TAG="$tag" OMP_NUM_THREADS=3 WANDB_MODE=disabled \
-      conda run -n safevlmcpl --no-capture-output \
+      ${PYTHON} \
       python scripts/04s_labels_only_filter.py > "$log" 2>&1 || { echo "TRAIN FAIL $task $tag" >> "$LOGDIR/progress.log"; return 1; }
   fi
   env SAFETY_VLM_TASK="$task" OMP_NUM_THREADS=3 WANDB_MODE=disabled CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output \
+    ${PYTHON} \
     python scripts/05_evaluate.py --policy_file "bc_${tag}_policy.pt" \
     --results_suffix "$tag" >> "$log" 2>&1 || { echo "EVAL FAIL $task $tag" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${task}_${tag}"

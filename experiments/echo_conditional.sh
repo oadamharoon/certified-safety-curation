@@ -26,7 +26,7 @@ while ! grep -q "ROUND-2 QUEUE ALL DONE" $S/round2_logs/progress.log 2>/dev/null
 done
 log_run "ROUND-2 COMPLETE - EVALUATING ECHO RULE"
 
-DEC=$(cd ${CSC_PAPER} && conda run -n safevlmcpl --no-capture-output python - <<'PYEOF'
+DEC=$(cd ${CSC_PAPER} && ${PYTHON} - <<'PYEOF'
 import json
 d = json.load(open("data/osrl_results.json"))
 e = d.get("carrun_b", {}).get("cdt", {})
@@ -41,7 +41,7 @@ case "$DEC" in
   TRIGGER)
     log_run "BUILDING CARRUN CERTIFIED SUBSET"
     cd ${CSC_WORK}
-    env CUDA_VISIBLE_DEVICES="" conda run -n safevlmcpl --no-capture-output python - > "$LOGDIR/build.log" 2>&1 <<'PYEOF'
+    env CUDA_VISIBLE_DEVICES="" ${PYTHON} - > "$LOGDIR/build.log" 2>&1 <<'PYEOF'
 import json, pickle, sys, os
 import numpy as np, torch, h5py
 sys.path.insert(0, ".")
@@ -91,7 +91,7 @@ PYEOF
       [ -f "$LOGDIR/done_${tag}" ] && continue
       cd ${CSC_OSRL}
       env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
-        conda run -n safevlmcpl --no-capture-output \
+        ${PYTHON} \
         python examples/train/train_cdt.py --task OfflineCarRun-v0 --seed $seed \
         --cost_limit 10 --device cuda --augment_percent 0.0 --random_aug 0.0 \
         --subset_h5 "$S/certified_h5/carrun_b_echocert_seed0.hdf5" \
@@ -105,15 +105,15 @@ PYEOF
       cd ${CSC_WORK}
       env SAFETY_VLM_TASK=carrun_b KEPT_JSON="$S/certified_h5/carrun_b_echocert_seed0_kept.json" \
         SEED_OVERRIDE=$seed OUT_TAG="$tag" WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-        conda run -n safevlmcpl --no-capture-output python $S/bc_on_subset.py > "$LOGDIR/${key}.log" 2>&1 \
+        ${PYTHON} $S/bc_on_subset.py > "$LOGDIR/${key}.log" 2>&1 \
         && env SAFETY_VLM_TASK=carrun_b WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-           conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+           ${PYTHON} scripts/05_evaluate.py \
            --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" >> "$LOGDIR/${key}.log" 2>&1 \
         && { touch "$LOGDIR/done_${key}"; log_run "DONE $key"; } || log_run "FAIL $key"
     done
     cd ${CSC_PAPER}
-    conda run -n safevlmcpl --no-capture-output python scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
-    conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
+    ${PYTHON} scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
+    ${PYTHON} scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
     log_run "ECHO COMPLETE"
     ;;
   NULL:*)

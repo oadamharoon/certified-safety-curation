@@ -33,7 +33,7 @@ for seed in 0 1 2; do
     [ -f "$LOGDIR/done_${tag}" ] && continue
     log_run "START $tag"
     env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
-      conda run -n safevlmcpl --no-capture-output \
+      ${PYTHON} \
       python examples/train/train_cdt.py --task "$e" --seed "$seed" \
       --cost_limit "$lim" --device cuda --augment_percent 0.0 --random_aug 0.0 \
       --subset_h5 "$S/certified_h5/$h5" \

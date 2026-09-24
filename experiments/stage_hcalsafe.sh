@@ -32,11 +32,11 @@ one () {
       OMP_NUM_THREADS=3 SEED_OVERRIDE=$seed MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 \
       FALLBACK_MODE=calsafe COST_LIMIT=$lim \
       V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt OUT_TAG=$tag \
-    conda run -n safevlmcpl --no-capture-output python scripts/04q_calibrated_vfilter.py \
+    ${PYTHON} scripts/04q_calibrated_vfilter.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$t SAFETY_VLM_CONFIG=config_h${h}.yaml WANDB_MODE=disabled \
       OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" >> "$LOGDIR/${key}.log" 2>&1 \
     || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"
@@ -50,5 +50,5 @@ done
 echo "[$(date +%m/%d-%H:%M:%S)] HCALSAFE: $(wc -l < $J) jobs" >> "$LOGDIR/progress.log"
 xargs -a "$J" -L1 -P 8 bash -c 'one "$@"' _
 cd ${CSC_PAPER}
-conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
+${PYTHON} scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 echo "[$(date +%m/%d-%H:%M:%S)] HCALSAFE DONE ($(ls $LOGDIR/done_* 2>/dev/null | wc -l))" >> "$LOGDIR/progress.log"

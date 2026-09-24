@@ -20,7 +20,7 @@ PYTHON="${PYTHON:-python}"
 
 set -u
 W=${CSC_WORKSPACE}
-PY=$W/../miniconda3/envs/safevlmcpl/bin/python
+PY=${PYTHON}
 [ -x "$PY" ] || PY=${PYTHON}
 S=$W/iclr2027/scripts; L=$W/runs/logs/v2f3
 run () {   # script [args]

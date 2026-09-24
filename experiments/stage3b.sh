@@ -22,7 +22,7 @@ LOGDIR=$W/logs/stage3b
 mkdir -p "$LOGDIR"
 log_run () { echo "[$(date +%m/%d-%H:%M:%S)] $1" | tee -a "$LOGDIR/progress.log"; }
 LIMOF () { case $1 in *velocity*) echo 20;; *_b) echo 10;; *) echo 25;; esac; }
-GTF () { conda run -n safevlmcpl --no-capture-output python -c "import json;print(json.load(open('$W/gtfracs.json'))['$1']['gt_frac'])"; }
+GTF () { ${PYTHON} -c "import json;print(json.load(open('$W/gtfracs.json'))['$1']['gt_frac'])"; }
 export -f LIMOF GTF
 
 run_arm () {
@@ -61,11 +61,11 @@ run_arm () {
   [ -f "$LOGDIR/done_${key}" ] && return 0
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 SEED_OVERRIDE=$seed \
       COST_LIMIT=$lim V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt OUT_TAG=$tag $env_extra \
-    conda run -n safevlmcpl --no-capture-output python "$script" > "$LOGDIR/${key}.log" 2>&1 \
+    ${PYTHON} "$script" > "$LOGDIR/${key}.log" 2>&1 \
     || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   local pol="bc_${tag}_policy.pt"; [ "$kind" = cpl ] && pol="cpl_${tag}_policy.pt"
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "$pol" --results_suffix "$tag" >> "$LOGDIR/${key}.log" 2>&1 \
     || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"; echo "[$(date +%m/%d-%H:%M:%S)] DONE $key" >> "$LOGDIR/progress.log"
@@ -85,5 +85,5 @@ log_run "STAGE3b: $(wc -l < $J) jobs (persistent logs at $LOGDIR)"
 export -f log_run
 xargs -a "$J" -L1 -P 8 bash -c 'run_arm "$@"' _
 cd ${CSC_PAPER}
-conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
+${PYTHON} scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "STAGE3B DONE ($(ls $LOGDIR/done_* 2>/dev/null | wc -l) arms)"

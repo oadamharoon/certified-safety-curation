@@ -49,7 +49,7 @@ t0=$SECONDS
 cd "$D"
 env SAFETY_VLM_TASK=$TASK SAFETY_VLM_CONFIG=$CFG WANDB_MODE=disabled \
     OMP_NUM_THREADS=2 SEED_OVERRIDE=0 OUT_TAG=smoke "$@" \
-    conda run -n safevlmcpl --no-capture-output python scripts/$SCRIPT \
+    ${PYTHON} scripts/$SCRIPT \
     > "$TMP/run.log" 2>&1
 rc=$?
 dt=$((SECONDS - t0))

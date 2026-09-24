@@ -32,11 +32,11 @@ one () {
   env SAFETY_VLM_TASK=$t WANDB_MODE=disabled OMP_NUM_THREADS=3 SEED_OVERRIDE=$seed \
       MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 FALLBACK_MODE=calsafe REWARD_FRAC=0.5 COST_LIMIT=$lim \
       V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt OUT_TAG=$tag \
-    conda run -n safevlmcpl --no-capture-output python scripts/04q_calibrated_vfilter.py \
+    ${PYTHON} scripts/04q_calibrated_vfilter.py \
     > "$LOGDIR/${key}.log" 2>&1 \
     || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$t WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" >> "$LOGDIR/${key}.log" 2>&1 \
     || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"

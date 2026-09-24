@@ -48,7 +48,7 @@ if not pairs:
 ret = min(pairs, key=lambda p: p[1])[0]
 targets = [float(x) for x in targets_csv.split(",")]
 rets = ",".join(str(ret) for _ in targets)
-cmd = ["conda", "run", "-n", "safevlmcpl", "--no-capture-output", "python",
+cmd = [_os.environ.get("PYTHON", "python"),
        "examples/eval/eval_cdt.py", "--path", run_dir,
        "--returns", f"[{rets}]", "--costs", f"[{targets_csv}]",
        "--eval_episodes", "100", "--device", "cpu", "--threads", "3"]

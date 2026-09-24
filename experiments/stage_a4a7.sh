@@ -37,10 +37,10 @@ op_arm () {   # task selfile qtag variant seed
   cd $D
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 SEED_OVERRIDE=$seed \
       KEPT_JSON="$W/selections/$selfile" OUT_TAG=$tag $extra \
-    conda run -n safevlmcpl --no-capture-output python $W/scripts/bc_on_subset.py \
+    ${PYTHON} $W/scripts/bc_on_subset.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" >> "$LOGDIR/${key}.log" 2>&1 \
     || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"; echo "[$(date +%m/%d-%H:%M:%S)] DONE $key" >> "$LOGDIR/progress.log"
@@ -55,11 +55,11 @@ h_arm () {    # basetask h seed
   env SAFETY_VLM_TASK=$t SAFETY_VLM_CONFIG=config_h${h}.yaml WANDB_MODE=disabled \
       OMP_NUM_THREADS=3 SEED_OVERRIDE=$seed MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 \
       COST_LIMIT=$lim V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt OUT_TAG=$tag \
-    conda run -n safevlmcpl --no-capture-output python scripts/04q_calibrated_vfilter.py \
+    ${PYTHON} scripts/04q_calibrated_vfilter.py \
     > "$LOGDIR/${key}.log" 2>&1 || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL $key" >> "$LOGDIR/progress.log"; return 1; }
   env SAFETY_VLM_TASK=$t SAFETY_VLM_CONFIG=config_h${h}.yaml WANDB_MODE=disabled \
       OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
-    conda run -n safevlmcpl --no-capture-output python scripts/05_evaluate.py \
+    ${PYTHON} scripts/05_evaluate.py \
     --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" >> "$LOGDIR/${key}.log" 2>&1 \
     || { echo "[$(date +%m/%d-%H:%M:%S)] FAIL EVAL $key" >> "$LOGDIR/progress.log"; return 1; }
   touch "$LOGDIR/done_${key}"; echo "[$(date +%m/%d-%H:%M:%S)] DONE $key" >> "$LOGDIR/progress.log"
@@ -84,5 +84,5 @@ log_run "A4+A7: $(wc -l < $J) jobs"
 export -f log_run
 xargs -a "$J" -L1 -P 8 bash -c 'dispatch "$@"' _
 cd ${CSC_PAPER}
-conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
+${PYTHON} scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "A4A7 DONE ($(ls $LOGDIR/done_* 2>/dev/null | wc -l) arms)"

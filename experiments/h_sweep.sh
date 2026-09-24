@@ -32,16 +32,16 @@ run_chain () {
   local B="env SAFETY_VLM_CONFIG=$cfgf SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3"
   if [ ! -f "$LOGDIR/done_seg_${key}" ]; then
     log_run "SEG $key"
-    $B conda run -n safevlmcpl --no-capture-output python scripts/01_segment_and_filter.py \
+    $B ${PYTHON} scripts/01_segment_and_filter.py \
       > "$LOGDIR/${key}_01.log" 2>&1 || { log_run "FAIL seg $key"; return 1; }
-    $B conda run -n safevlmcpl --no-capture-output python scripts/03b_label_by_cost.py \
+    $B ${PYTHON} scripts/03b_label_by_cost.py \
       >> "$LOGDIR/${key}_01.log" 2>&1 || { log_run "FAIL label $key"; return 1; }
     touch "$LOGDIR/done_seg_${key}"
   fi
   for seed in 0 1 2; do
     if [ ! -f "$LOGDIR/done_v_${key}_s${seed}" ]; then
       log_run "V $key s$seed"
-      $B SEED_OVERRIDE=$seed conda run -n safevlmcpl --no-capture-output \
+      $B SEED_OVERRIDE=$seed ${PYTHON} \
         python scripts/04n_train_v_only.py > "$LOGDIR/${key}_v${seed}.log" 2>&1 \
         || { log_run "FAIL V $key s$seed"; return 1; }
       touch "$LOGDIR/done_v_${key}_s${seed}"
@@ -53,10 +53,10 @@ run_chain () {
       log_run "CALFILT $key s$seed"
       $B MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 COST_LIMIT=$lim \
         V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt SEED_OVERRIDE=$seed \
-        OUT_TAG=$tag conda run -n safevlmcpl --no-capture-output \
+        OUT_TAG=$tag ${PYTHON} \
         python scripts/04q_calibrated_vfilter.py > "$LOGDIR/${key}_bc${seed}.log" 2>&1 \
         || { log_run "FAIL calfilt $key s$seed"; return 1; }
-      $B CUDA_VISIBLE_DEVICES="" conda run -n safevlmcpl --no-capture-output \
+      $B CUDA_VISIBLE_DEVICES="" ${PYTHON} \
         python scripts/05_evaluate.py --policy_file "bc_${tag}_policy.pt" \
         --results_suffix "$tag" >> "$LOGDIR/${key}_bc${seed}.log" 2>&1 \
         || { log_run "FAIL eval $key s$seed"; return 1; }

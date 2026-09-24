@@ -30,7 +30,7 @@ train_v () {
   [ "$cfgfile" != "-" ] && CFG="SAFETY_VLM_CONFIG=$cfgfile"
   env SAFETY_VLM_TASK=$task $CFG WANDB_MODE=disabled OMP_NUM_THREADS=3 \
     SEED_OVERRIDE=$seed \
-    conda run -n safevlmcpl --no-capture-output python scripts/04n_train_v_only.py \
+    ${PYTHON} scripts/04n_train_v_only.py \
     > "$LOGDIR/${key}.log" 2>&1 \
     && { touch "$LOGDIR/done_${key}"; echo "[$(date +%m/%d-%H:%M:%S)] DONE $key" >> "$LOGDIR/progress.log"; } \
     || echo "[$(date +%m/%d-%H:%M:%S)] FAIL $key" >> "$LOGDIR/progress.log"
