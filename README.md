@@ -63,9 +63,7 @@ Certified Safety Curation for LLM Fine-Tuning*, released separately.
                  certified selections: a subset_h5 config field and a gymnasium
                  import fix. OSRL and PREFINE themselves are upstream.
 
-Nothing here is unused. Every file is reached by a result the paper reports: scripts that
-produced no reported number, earlier drafts of the drivers, and the online and VLM baselines
-this paper does not run were all removed rather than kept for provenance.
+Every file here is reached by a result the paper reports.
 
 ## Regenerating the paper's tables and figures
 
@@ -132,7 +130,7 @@ paper reports regenerates from those.
 
 ## Experimental conventions
 
-These hold uniformly across all twenty tasks; deviations were audited and removed.
+These hold uniformly across all twenty tasks.
 
     preference pairs      1000 per task, segment length 30 (10 / 50 in the sweep)
     sampling pools        parent-trajectory cost quartiles: the safe pool is the

@@ -1,7 +1,7 @@
 #!/bin/bash
 # CDT eval stage rerun (fixed driver): 45 new checkpoints + 15 bullet, CPU.
 set -u
-S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
+S=${TMPDIR:-/tmp}
 LOGDIR=$S/cdtsweep_logs
 eval_one () {
   local rd=$1 targets=$2

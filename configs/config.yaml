@@ -112,7 +112,6 @@ wandb_entity: null          # set to your W&B entity, or leave null
 #
 # data_source:
 #   "dsrl"   – use env.get_dataset() (offline expert data, no seeds stored)
-#   "online" – use 00_collect_online_data.py (seeds stored, replay matches)
 #
 # Three environment families available:
 #   1. Safety-Gymnasium (Point/Car/Ant robot): has DSRL offline data

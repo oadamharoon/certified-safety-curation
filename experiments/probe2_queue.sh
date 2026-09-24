@@ -15,6 +15,6 @@ PYTHON="${PYTHON:-python}"
 
 set -u
 cd ${CSC_WORK}
-env OMP_NUM_THREADS=4 conda run -n safevlmcpl --no-capture-output python /tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad/margin_expand.py > /tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad/margin_expand.log 2>&1 || echo "FAIL margin_expand" >> /tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad/probe2_progress.log
-env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=6 conda run -n safevlmcpl --no-capture-output python /tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad/pool_scaling.py > /tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad/pool_scaling.log 2>&1 || echo "FAIL pool_scaling" >> /tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad/probe2_progress.log
-echo "PROBE2 ALL DONE" >> /tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad/probe2_progress.log
+env OMP_NUM_THREADS=4 conda run -n safevlmcpl --no-capture-output python ${TMPDIR:-/tmp}/margin_expand.py > ${TMPDIR:-/tmp}/margin_expand.log 2>&1 || echo "FAIL margin_expand" >> ${TMPDIR:-/tmp}/probe2_progress.log
+env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=6 conda run -n safevlmcpl --no-capture-output python ${TMPDIR:-/tmp}/pool_scaling.py > ${TMPDIR:-/tmp}/pool_scaling.log 2>&1 || echo "FAIL pool_scaling" >> ${TMPDIR:-/tmp}/probe2_progress.log
+echo "PROBE2 ALL DONE" >> ${TMPDIR:-/tmp}/probe2_progress.log

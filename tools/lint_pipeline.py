@@ -184,7 +184,7 @@ def main():
 
     # 7: script writing an artifact into a session scratchpad. The certified_h5
     # selections, build_subsets2.py, bc_on_subset.py and the cplgt orchestrator
-    # all lived in /tmp/claude-*/ and were deleted with the session, leaving
+    # all lived in a session scratch directory and were deleted with it, leaving
     # published results unreproducible.
     for f in list(files(".py")) + list(files(".sh")):
         # the mirror's experiments/ dir is a historical record of runs already
@@ -194,7 +194,7 @@ def main():
         for i, line in enumerate(open(f, errors="ignore").read().splitlines(), 1):
             code = line.split("#", 1)[0]
             # require a real path use, not prose mentioning the word
-            if not re.search(r"/tmp/claude-|\$S/|\$\{S\}/|\$SCRATCH", code):
+            if not re.search(r"\$TMPDIR|\$S/|\$\{S\}/|\$SCRATCH", code):
                 continue
             # logs and done-markers in scratchpad are wasteful but recoverable;
             # what cost us was ARTIFACTS and executable scripts living there.

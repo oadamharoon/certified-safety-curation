@@ -32,7 +32,7 @@ def main() -> None:
     with open(os.path.join(cfg["output_dir"], "vlm_labels.json"), "r") as f:
         pref_data = json.load(f)
     if not pref_data:
-        raise RuntimeError("No preference labels found - run 03_vlm_query.py first.")
+        raise RuntimeError("No preference labels found - run 03b_label_by_cost.py first.")
 
     obs_dim = active[0]["observations"].shape[1]
     act_dim = active[0]["actions"].shape[1]

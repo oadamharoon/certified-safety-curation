@@ -17,7 +17,7 @@ PYTHON="${PYTHON:-python}"
 # ------------------------------------------------------------------------
 
 set -u
-S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
+S=${TMPDIR:-/tmp}
 LOGDIR=$S/bullet_logs
 mkdir -p "$LOGDIR"
 cd ${CSC_WORK}
