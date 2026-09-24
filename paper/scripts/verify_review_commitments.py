@@ -1,4 +1,4 @@
-"""the advisor's 38 Overleaf comments: the textual commitments made in the response letter, checked
+"""The 38 review comments on the draft: the textual commitments made in reply to them, checked
 against the CURRENT paper.
 
 The letter (paper/comments/response-letter.md) records what was changed for each comment. A later
@@ -101,8 +101,8 @@ CHECKS = [
      lambda: re.search(r"reset seeds 7, 11, 23", BA) is not None),
     # C004 is a REGRESSION BUDGET, not zero. The colons left are explanatory ("yield is governed
     # by the purity margin, not raw safe mass: Swimmer has less safe mass than Ant yet certifies
-    # more often"), where the right side elaborates the left. the advisor's tell was two independent
-    # statements joined by a colon. Titles and captions are excluded by the response letter.
+    # more often"), where the right side elaborates the left. The tell was two independent
+    # statements joined by a colon. Titles and captions are excluded by the reply.
     ("C004 explanatory colons in prose stay at or below the audited count of four",
      lambda: len([m for m in re.finditer(r"(?<![A-Za-z])[a-z]{3,}: [A-Z][a-z]", BT)
                   if not re.search(r"(curation|Method|Guarantees|Curation): ", m.group(0))]) <= 4),
@@ -140,11 +140,11 @@ CHECKS = [
      lambda: "one dataset and environment pair per task" in BM),
     ("C025 the preference-pair labeling protocol is stated, ties included",
      lambda: "labeled by the two segments' own summed costs, ties skipped" in BA),
-    # Advisor review, 2026-09-24: the stacked parenthetical could be read as a column vector, so the
+    # Review comment, 2026-09-24: the stacked parenthetical could be read as a column vector, so the
     # binomial coefficient must be named before its first use in the proofs.
-    ("ADVISOR: the binomial coefficient is defined before its first use",
+    ("NOTATION: the binomial coefficient is defined before its first use",
      lambda: _binom_defined_first()),
-    # Same sweep as the advisor's binomial note: one name for the hypergeometric distribution, its
+    # Same sweep as the binomial note: one name for the hypergeometric distribution, its
     # argument convention stated, and the two non-standard spellings glossed.
     ("NOTATION: the hypergeometric distribution has one name and a stated argument order",
      lambda: "\\mathrm{Hypergeom}" not in TEX

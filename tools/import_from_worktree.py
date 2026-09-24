@@ -51,7 +51,7 @@ EXCLUDE_AUTHORING = {"sync_overleaf.sh"}
 EXCLUDE = EXCLUDE_FOLLOWUP | EXCLUDE_UNREPORTED | EXCLUDE_AUTHORING
 
 TOOLING = re.compile(r"^(verify_|lint_|smoke_|check_|audit_staleness|find_a40_missing)")
-DRIVER = re.compile(r"^(stage_|chain_|run_|v2_|a3_chain|cpl_retry|retry_|mon_|regen_)")
+DRIVER = re.compile(r"^(stage|chain_|run_|v2_|a3_chain|cpl_retry|retry_|mon_|regen_)")
 SKIP_SUFFIX = (".bak", ".pyc", "~")
 
 ROOTS = [                      # longest prefix first

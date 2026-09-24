@@ -43,8 +43,9 @@ Certified Safety Curation for LLM Fine-Tuning*, released separately.
                  (guarantee resampling, e-process and pool-scaling sims, margin
                  probes, weighted-risk certificate), and the producers that write
                  the archived records under paper/data.
-    baselines/   CPL on the same preference data. The full-label baselines (CDT,
-                 CPQ, COptiDICE) are trained with OSRL; see third_party/.
+    baselines/   CPL on the same preference data, and the CPL pre-training stage
+                 it calls. The full-label baselines (CDT, CPQ, COptiDICE) are
+                 trained with OSRL; see third_party/.
     experiments/ the campaign drivers that orchestrated each run. They are
                  resume-safe: every job writes a done-marker, so a relaunch skips
                  completed work.
@@ -62,8 +63,10 @@ Certified Safety Curation for LLM Fine-Tuning*, released separately.
     third_party/ the OSRL changes used to train the full-label baselines on our
                  certified selections: a subset_h5 config field and a gymnasium
                  import fix. OSRL and PREFINE themselves are upstream.
-    legacy/      earlier scripts kept for provenance; not used by any reported
-                 result.
+
+Nothing here is unused. Every file is reached by a result the paper reports: scripts that
+produced no reported number, earlier drafts of the drivers, and the online and VLM baselines
+this paper does not run were all removed rather than kept for provenance.
 
 ## Checking the numbers
 

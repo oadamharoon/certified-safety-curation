@@ -346,7 +346,7 @@ for _ln, _line in _prose_lines(_tex):
             _fmiss.append(f"L{_ln} {_lit} not in {sorted(labs)}")
 check(not _fmiss, f"{len(_FIGLAB)} figures checked; literals not in the figure's data: {_fmiss[:4]}")
 
-# ---- R17 REVIEWER COMMITMENTS (added 2026-09-23, checklist item 17). The advisor's 38 Overleaf
+# ---- R17 REVIEW COMMITMENTS (added 2026-09-23, checklist item 17). The 38 review
 # comments on the 2026-08-14 draft each carry a documented change in
 # paper/comments/response-letter.md. The F4 prose pass rewrote several of the sections those
 # comments anchor to, so the commitments are re-checked mechanically where they are decidable.
