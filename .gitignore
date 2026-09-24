@@ -15,6 +15,10 @@ data/raw/
 *.pkl
 *.hdf5
 *.npz
+# ...except the cached scores and panels the figure builders read. Without these,
+# e_contamination_sweep.py and landscape_layouts.py --replot cannot run from a clone.
+!paper/data/e_scores/*.npz
+!paper/data/landscape_panels.pkl
 
 # python
 __pycache__/
