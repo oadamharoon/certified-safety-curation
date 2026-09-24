@@ -28,7 +28,8 @@ Certified Safety Curation for LLM Fine-Tuning*, released separately.
     configs/     config.yaml (main, segment length 30) and the H = 10 / H = 50
                  variants used by the segment-length sweep. One config governs
                  every task; task blocks carry only dataset paths, the task
-                 budget, and the sampling pool thresholds.
+                 budget, and the sampling pool thresholds. Only the twenty tasks
+                 the paper runs are listed.
     src/         model definitions (value ensemble, Gaussian policy, training
                  loops) and shared utilities (config loading, segmentation).
     pipeline/    the method, in order:
@@ -49,8 +50,8 @@ Certified Safety Curation for LLM Fine-Tuning*, released separately.
     experiments/ the campaign drivers that orchestrated each run. They are
                  resume-safe: every job writes a done-marker, so a relaunch skips
                  completed work.
-    tools/       verification and lint scripts, the importer that produces this
-                 repository from the research tree, and the archive builder.
+    tools/       the verification and lint scripts used to keep the results
+                 honest, and the builder for the anonymous code archive.
     paper/       scripts/ regenerates every table and figure and runs the audit;
                  data/ holds the archived evaluation records they read;
                  figures/ the rendered figures. The paper source is not part of
@@ -143,18 +144,3 @@ These hold uniformly across all twenty tasks; deviations were audited and remove
     evaluation            100 episodes per checkpoint
     budgets               20 velocity, 25 navigation, 10 BulletSafetyGym
     seeds                 5 for headline configurations, 3 for analysis sweeps
-
-## How this repository is produced
-
-It is imported from the research tree rather than edited by hand:
-
-    python tools/import_from_worktree.py --worktree /path/to/workspace [--check]
-
-`--check` exits non-zero if the repository has drifted from the tree. The importer rewrites
-every machine path to the roots above, and it excludes two classes of script that exist in the
-research tree: follow-on work this paper does not report (a policy-level certificate,
-curriculum over certified selections, an alpha-aware learner, certified curation for
-imitation), and an exploratory probe series on readout choice, coverage, DRO and stratification
-whose results the paper does not report either. Both lists are in the importer, by name. The
-registered form of the readout question that the paper *does* report (Table 7, score
-aggregators) is in `analysis/`, not in those probes.
