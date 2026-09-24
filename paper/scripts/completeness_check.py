@@ -27,7 +27,7 @@ import glob, json, os, re, subprocess, sys, time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__))))
 from audit_claims import prose_lines as _prose_lines
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); W = os.path.dirname(BASE)
-REPO = f"{W}/vlm-with-cpl/new_data"; PY = sys.executable; fails = []
+REPO = f"{W}/datasets"; PY = sys.executable; fails = []
 F0 = time.mktime(time.strptime("2026-09-14 21:50", "%Y-%m-%d %H:%M"))
 SIX = ("halfcheetah_velocity", "cargoal1_dsrl", "walker2d_velocity", "ant_velocity", "hopper_velocity", "swimmer_velocity")
 def check(ok, msg):
@@ -413,7 +413,7 @@ for rel, builder, extra in _REGEN:
         check(False, f"{os.path.basename(rel):32s} missing artifact or builder"); continue
     before = open(cur, "rb").read()
     r = subprocess.run([PY, builder] + extra, capture_output=True, text=True,
-                       env={**os.environ, "PYTHONPATH": f"{W}/vlm-with-cpl/new_data"})
+                       env={**os.environ, "PYTHONPATH": f"{W}/datasets"})
     after = open(cur, "rb").read()
     check(r.returncode == 0 and before == after,
           f"{os.path.basename(rel):32s} regenerates identically"

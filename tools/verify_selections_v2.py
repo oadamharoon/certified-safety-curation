@@ -13,8 +13,8 @@ ensemble (pref / noise20 / vgen) are retried against every ensemble on disk.
 """
 
 # --- paths ------------------------------------------------------------------
-# The research tree addressed itself by absolute path; these roots replace it. Set
-# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+# Datasets, checkpoints and run output live outside the repository. Set CSC_WORKSPACE,
+# or the individual roots, to point at yours. See the README.
 import os as _os
 
 
@@ -36,13 +36,13 @@ def _csc_root(_p):
 _self = globals().get("__file__") or _os.path.join(_os.getcwd(), "_")
 CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(_self))
 _WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
-CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "datasets"))
 _runs = _os.path.join(_WS, "runs")
 CSC_RUNS = _os.environ.get("CSC_RUNS", _runs if _os.path.isdir(_runs) else _os.path.join(CSC_REPO, "runs"))
 CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
 CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))
 CSC_PAPER_DATA = _os.path.join(CSC_PAPER, "data")
-# the run configs are carried by the repository, so they resolve without a working tree
+# the run configs ship with the repository, so they resolve on their own
 CSC_CONFIG = _os.environ.get("CSC_CONFIG", _os.path.join(CSC_REPO, "configs"))
 # -----------------------------------------------------------------------------
 

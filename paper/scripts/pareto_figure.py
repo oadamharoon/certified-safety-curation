@@ -9,8 +9,8 @@ harvested.
 """
 
 # --- paths ------------------------------------------------------------------
-# The research tree addressed itself by absolute path; these roots replace it. Set
-# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+# Datasets, checkpoints and run output live outside the repository. Set CSC_WORKSPACE,
+# or the individual roots, to point at yours. See the README.
 import os as _os
 
 
@@ -32,13 +32,13 @@ def _csc_root(_p):
 _self = globals().get("__file__") or _os.path.join(_os.getcwd(), "_")
 CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(_self))
 _WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
-CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "datasets"))
 _runs = _os.path.join(_WS, "runs")
 CSC_RUNS = _os.environ.get("CSC_RUNS", _runs if _os.path.isdir(_runs) else _os.path.join(CSC_REPO, "runs"))
 CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
 CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))
 CSC_PAPER_DATA = _os.path.join(CSC_PAPER, "data")
-# the run configs are carried by the repository, so they resolve without a working tree
+# the run configs ship with the repository, so they resolve on their own
 CSC_CONFIG = _os.environ.get("CSC_CONFIG", _os.path.join(CSC_REPO, "configs"))
 # -----------------------------------------------------------------------------
 
@@ -272,8 +272,8 @@ print("saved figures/pareto.{pdf,png}")
 for label, x, y in sorted(PLACED, key=lambda r: (r[1], r[2])):
     print(f"{label:20s} x={x:6.3f}  safe={y}/15")
 
-# Archive the placements. The figure needs the trajectory pickles of the working tree;
-# the audit needs only these counts, so it reads this record where the tree is absent.
+# Archive the placements. The figure needs the trajectory pickles; the audit needs only
+# these counts, so it reads this record where the datasets are not available.
 with open(f"{BASE}/data/pareto_counts.json", "w") as _fh:
     json.dump({label: {"x": round(x, 3), "safe": y} for label, x, y in PLACED}, _fh,
               indent=1, sort_keys=True)

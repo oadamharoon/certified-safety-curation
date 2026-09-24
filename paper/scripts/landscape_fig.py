@@ -21,7 +21,7 @@ os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
 os.environ.setdefault("MUJOCO_GL", "osmesa")
 
 NEW_DATA = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                        "..", "..", "vlm-with-cpl", "new_data"))
+                                        "..", "..", "datasets"))
 sys.path.insert(0, NEW_DATA)
 
 import torch  # noqa: E402

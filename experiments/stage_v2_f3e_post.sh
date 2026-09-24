@@ -8,7 +8,7 @@ _csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
 CSC_REPO="${CSC_REPO:-$(_csc_root)}"
 CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
-CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/datasets}"
 CSC_RUNS="${CSC_RUNS:-$([ -d "$CSC_WORKSPACE/runs" ] && printf %s "$CSC_WORKSPACE/runs" || printf %s "$CSC_REPO/runs")}"
 CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
 CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
@@ -24,7 +24,7 @@ L=$W/runs/logs/v2f3e_post; mkdir -p $L
 run () {
   local tag=$1; shift
   echo "[$(date +%m/%d-%H:%M)] START $tag" >> $L/progress.log
-  ( cd "$W/iclr2027" && env PYTHONNOUSERSITE=1 PYTHONPATH=$W/vlm-with-cpl/new_data "$PY" "$@" > "$L/$tag.log" 2>&1 ) \
+  ( cd "$W/iclr2027" && env PYTHONNOUSERSITE=1 PYTHONPATH=$W/datasets "$PY" "$@" > "$L/$tag.log" 2>&1 ) \
     && echo "[$(date +%m/%d-%H:%M)] DONE $tag" >> $L/progress.log \
     || { echo "[$(date +%m/%d-%H:%M)] FAIL $tag" >> $L/progress.log; return 1; }
 }

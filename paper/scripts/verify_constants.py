@@ -118,8 +118,8 @@ def _pareto_counts():
         d[m.group(1).strip()] = int(m.group(2))
     if d:
         return d
-    # The figure script needs the working tree's trajectory pickles. Where that tree is
-    # absent (a release archive), read the counts the last run of it archived.
+    # The figure script needs the trajectory pickles. Where they are not available, read
+    # the counts the last run of it archived.
     return {k: v["safe"] for k, v in L("data/pareto_counts.json").items()}
 
 

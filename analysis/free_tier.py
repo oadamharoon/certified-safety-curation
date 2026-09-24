@@ -1,8 +1,8 @@
 """T2.1 do-not-filter, T2.3 MT procedures, T3.3 segment coverage — archived data only."""
 
 # --- paths ------------------------------------------------------------------
-# The research tree addressed itself by absolute path; these roots replace it. Set
-# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+# Datasets, checkpoints and run output live outside the repository. Set CSC_WORKSPACE,
+# or the individual roots, to point at yours. See the README.
 import os as _os
 
 
@@ -20,7 +20,7 @@ def _csc_root(_p):
 
 CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(__file__))
 _WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
-CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "datasets"))
 CSC_RUNS = _os.environ.get("CSC_RUNS", _os.path.join(_WS, "runs"))
 CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
 CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))

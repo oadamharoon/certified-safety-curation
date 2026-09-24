@@ -25,7 +25,7 @@ import os
 import numpy as np
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(os.path.dirname(BASE), "vlm-with-cpl/new_data/outputs")
+OUT = os.path.join(os.path.dirname(BASE), "datasets/outputs")
 T15 = ["halfcheetah_velocity", "walker2d_velocity", "ant_velocity",
        "hopper_velocity", "swimmer_velocity", "cargoal1_dsrl", "cargoal2",
        "pointgoal1_dsrl", "pointgoal2", "pointbutton1", "pointbutton2",

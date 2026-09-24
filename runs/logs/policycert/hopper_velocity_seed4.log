@@ -5,7 +5,7 @@ Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or conta
 Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
 See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
 [config] task=hopper_velocity
-Loaded policy: ${CSC_WORKSPACE}/vlm-with-cpl/new_data/outputs/hopper_velocity/bc_calfilt_csf_seed4_policy.pt
+Loaded policy: ${CSC_WORKSPACE}/datasets/outputs/hopper_velocity/bc_calfilt_csf_seed4_policy.pt
 Ep 00: R=1059.21  C= 67.00  len=759
 Ep 01: R=1179.22  C= 65.00  len=832
 Ep 02: R=1044.69  C= 62.00  len=752

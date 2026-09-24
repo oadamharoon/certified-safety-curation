@@ -17,8 +17,8 @@ dangerous.
 """
 
 # --- paths ------------------------------------------------------------------
-# The research tree addressed itself by absolute path; these roots replace it. Set
-# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+# Datasets, checkpoints and run output live outside the repository. Set CSC_WORKSPACE,
+# or the individual roots, to point at yours. See the README.
 import os as _os
 
 
@@ -40,13 +40,13 @@ def _csc_root(_p):
 _self = globals().get("__file__") or _os.path.join(_os.getcwd(), "_")
 CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(_self))
 _WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
-CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "datasets"))
 _runs = _os.path.join(_WS, "runs")
 CSC_RUNS = _os.environ.get("CSC_RUNS", _runs if _os.path.isdir(_runs) else _os.path.join(CSC_REPO, "runs"))
 CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
 CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))
 CSC_PAPER_DATA = _os.path.join(CSC_PAPER, "data")
-# the run configs are carried by the repository, so they resolve without a working tree
+# the run configs ship with the repository, so they resolve on their own
 CSC_CONFIG = _os.environ.get("CSC_CONFIG", _os.path.join(CSC_REPO, "configs"))
 # -----------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ import sys
 ROOT = CSC_WORKSPACE
 DIRS = ["certified-safety-curation/pipeline", "certified-safety-curation/analysis",
         "certified-safety-curation/experiments", "iclr2027/scripts",
-        "runs/scripts", "vlm-with-cpl/new_data/scripts"]
+        "runs/scripts", os.path.join(CSC_WORK, "scripts")]
 SKIP = ("legacy/", "_quarantine", "/.git/")
 
 BAD_ESCAPE = re.compile(r'r"[^"]*\\\\[dwsSWDb+.*][^"]*"|r\'[^\']*\\\\[dwsSWDb+.*][^\']*\'')
@@ -126,10 +126,10 @@ def main():
             if "/tmp" in m.group(1) or "scratchpad" in m.group(1):
                 hits[4].append(f"{f}  LOGDIR={m.group(1)}")
 
-    # 5: live tree vs release mirror. vlm-with-cpl/new_data/scripts is what the
+    # 5: live tree vs release mirror. the dataset tree's scripts/ is what the
     # runners execute; certified-safety-curation is the cleaned public copy. A
     # fix applied only to the mirror does nothing, which cost a 135-job relaunch.
-    LIVE = os.path.join(ROOT, "vlm-with-cpl/new_data/scripts")
+    LIVE = os.path.join(ROOT, os.path.join(CSC_WORK, "scripts"))
     hits[5] = []
     if os.path.isdir(LIVE):
         for fn in sorted(os.listdir(LIVE)):

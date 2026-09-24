@@ -5,7 +5,7 @@ Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or conta
 Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
 See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
 [config] task=pointgoal2
-Loaded policy: ${CSC_WORKSPACE}/vlm-with-cpl/new_data/outputs/pointgoal2/bc_calfilt_csf_seed4_policy.pt
+Loaded policy: ${CSC_WORKSPACE}/datasets/outputs/pointgoal2/bc_calfilt_csf_seed4_policy.pt
 Ep 00: R=  8.33  C= 18.00  len=1000
 Ep 01: R= 10.09  C=  0.00  len=1000
 Ep 02: R=  8.19  C= 16.00  len=1000

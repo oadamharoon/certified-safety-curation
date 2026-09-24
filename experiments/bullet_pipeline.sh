@@ -8,7 +8,7 @@ _csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
 CSC_REPO="${CSC_REPO:-$(_csc_root)}"
 CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
-CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/datasets}"
 CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
 CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
 CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"

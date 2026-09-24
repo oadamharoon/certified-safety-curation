@@ -19,7 +19,7 @@ _csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
 CSC_REPO="${CSC_REPO:-$(_csc_root)}"
 CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
-CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/datasets}"
 CSC_RUNS="${CSC_RUNS:-$([ -d "$CSC_WORKSPACE/runs" ] && printf %s "$CSC_WORKSPACE/runs" || printf %s "$CSC_REPO/runs")}"
 CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
 CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
@@ -31,7 +31,7 @@ PYTHON="${PYTHON:-python}"
 set -u
 REPO=${CSC_WORKSPACE}
 PY=${PYTHON}
-CD=$REPO/vlm-with-cpl/new_data
+CD=$REPO/datasets
 LOGD=$REPO/runs/logs/policycert_v2
 JOBS=$LOGD/jobs.txt
 PAR="${PAR:-6}"

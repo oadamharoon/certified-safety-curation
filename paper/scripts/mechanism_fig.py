@@ -12,7 +12,7 @@ import numpy as np
 os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
 os.environ.setdefault("MUJOCO_GL", "osmesa")
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-NEW_DATA = os.path.abspath(os.path.join(BASE, "..", "vlm-with-cpl", "new_data"))
+NEW_DATA = os.path.abspath(os.path.join(BASE, "..", "datasets"))
 sys.path.insert(0, NEW_DATA)
 
 import matplotlib

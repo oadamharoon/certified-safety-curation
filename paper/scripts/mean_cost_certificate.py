@@ -34,7 +34,7 @@ import numpy as np
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = os.path.dirname(BASE)
 LOGD = os.path.join(REPO, "runs/logs/policycert")
-OUT = os.path.join(REPO, "vlm-with-cpl/new_data/outputs")
+OUT = os.path.join(REPO, "datasets/outputs")
 RANGE = 1000.0  # a priori: episode length, per-step cost an indicator
 
 ORDER = ["halfcheetah_velocity", "walker2d_velocity", "ant_velocity",

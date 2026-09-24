@@ -80,8 +80,8 @@ From a clone, with no datasets and no trained artifacts:
 All 27 tables come back byte-identical. Seven of the ten figures regenerate here and render
 pixel-identically; their PDFs differ only in embedded timestamps. The other three, the Pareto
 figure, the value-inspection figure and the safety landscape, read trajectory pickles,
-checkpoints and fresh rollouts, so they need the research tree; set `PYTHONPATH=src` for the
-builders that import the method.
+checkpoints and fresh rollouts, so they need the datasets and a trained ensemble; set
+`PYTHONPATH=src` for the builders that import the method.
 
 ## Checking the numbers
 
@@ -91,27 +91,27 @@ This is the gate. It binds every number in the paper that is not a table cell to
 expression that produces it, and refuses to let a check guard a sentence that is no longer
 there. Two of its rules read the paper's LaTeX source, which is not part of this repository;
 they announce a skip and the remaining 185 checks run. `verify_review_commitments.py` reads
-that source in every rule, so from a clone it skips entirely. Both run in full in the research
-tree, where the orphan guard also runs.
+that source in every rule, so it skips entirely unless the source is placed at
+`paper/paper.tex`, which is also what the orphan guard needs.
 
-`paper/scripts/completeness_check.py` is the working-tree gate: it re-derives archived records
-by re-running their producers against the raw run outputs and checks provenance by file mtime,
-so it needs the research tree and does not run from a clone alone.
+`paper/scripts/completeness_check.py` goes further: it re-derives the archived records by
+re-running their producers against the raw run outputs and checks provenance by file mtime, so
+it needs the datasets and the campaign output and does not run from a clone alone.
 
 ## Rerunning the experiments
 
 The scripts address four roots, resolved from the environment. The repository is located by
 the `.csc-root` marker; the rest default beside it and are set when your layout differs:
 
-    CSC_REPO       this repository
-    CSC_WORKSPACE  the directory holding the working trees   (default: the repo's parent)
-    CSC_WORK       datasets, checkpoints, method code        (default: $CSC_WORKSPACE/vlm-with-cpl/new_data)
+    CSC_REPO       this repository, found by the .csc-root marker
+    CSC_WORKSPACE  where the four roots below sit            (default: the repo's parent)
+    CSC_WORK       datasets, checkpoints and per-task output (default: $CSC_WORKSPACE/datasets)
     CSC_RUNS       campaign output: selections, logs         (default: $CSC_WORKSPACE/runs, else $CSC_REPO/runs)
     CSC_OSRL       an OSRL checkout, for the full-label baselines
     PYTHON         the interpreter the shell drivers call    (default: python)
 
 Most pipeline and analysis scripts read `config.yaml` from the working directory, so run them
-from the tree that holds your datasets. One task, end to end:
+from the directory that holds your datasets. One task, end to end:
 
     export SAFETY_VLM_TASK=pointgoal1_dsrl
     python pipeline/00b_dsrl_to_pickle.py

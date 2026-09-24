@@ -1,5 +1,5 @@
 [config] task=halfcheetah_velocity
-Loaded policy: ${CSC_WORKSPACE}/vlm-with-cpl/new_data/outputs/halfcheetah_velocity/bc_calfilt_csf_seed1_policy.pt
+Loaded policy: ${CSC_WORKSPACE}/datasets/outputs/halfcheetah_velocity/bc_calfilt_csf_seed1_policy.pt
 AdroitHandRelocateDense-v1, AdroitHandHammerDense-v1, AdroitHandDoorDense-v1 environment's reward functions were updated in v1.2.1 without an environment version update. Therefore, use gymnasium-robotics==1.2.0 for v1 reproducibility or use v2 in gymnasium-robotics>=1.4.3. See https://github.com/Farama-Foundation/Gymnasium-Robotics/pull/220 for more details
 AdroitHandRelocateDense-v1, AdroitHandHammerDense-v1, AdroitHandDoorDense-v1 environment's reward functions were updated in v1.2.1 without an environment version update. Therefore, use gymnasium-robotics==1.2.0 for v1 reproducibility or use v2 in gymnasium-robotics>=1.4.3. See https://github.com/Farama-Foundation/Gymnasium-Robotics/pull/220 for more details
 Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.

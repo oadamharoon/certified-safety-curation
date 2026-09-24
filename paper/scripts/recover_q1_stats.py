@@ -26,7 +26,7 @@ import torch
 import yaml
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REPO = os.path.join(os.path.dirname(BASE), "vlm-with-cpl/new_data")
+REPO = os.path.join(os.path.dirname(BASE), "datasets")
 sys.path.insert(0, REPO)
 from model.policy import VEnsemble  # noqa: E402
 
