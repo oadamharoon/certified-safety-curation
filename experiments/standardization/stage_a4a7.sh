@@ -1,9 +1,23 @@
 #!/bin/bash
 # A4: operator arms on regenerated certified selections (PointGoal1 a25, CarRun a25)
 # A7: H-sweep calibrated arms (18 configs x 3 seeds)
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
-W=/home/omniverse/workspace/safevlmcpl/runs
-D=/home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+W=${CSC_RUNS}
+D=${CSC_WORK}
 LOGDIR=$W/logs/a4a7
 mkdir -p "$LOGDIR"
 log_run () { echo "[$(date +%m/%d-%H:%M:%S)] $1" | tee -a "$LOGDIR/progress.log"; }
@@ -66,6 +80,6 @@ for s in 0 1 2; do
 done
 log_run "A4+A7: $(wc -l < $J) jobs"
 xargs -a "$J" -L1 -P 8 bash -c 'dispatch "$@"' _
-cd /home/omniverse/workspace/safevlmcpl/iclr2027
+cd ${CSC_PAPER}
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "A4A7 DONE ($(ls $LOGDIR/done_* 2>/dev/null | wc -l) arms)"

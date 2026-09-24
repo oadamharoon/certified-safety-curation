@@ -4,6 +4,20 @@
 #                                           + bullet random control (5 x 5)
 #  after distinct queue drains (GPU): full-data CDT on 5 bullet tasks x 3 seeds
 #  then: final harvest.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/round2_logs
@@ -31,7 +45,7 @@ run_t2 () {
   local tag="calfilt_t2_seed${seed}"
   local key="${task}_${tag}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
     MODE=ltt CAL_N=200 ALPHA=0.25 DELTA=0.1 TIER2_DELTA=0.5 COST_LIMIT=$lim \
     V_ENSEMBLE_FILE=v_ensemble_pess_seed${seed}.pt SEED_OVERRIDE=$seed OUT_TAG=$tag \
@@ -50,7 +64,7 @@ run_rand () {
   local tag="vfilt_random_matchgt_seed${seed}"
   local key="${task}_${tag}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
     SCORE_MODE=random FILTER_FRAC=$frac COST_LIMIT=$lim \
     V_ENSEMBLE_FILE=v_ensemble_pess_seed0.pt SEED_OVERRIDE=$seed OUT_TAG=$tag \
@@ -91,8 +105,8 @@ for seed in 0 1 2; do
   for e in $BENVS; do
     tag="cdtbullet_${e}_s${seed}"
     [ -f "$LOGDIR/done_${tag}" ] && continue
-    cd /home/omniverse/workspace/safevlmcpl/osrl
-    env PYTHONNOUSERSITE=1 PYTHONPATH=/home/omniverse/workspace/safevlmcpl/osrl \
+    cd ${CSC_OSRL}
+    env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
       conda run -n safevlmcpl --no-capture-output \
       python examples/train/train_cdt.py --task "$e" --seed "$seed" \
       --cost_limit 10 --device cuda --logdir "$LOGDIR/runs" \
@@ -104,7 +118,7 @@ for seed in 0 1 2; do
   wait
   log_run "BULLET CDT WAVE seed=$seed COMPLETE"
 done
-cd /home/omniverse/workspace/safevlmcpl/iclr2027
+cd ${CSC_PAPER}
 conda run -n safevlmcpl --no-capture-output python scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "ROUND-2 QUEUE ALL DONE"

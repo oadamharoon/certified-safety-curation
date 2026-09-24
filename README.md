@@ -1,21 +1,34 @@
 # Certified Safety Curation
 
-Code for *Certified Safety Curation: Distribution-Free Guarantees for
-Label-Efficient Safe Offline Reinforcement Learning*.
+Code and archived results for *Certified Safety Curation: Distribution-Free Guarantees for
+Safe Offline Reinforcement Learning*.
 
-The method learns a state-only safety value from pairwise segment
-preferences, scores whole trajectories with it, selects a subset with a
-threshold calibrated by Learn-then-Test, and behavior-clones the
-selection. The calibration yields a distribution-free (alpha, delta)
-bound on the unsafe fraction of the selected training set, and refuses
-to certify when the score cannot support one.
+The method learns a state-only safety value from pairwise segment preferences, scores whole
+trajectories with it, selects a subset at a threshold calibrated by Learn-then-Test, and
+behavior-clones the selection. Calibration yields a distribution-free (alpha, delta) bound on
+the unsafe fraction of the selected training set, and refuses to certify when the score cannot
+support one. What is certified is the training set, not the policy: the policy's cost is
+measured and reported rather than bounded.
+
+Every table the paper reports regenerates from the records here, and every number in the text
+that is not a table cell is bound by an auditing script to the one expression that produces it.
+
+<!-- AUTHORSHIP: this block is stripped from the anonymous archive built by
+     tools/make_anonymous_zip.sh. Keep author, contact and arXiv details inside it. -->
+**Paper.** arXiv:2609.12014.
+
+**Authors.** Adam Haroon (aharoon@iastate.edu) and Cody Fleming, Iowa State University, Ames, IA, USA.
+
+**Companion.** The same certificate applied to LLM fine-tuning data is *Clean Data, Unsafe Model:
+Certified Safety Curation for LLM Fine-Tuning*, released separately.
+<!-- END AUTHORSHIP -->
 
 ## Layout
 
     configs/     config.yaml (main, segment length 30) and the H = 10 / H = 50
                  variants used by the segment-length sweep. One config governs
                  every task; task blocks carry only dataset paths, the task
-                 budget, and the sampling pool thresholds (see below).
+                 budget, and the sampling pool thresholds.
     src/         model definitions (value ensemble, Gaussian policy, training
                  loops) and shared utilities (config loading, segmentation).
     pipeline/    the method, in order:
@@ -26,35 +39,61 @@ to certify when the score cannot support one.
                    04p_vfilter_bc          score, threshold at a fixed fraction, clone
                    04q_calibrated_vfilter  score, calibrate by LTT, clone or refuse
                    05_evaluate             100-episode evaluation
-    analysis/    ablations, oracle controls, diagnostics, and the simulation
-                 studies (guarantee resampling, e-process and pool-scaling
-                 sims, margin probes, weighted-risk certificate).
-    baselines/   CPL on the same preference data. Full-label baselines (CDT,
-                 CPQ, COptiDICE) are trained with OSRL, external to this repo.
-    experiments/ the queue scripts that orchestrated each campaign. They are
-                 resume-safe: every job writes a done-marker, so a relaunch
-                 skips completed work.
-    paper/       result harvesting, table emission, and figure generation.
+    analysis/    ablations, oracle controls, diagnostics, the simulation studies
+                 (guarantee resampling, e-process and pool-scaling sims, margin
+                 probes, weighted-risk certificate), and the producers that write
+                 the archived records under paper/data.
+    baselines/   CPL on the same preference data. The full-label baselines (CDT,
+                 CPQ, COptiDICE) are trained with OSRL; see third_party/.
+    experiments/ the campaign drivers that orchestrated each run. They are
+                 resume-safe: every job writes a done-marker, so a relaunch skips
+                 completed work.
+    tools/       verification and lint scripts, the importer that produces this
+                 repository from the research tree, and the archive builder.
+    paper/       scripts/ regenerates every table and figure and runs the audit;
+                 data/ holds the archived evaluation records they read;
+                 figures/ the rendered figures; paper.tex the source the audit
+                 reads to check that every guarded value still appears in it.
+    runs/        the 2000-episode evaluation logs behind the deployment
+                 certificate, and the selection summary the tables read. The rest
+                 of the campaign output is raw training data and is not tracked.
+    third_party/ the OSRL changes used to train the full-label baselines on our
+                 certified selections: a subset_h5 config field and a gymnasium
+                 import fix. OSRL and PREFINE themselves are upstream.
     legacy/      earlier scripts kept for provenance; not used by any reported
                  result.
 
-## Experimental conventions
+## Checking the numbers
 
-These hold uniformly across all twenty tasks; deviations were audited and
-removed.
+From a clone, with no datasets and no trained artifacts:
 
-  preference pairs      1000 per task, segment length 30 (10 / 50 in the sweep)
-  sampling pools        parent-trajectory cost quartiles: the safe pool is the
-                        lowest quartile of episodic cost, the unsafe pool the
-                        highest
-  value ensemble        K = 3, two-layer MLP width 256, 300 epochs, batch 512
-  behavior cloning      100 epochs, batch 512
-  calibration           n = 200 labels, alpha = 0.25, delta = 0.1
-  evaluation            100 episodes per checkpoint
-  budgets               20 velocity, 25 navigation, 10 BulletSafetyGym
-  seeds                 5 for headline configurations, 3 for analysis sweeps
+    python paper/scripts/make_tables.py               # regenerates all 27 tables
+    python paper/scripts/verify_constants.py          # 185 checks, 0 orphaned
+    python paper/scripts/verify_review_commitments.py
 
-## Reproducing a task end to end
+`verify_constants.py` binds every number in the paper that is not a table cell to the
+expression that produces it, and its orphan guard fails if a check's claimed value no longer
+appears in `paper/paper.tex` at the precision the check states, so a trim cannot silently
+leave a guard defending nothing.
+
+`paper/scripts/completeness_check.py` is the working-tree gate: it re-derives archived records
+by re-running their producers against the raw run outputs and checks provenance by file
+mtime, so it needs the research tree and does not run from a clone alone.
+
+## Rerunning the experiments
+
+The scripts address four roots, resolved from the environment. The repository is located by
+the `.csc-root` marker; the rest default beside it and are set when your layout differs:
+
+    CSC_REPO       this repository
+    CSC_WORKSPACE  the directory holding the working trees   (default: the repo's parent)
+    CSC_WORK       datasets, checkpoints, method code        (default: $CSC_WORKSPACE/vlm-with-cpl/new_data)
+    CSC_RUNS       campaign output: selections, logs         (default: $CSC_WORKSPACE/runs, else $CSC_REPO/runs)
+    CSC_OSRL       an OSRL checkout, for the full-label baselines
+    PYTHON         the interpreter the shell drivers call    (default: python)
+
+Most pipeline and analysis scripts read `config.yaml` from the working directory, so run them
+from the tree that holds your datasets. One task, end to end:
 
     export SAFETY_VLM_TASK=pointgoal1_dsrl
     python pipeline/00b_dsrl_to_pickle.py
@@ -65,5 +104,35 @@ removed.
       python pipeline/04q_calibrated_vfilter.py
     python pipeline/05_evaluate.py --policy_file bc_calfilt_policy.pt
 
-Data and trained artifacts are not tracked; every table and figure
-regenerates from archived evaluation records via `paper/`.
+## Experimental conventions
+
+These hold uniformly across all twenty tasks; deviations were audited and removed.
+
+    preference pairs      1000 per task, segment length 30 (10 / 50 in the sweep)
+    sampling pools        parent-trajectory cost quartiles: the safe pool is the
+                          lowest quartile of episodic cost, the unsafe pool the
+                          highest
+    value ensemble        K = 3, two-layer MLP width 256, 300 epochs, batch 512
+    behavior cloning      100 epochs, batch 512
+    calibration           n = 200 labels, alpha = 0.25, delta = 0.1
+    evaluation            100 episodes per checkpoint
+    budgets               20 velocity, 25 navigation, 10 BulletSafetyGym
+    seeds                 5 for headline configurations, 3 for analysis sweeps
+
+## How this repository is produced
+
+It is imported from the research tree rather than edited by hand:
+
+    python tools/import_from_worktree.py --worktree /path/to/workspace [--check]
+
+`--check` exits non-zero if the repository has drifted from the tree. The importer rewrites
+every machine path to the roots above, and it excludes two classes of script that exist in the
+research tree: follow-on work this paper does not report (a policy-level certificate,
+curriculum over certified selections, an alpha-aware learner, certified curation for
+imitation), and an exploratory probe series on readout choice, coverage, DRO and stratification
+whose results the paper does not report either. Both lists are in the importer, by name. The
+registered form of the readout question that the paper *does* report (Table 7, score
+aggregators) is in `analysis/`, not in those probes.
+
+Data and trained artifacts are not tracked. Everything the paper reports regenerates from the
+archived records here.

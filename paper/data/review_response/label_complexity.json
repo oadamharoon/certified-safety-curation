@@ -1,0 +1,21 @@
+{
+ "slope": -1.6146436795405747,
+ "intercept": 1.6608468000574277,
+ "r2": 0.9974519877376856,
+ "n50": {
+  "carrun_b": 64.257716170438,
+  "pointgoal1_dsrl": 139.89796725383118,
+  "walker2d_velocity": 203.2791065386161,
+  "cargoal1_dsrl": 317.7641032212575,
+  "halfcheetah_velocity": 501.2873784763255,
+  "dronerun_b": 728.2600295895533,
+  "cargoal2": 1064.399460454574,
+  "swimmer_velocity": null,
+  "pointgoal2": null,
+  "ant_velocity": null,
+  "ballrun_b": null,
+  "ballcircle_b": null,
+  "hopper_velocity": null,
+  "carcircle_b": null
+ }
+}

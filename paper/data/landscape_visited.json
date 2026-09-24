@@ -1,0 +1,10 @@
+{
+ "task": "pointgoal1_dsrl",
+ "policy": "bc_calfilt_ltt_seed0_policy.pt",
+ "episodes": 20,
+ "n_states": 20000,
+ "bins": 12,
+ "rho_binned": 0.8811188811188813,
+ "p_binned": 0.00015267406467669873,
+ "rho_raw": 0.6117779801383245
+}

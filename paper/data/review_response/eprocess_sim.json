@@ -1,0 +1,182 @@
+{
+ "halfcheetah_velocity": {
+  "0": {
+   "cert_rate_by_400": 0.1575,
+   "false_cert_rate": 0.009,
+   "median_labels_at_cert": 223.0,
+   "mean_labels_at_cert": 227.83174603174604
+  },
+  "1": {
+   "cert_rate_by_400": 0.209,
+   "false_cert_rate": 0.0105,
+   "median_labels_at_cert": 223.5,
+   "mean_labels_at_cert": 229.51435406698565
+  },
+  "2": {
+   "cert_rate_by_400": 0.181,
+   "false_cert_rate": 0.0125,
+   "median_labels_at_cert": 224.0,
+   "mean_labels_at_cert": 227.4585635359116
+  }
+ },
+ "walker2d_velocity": {
+  "0": {
+   "cert_rate_by_400": 0.511,
+   "false_cert_rate": 0.0025,
+   "median_labels_at_cert": 235.0,
+   "mean_labels_at_cert": 239.73287671232876
+  },
+  "1": {
+   "cert_rate_by_400": 0.51,
+   "false_cert_rate": 0.002,
+   "median_labels_at_cert": 225.0,
+   "mean_labels_at_cert": 235.08823529411765
+  },
+  "2": {
+   "cert_rate_by_400": 0.5215,
+   "false_cert_rate": 0.0035,
+   "median_labels_at_cert": 227.0,
+   "mean_labels_at_cert": 235.78906999041226
+  }
+ },
+ "ant_velocity": {
+  "0": {
+   "cert_rate_by_400": 0.002,
+   "false_cert_rate": 0.002,
+   "median_labels_at_cert": 180.5,
+   "mean_labels_at_cert": 185.0
+  },
+  "1": {
+   "cert_rate_by_400": 0.0015,
+   "false_cert_rate": 0.0015,
+   "median_labels_at_cert": 203.0,
+   "mean_labels_at_cert": 195.33333333333334
+  },
+  "2": {
+   "cert_rate_by_400": 0.0035,
+   "false_cert_rate": 0.0035,
+   "median_labels_at_cert": 165.0,
+   "mean_labels_at_cert": 169.71428571428572
+  }
+ },
+ "hopper_velocity": {
+  "0": {
+   "cert_rate_by_400": 0.0,
+   "false_cert_rate": 0.0,
+   "median_labels_at_cert": null,
+   "mean_labels_at_cert": null
+  },
+  "1": {
+   "cert_rate_by_400": 0.0,
+   "false_cert_rate": 0.0,
+   "median_labels_at_cert": null,
+   "mean_labels_at_cert": null
+  },
+  "2": {
+   "cert_rate_by_400": 0.0,
+   "false_cert_rate": 0.0,
+   "median_labels_at_cert": null,
+   "mean_labels_at_cert": null
+  }
+ },
+ "swimmer_velocity": {
+  "0": {
+   "cert_rate_by_400": 0.055,
+   "false_cert_rate": 0.001,
+   "median_labels_at_cert": 212.0,
+   "mean_labels_at_cert": 222.55454545454546
+  },
+  "1": {
+   "cert_rate_by_400": 0.0565,
+   "false_cert_rate": 0.0005,
+   "median_labels_at_cert": 214.0,
+   "mean_labels_at_cert": 227.90265486725664
+  },
+  "2": {
+   "cert_rate_by_400": 0.0425,
+   "false_cert_rate": 0.0,
+   "median_labels_at_cert": 213.0,
+   "mean_labels_at_cert": 224.0235294117647
+  }
+ },
+ "cargoal1_dsrl": {
+  "0": {
+   "cert_rate_by_400": 0.2925,
+   "false_cert_rate": 0.0035,
+   "median_labels_at_cert": 228.0,
+   "mean_labels_at_cert": 234.45811965811967
+  },
+  "1": {
+   "cert_rate_by_400": 0.3535,
+   "false_cert_rate": 0.0125,
+   "median_labels_at_cert": 229.0,
+   "mean_labels_at_cert": 237.82885431400283
+  },
+  "2": {
+   "cert_rate_by_400": 0.321,
+   "false_cert_rate": 0.0055,
+   "median_labels_at_cert": 233.5,
+   "mean_labels_at_cert": 237.97819314641745
+  }
+ },
+ "cargoal2": {
+  "0": {
+   "cert_rate_by_400": 0.107,
+   "false_cert_rate": 0.006,
+   "median_labels_at_cert": 215.0,
+   "mean_labels_at_cert": 226.28971962616822
+  },
+  "1": {
+   "cert_rate_by_400": 0.106,
+   "false_cert_rate": 0.005,
+   "median_labels_at_cert": 213.5,
+   "mean_labels_at_cert": 228.53301886792454
+  },
+  "2": {
+   "cert_rate_by_400": 0.092,
+   "false_cert_rate": 0.005,
+   "median_labels_at_cert": 215.0,
+   "mean_labels_at_cert": 226.67391304347825
+  }
+ },
+ "pointgoal1_dsrl": {
+  "0": {
+   "cert_rate_by_400": 0.71,
+   "false_cert_rate": 0.0095,
+   "median_labels_at_cert": 229.0,
+   "mean_labels_at_cert": 232.2401408450704
+  },
+  "1": {
+   "cert_rate_by_400": 0.706,
+   "false_cert_rate": 0.0075,
+   "median_labels_at_cert": 230.0,
+   "mean_labels_at_cert": 232.014164305949
+  },
+  "2": {
+   "cert_rate_by_400": 0.6825,
+   "false_cert_rate": 0.0055,
+   "median_labels_at_cert": 232.0,
+   "mean_labels_at_cert": 235.54065934065935
+  }
+ },
+ "pointgoal2": {
+  "0": {
+   "cert_rate_by_400": 0.0205,
+   "false_cert_rate": 0.0205,
+   "median_labels_at_cert": 202.0,
+   "mean_labels_at_cert": 206.7560975609756
+  },
+  "1": {
+   "cert_rate_by_400": 0.025,
+   "false_cert_rate": 0.025,
+   "median_labels_at_cert": 166.5,
+   "mean_labels_at_cert": 195.88
+  },
+  "2": {
+   "cert_rate_by_400": 0.0235,
+   "false_cert_rate": 0.0235,
+   "median_labels_at_cert": 181.0,
+   "mean_labels_at_cert": 185.2340425531915
+  }
+ }
+}

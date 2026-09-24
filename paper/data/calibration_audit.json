@@ -1,0 +1,307 @@
+{
+ "cargoal1_dsrl": {
+  "3": {
+   "log": "runs/logs/v2regen/cargoal1_dsrl_calfilt_csf_seed3.log",
+   "accepted": {
+    "quantile": 0.85,
+    "m": 31,
+    "k": 4,
+    "p": 0.0677
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 31,
+     "k": 4,
+     "p": 0.0677
+    },
+    {
+     "quantile": 0.8,
+     "m": 40,
+     "k": 8,
+     "p": 0.2818
+    }
+   ]
+  }
+ },
+ "carrun_b": {
+  "0": {
+   "log": "runs/logs/csfcarrun/carrun_b_calfilt_csf_seed0.log",
+   "accepted": {
+    "quantile": 0.85,
+    "m": 33,
+    "k": 3,
+    "p": 0.0059
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 33,
+     "k": 3,
+     "p": 0.0059
+    },
+    {
+     "quantile": 0.8,
+     "m": 43,
+     "k": 10,
+     "p": 0.4483
+    }
+   ]
+  },
+  "1": {
+   "log": "runs/logs/csfcarrun/carrun_b_calfilt_csf_seed1.log",
+   "accepted": {
+    "quantile": 0.85,
+    "m": 20,
+    "k": 0,
+    "p": 0.0013
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 20,
+     "k": 0,
+     "p": 0.0013
+    },
+    {
+     "quantile": 0.8,
+     "m": 28,
+     "k": 6,
+     "p": 0.4018
+    }
+   ]
+  },
+  "2": {
+   "log": "runs/logs/csfcarrun/carrun_b_calfilt_csf_seed2.log",
+   "accepted": {
+    "quantile": 0.85,
+    "m": 30,
+    "k": 1,
+    "p": 0.0004
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 30,
+     "k": 1,
+     "p": 0.0004
+    },
+    {
+     "quantile": 0.8,
+     "m": 40,
+     "k": 7,
+     "p": 0.1291
+    }
+   ]
+  },
+  "3": {
+   "log": "runs/logs/csfcarrun/carrun_b_calfilt_csf_seed3.log",
+   "accepted": {
+    "quantile": 0.8,
+    "m": 35,
+    "k": 5,
+    "p": 0.062
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 27,
+     "k": 0,
+     "p": 0.0001
+    },
+    {
+     "quantile": 0.8,
+     "m": 35,
+     "k": 5,
+     "p": 0.062
+    },
+    {
+     "quantile": 0.75,
+     "m": 44,
+     "k": 12,
+     "p": 0.7232
+    }
+   ]
+  },
+  "4": {
+   "log": "runs/logs/csfcarrun/carrun_b_calfilt_csf_seed4.log",
+   "accepted": {
+    "quantile": 0.85,
+    "m": 36,
+    "k": 2,
+    "p": 0.0003
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 36,
+     "k": 2,
+     "p": 0.0003
+    },
+    {
+     "quantile": 0.8,
+     "m": 51,
+     "k": 13,
+     "p": 0.6088
+    }
+   ]
+  }
+ },
+ "halfcheetah_velocity": {
+  "4": {
+   "log": "runs/logs/v2regen/halfcheetah_velocity_calfilt_csf_seed4.log",
+   "accepted": {
+    "quantile": 0.85,
+    "m": 28,
+    "k": 2,
+    "p": 0.0135
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 28,
+     "k": 2,
+     "p": 0.0135
+    },
+    {
+     "quantile": 0.8,
+     "m": 40,
+     "k": 10,
+     "p": 0.5825
+    }
+   ]
+  }
+ },
+ "pointgoal1_dsrl": {
+  "0": {
+   "log": "runs/logs/csfcomplete/pointgoal1_dsrl_calfilt_csf_seed0.log",
+   "accepted": {
+    "quantile": 0.85,
+    "m": 28,
+    "k": 3,
+    "p": 0.0435
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 28,
+     "k": 3,
+     "p": 0.0435
+    },
+    {
+     "quantile": 0.8,
+     "m": 31,
+     "k": 5,
+     "p": 0.1602
+    }
+   ]
+  },
+  "3": {
+   "log": "runs/logs/csfcomplete/pointgoal1_dsrl_calfilt_csf_seed3.log",
+   "accepted": {
+    "quantile": 0.75,
+    "m": 59,
+    "k": 10,
+    "p": 0.0809
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 39,
+     "k": 4,
+     "p": 0.0124
+    },
+    {
+     "quantile": 0.8,
+     "m": 52,
+     "k": 8,
+     "p": 0.0535
+    },
+    {
+     "quantile": 0.75,
+     "m": 59,
+     "k": 10,
+     "p": 0.0809
+    },
+    {
+     "quantile": 0.7,
+     "m": 66,
+     "k": 12,
+     "p": 0.1106
+    }
+   ]
+  }
+ },
+ "walker2d_velocity": {
+  "2": {
+   "log": "runs/logs/v2regen/walker2d_velocity_calfilt_csf_seed2.log",
+   "accepted": {
+    "quantile": 0.75,
+    "m": 42,
+    "k": 5,
+    "p": 0.0266
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 30,
+     "k": 4,
+     "p": 0.087
+    },
+    {
+     "quantile": 0.8,
+     "m": 37,
+     "k": 4,
+     "p": 0.0238
+    },
+    {
+     "quantile": 0.75,
+     "m": 42,
+     "k": 5,
+     "p": 0.0266
+    },
+    {
+     "quantile": 0.7,
+     "m": 51,
+     "k": 9,
+     "p": 0.1365
+    }
+   ]
+  },
+  "3": {
+   "log": "runs/logs/v2regen/walker2d_velocity_calfilt_csf_seed3.log",
+   "accepted": {
+    "quantile": 0.75,
+    "m": 60,
+    "k": 10,
+    "p": 0.0753
+   },
+   "grid": [
+    {
+     "quantile": 0.85,
+     "m": 32,
+     "k": 3,
+     "p": 0.0204
+    },
+    {
+     "quantile": 0.8,
+     "m": 49,
+     "k": 8,
+     "p": 0.0914
+    },
+    {
+     "quantile": 0.75,
+     "m": 60,
+     "k": 10,
+     "p": 0.0753
+    },
+    {
+     "quantile": 0.7,
+     "m": 67,
+     "k": 13,
+     "p": 0.1682
+    }
+   ]
+  }
+ }
+}

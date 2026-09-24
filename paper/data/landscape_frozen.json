@@ -1,0 +1,10 @@
+{
+ "task": "pointgoal1_dsrl",
+ "probe": "frozen zero-velocity teleport grid (landscape_fig.py)",
+ "note": "Spearman rho(dist-to-nearest-hazard, V) on the teleport grid; agent frozen at zero velocity.",
+ "rho_frozen": {
+  "7": 0.092,
+  "11": 0.268,
+  "23": 0.145
+ }
+}

@@ -1,0 +1,86 @@
+[
+ {
+  "task": "carcircle_b",
+  "margin": -0.37996941896024466,
+  "cert_rate": 0.0,
+  "pool_unsafe": 0.8862068965517241
+ },
+ {
+  "task": "hopper_velocity",
+  "margin": -0.29563492063492064,
+  "cert_rate": 0.0,
+  "pool_unsafe": 0.8870535714285714
+ },
+ {
+  "task": "ballcircle_b",
+  "margin": -0.2487468671679198,
+  "cert_rate": 0.0,
+  "pool_unsafe": 0.9029345372460497
+ },
+ {
+  "task": "ballrun_b",
+  "margin": -0.15189125295508274,
+  "cert_rate": 0.0003333333333333333,
+  "pool_unsafe": 0.9095744680851063
+ },
+ {
+  "task": "ant_velocity",
+  "margin": -0.09516765285996055,
+  "cert_rate": 0.004166666666666667,
+  "pool_unsafe": 0.8012449977767897
+ },
+ {
+  "task": "pointgoal2",
+  "margin": -0.011121856866537716,
+  "cert_rate": 0.04716666666666667,
+  "pool_unsafe": 0.7434631028471819
+ },
+ {
+  "task": "swimmer_velocity",
+  "margin": 0.014163372859025025,
+  "cert_rate": 0.10316666666666667,
+  "pool_unsafe": 0.8606168446026097
+ },
+ {
+  "task": "cargoal2",
+  "margin": 0.03733766233766234,
+  "cert_rate": 0.15933333333333333,
+  "pool_unsafe": 0.6757612667478684
+ },
+ {
+  "task": "dronerun_b",
+  "margin": 0.04586897699198333,
+  "cert_rate": 0.17149999999999999,
+  "pool_unsafe": 0.7201005025125629
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "margin": 0.060666666666666674,
+  "cert_rate": 0.23549999999999996,
+  "pool_unsafe": 0.8176352705410822
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "margin": 0.07868525896414343,
+  "cert_rate": 0.3273333333333333,
+  "pool_unsafe": 0.6014362657091562
+ },
+ {
+  "task": "walker2d_velocity",
+  "margin": 0.11016260162601625,
+  "cert_rate": 0.4925,
+  "pool_unsafe": 0.7163796262367167
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "margin": 0.12719298245614033,
+  "cert_rate": 0.6485,
+  "pool_unsafe": 0.4817012858555885
+ },
+ {
+  "task": "carrun_b",
+  "margin": 0.20918367346938774,
+  "cert_rate": 0.9968333333333333,
+  "pool_unsafe": 0.5376344086021505
+ }
+]

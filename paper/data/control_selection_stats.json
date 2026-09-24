@@ -1,0 +1,83 @@
+{
+ "halfcheetah_velocity": {
+  "limit": 20,
+  "n_pool": 2495,
+  "n_selected": 455,
+  "pool_mean_traj_cost": 115.43006012024048,
+  "retbot_kept_mean_traj_cost": 39.903296703296704,
+  "retbot_kept_contamination": 0.5318681318681319,
+  "rettop_kept_mean_traj_cost": 139.9120879120879
+ },
+ "walker2d_velocity": {
+  "limit": 20,
+  "n_pool": 2729,
+  "n_selected": 774,
+  "pool_mean_traj_cost": 95.8574569439355,
+  "retbot_kept_mean_traj_cost": 79.84754521963825,
+  "retbot_kept_contamination": 0.8927648578811369,
+  "rettop_kept_mean_traj_cost": 135.49741602067184
+ },
+ "ant_velocity": {
+  "limit": 20,
+  "n_pool": 2249,
+  "n_selected": 447,
+  "pool_mean_traj_cost": 109.23966207203202,
+  "retbot_kept_mean_traj_cost": 36.98434004474273,
+  "retbot_kept_contamination": 0.4697986577181208,
+  "rettop_kept_mean_traj_cost": 130.8612975391499
+ },
+ "hopper_velocity": {
+  "limit": 20,
+  "n_pool": 2240,
+  "n_selected": 253,
+  "pool_mean_traj_cost": 119.01517857142858,
+  "retbot_kept_mean_traj_cost": 45.63636363636363,
+  "retbot_kept_contamination": 0.7351778656126482,
+  "rettop_kept_mean_traj_cost": 167.2608695652174
+ },
+ "swimmer_velocity": {
+  "limit": 20,
+  "n_pool": 1686,
+  "n_selected": 235,
+  "pool_mean_traj_cost": 93.24317912218268,
+  "retbot_kept_mean_traj_cost": 68.06382978723404,
+  "retbot_kept_contamination": 0.7021276595744681,
+  "rettop_kept_mean_traj_cost": 132.3404255319149
+ },
+ "cargoal1_dsrl": {
+  "limit": 25,
+  "n_pool": 1671,
+  "n_selected": 666,
+  "pool_mean_traj_cost": 43.23818073010174,
+  "retbot_kept_mean_traj_cost": 30.50900900900901,
+  "retbot_kept_contamination": 0.44594594594594594,
+  "rettop_kept_mean_traj_cost": 53.52102102102102
+ },
+ "cargoal2": {
+  "limit": 25,
+  "n_pool": 4105,
+  "n_selected": 1331,
+  "pool_mean_traj_cost": 69.72959805115713,
+  "retbot_kept_mean_traj_cost": 39.91209616829452,
+  "retbot_kept_contamination": 0.44327573253193087,
+  "rettop_kept_mean_traj_cost": 94.58978211870775
+ },
+ "pointgoal1_dsrl": {
+  "limit": 25,
+  "n_pool": 2022,
+  "n_selected": 1048,
+  "pool_mean_traj_cost": 30.68496538081108,
+  "retbot_kept_mean_traj_cost": 21.391221374045802,
+  "retbot_kept_contamination": 0.3463740458015267,
+  "rettop_kept_mean_traj_cost": 39.83492366412214
+ },
+ "pointgoal2": {
+  "limit": 25,
+  "n_pool": 3442,
+  "n_selected": 883,
+  "pool_mean_traj_cost": 76.61446833236491,
+  "retbot_kept_mean_traj_cost": 48.610419026047566,
+  "retbot_kept_contamination": 0.5447338618346546,
+  "rettop_kept_mean_traj_cost": 100.31370328425821
+ }
+}

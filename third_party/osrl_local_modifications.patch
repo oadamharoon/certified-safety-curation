@@ -1,0 +1,119 @@
+diff --git a/examples/configs/cdt_configs.py b/examples/configs/cdt_configs.py
+index 0f4edff..b2bf953 100644
+--- a/examples/configs/cdt_configs.py
++++ b/examples/configs/cdt_configs.py
+@@ -4,6 +4,7 @@ from typing import Any, DefaultDict, Dict, List, Optional, Tuple
+ 
+ @dataclass
+ class CDTTrainConfig:
++    subset_h5: str = None
+     # wandb params
+     project: str = "OSRL-baselines"
+     group: str = None
+diff --git a/examples/train/train_bc.py b/examples/train/train_bc.py
+index 265720b..c1856d6 100644
+--- a/examples/train/train_bc.py
++++ b/examples/train/train_bc.py
+@@ -51,8 +51,10 @@ def train(args: BCTrainConfig):
+ 
+     # the cost scale is down in trainer rollout
+     if "Metadrive" in args.task:
+-        import gym
+-    env = gym.make(args.task)
++        import gym as gym_pkg
++    else:
++        import gymnasium as gym_pkg
++    env = gym_pkg.make(args.task)
+     data = env.get_dataset()
+     env.set_target_cost(args.cost_limit)
+ 
+diff --git a/examples/train/train_bcql.py b/examples/train/train_bcql.py
+index 1be7ddc..659a5c3 100644
+--- a/examples/train/train_bcql.py
++++ b/examples/train/train_bcql.py
+@@ -50,8 +50,10 @@ def train(args: BCQLTrainConfig):
+ 
+     # initialize environment
+     if "Metadrive" in args.task:
+-        import gym
+-    env = gym.make(args.task)
++        import gym as gym_pkg
++    else:
++        import gymnasium as gym_pkg
++    env = gym_pkg.make(args.task)
+ 
+     # pre-process offline dataset
+     data = env.get_dataset()
+diff --git a/examples/train/train_bearl.py b/examples/train/train_bearl.py
+index 1447d18..7022123 100644
+--- a/examples/train/train_bearl.py
++++ b/examples/train/train_bearl.py
+@@ -50,8 +50,10 @@ def train(args: BEARLTrainConfig):
+ 
+     # initialize environment
+     if "Metadrive" in args.task:
+-        import gym
+-    env = gym.make(args.task)
++        import gym as gym_pkg
++    else:
++        import gymnasium as gym_pkg
++    env = gym_pkg.make(args.task)
+ 
+     # pre-process offline dataset
+     data = env.get_dataset()
+diff --git a/examples/train/train_cdt.py b/examples/train/train_cdt.py
+index f7ff14f..313fc77 100644
+--- a/examples/train/train_cdt.py
++++ b/examples/train/train_cdt.py
+@@ -50,11 +50,14 @@ def train(args: CDTTrainConfig):
+ 
+     # initialize environment
+     if "Metadrive" in args.task:
+-        import gym
+-    env = gym.make(args.task)
++        import gym as gym_pkg
++    else:
++        import gymnasium as gym_pkg
++    env = gym_pkg.make(args.task)
+ 
+     # pre-process offline dataset
+-    data = env.get_dataset()
++    subset_h5 = getattr(args, "subset_h5", None)
++    data = env.get_dataset(h5path=subset_h5) if subset_h5 else env.get_dataset()
+     env.set_target_cost(args.cost_limit)
+ 
+     cbins, rbins, max_npb, min_npb = None, None, None, None
+diff --git a/examples/train/train_coptidice.py b/examples/train/train_coptidice.py
+index 90c9f84..f627e8a 100644
+--- a/examples/train/train_coptidice.py
++++ b/examples/train/train_coptidice.py
+@@ -51,8 +51,10 @@ def train(args: COptiDICETrainConfig):
+ 
+     # initialize environment
+     if "Metadrive" in args.task:
+-        import gym
+-    env = gym.make(args.task)
++        import gym as gym_pkg
++    else:
++        import gymnasium as gym_pkg
++    env = gym_pkg.make(args.task)
+ 
+     # pre-process offline dataset
+     data = env.get_dataset()
+diff --git a/examples/train/train_cpq.py b/examples/train/train_cpq.py
+index 6cdf942..38812a1 100644
+--- a/examples/train/train_cpq.py
++++ b/examples/train/train_cpq.py
+@@ -50,8 +50,10 @@ def train(args: CPQTrainConfig):
+ 
+     # initialize environment
+     if "Metadrive" in args.task:
+-        import gym
+-    env = gym.make(args.task)
++        import gym as gym_pkg
++    else:
++        import gymnasium as gym_pkg
++    env = gym_pkg.make(args.task)
+ 
+     # pre-process offline dataset
+     data = env.get_dataset()

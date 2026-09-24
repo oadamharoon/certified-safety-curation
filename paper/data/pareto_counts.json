@@ -1,0 +1,50 @@
+{
+ "BC-All": {
+  "safe": 2,
+  "x": 0.0
+ },
+ "BC-Safe": {
+  "safe": 12,
+  "x": 2.17
+ },
+ "BC-Safe-Seg": {
+  "safe": 2,
+  "x": 2.0
+ },
+ "CDT": {
+  "safe": 7,
+  "x": 3.0
+ },
+ "COptiDICE": {
+  "safe": 2,
+  "x": 3.0
+ },
+ "CPL": {
+  "safe": 4,
+  "x": 1.0
+ },
+ "CPQ": {
+  "safe": 4,
+  "x": 3.0
+ },
+ "Calibrated": {
+  "safe": 12,
+  "x": 2.0
+ },
+ "Labels-only 200": {
+  "safe": 11,
+  "x": 1.915
+ },
+ "Labels-only 400": {
+  "safe": 13,
+  "x": 2.0
+ },
+ "Labels-split": {
+  "safe": 11,
+  "x": 2.085
+ },
+ "V-filter": {
+  "safe": 12,
+  "x": 1.83
+ }
+}

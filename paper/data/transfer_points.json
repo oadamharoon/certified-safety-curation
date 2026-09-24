@@ -1,0 +1,1217 @@
+[
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.3496042216358839,
+  "kept_frac": 0.45362058647516457,
+  "policy_cost_norm": 0.3156,
+  "policy_R": 9.624134937233709
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.36496350364963503,
+  "kept_frac": 0.4919210053859964,
+  "policy_cost_norm": 0.4092,
+  "policy_R": 9.77706107409658
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.17131474103585656,
+  "kept_frac": 0.15020945541591862,
+  "policy_cost_norm": 0.22,
+  "policy_R": 8.37348235213775
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.2261904761904762,
+  "kept_frac": 0.10053859964093358,
+  "policy_cost_norm": 0.2756,
+  "policy_R": 9.313076381830205
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.3554987212276215,
+  "kept_frac": 0.4679832435667265,
+  "policy_cost_norm": 0.39799999999999996,
+  "policy_R": 10.352166183601442
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.3645083932853717,
+  "kept_frac": 0.4991023339317774,
+  "policy_cost_norm": 0.4068,
+  "policy_R": 10.455836819474314
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.1746031746031746,
+  "kept_frac": 0.07540394973070018,
+  "policy_cost_norm": 0.2364,
+  "policy_R": 9.1621526110855
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.23283582089552238,
+  "kept_frac": 0.2004787552363854,
+  "policy_cost_norm": 0.2464,
+  "policy_R": 8.87352434644001
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.24477611940298508,
+  "kept_frac": 0.2004787552363854,
+  "policy_cost_norm": 0.2732,
+  "policy_R": 8.24260736546018
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.25,
+  "kept_frac": 0.10053859964093358,
+  "policy_cost_norm": 0.4008,
+  "policy_R": 9.681035747641555
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.27976190476190477,
+  "kept_frac": 0.10053859964093358,
+  "policy_cost_norm": 0.332,
+  "policy_R": 9.359949882680096
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.2208955223880597,
+  "kept_frac": 0.2004787552363854,
+  "policy_cost_norm": 0.33159999999999995,
+  "policy_R": 8.424904815434678
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.3969957081545064,
+  "kept_frac": 0.5577498503889886,
+  "policy_cost_norm": 0.4388,
+  "policy_R": 10.340551885694472
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.21791044776119403,
+  "kept_frac": 0.2004787552363854,
+  "policy_cost_norm": 0.21239999999999998,
+  "policy_R": 8.166019945902322
+ },
+ {
+  "task": "cargoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.23809523809523808,
+  "kept_frac": 0.10053859964093358,
+  "policy_cost_norm": 0.28600000000000003,
+  "policy_R": 8.415964525651805
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.2622641509433962,
+  "kept_frac": 0.5242334322453017,
+  "policy_cost_norm": 0.414,
+  "policy_R": 8.843235314676638
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.28125,
+  "kept_frac": 0.5855588526211671,
+  "policy_cost_norm": 0.42719999999999997,
+  "policy_R": 8.366856416918578
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.1751412429378531,
+  "kept_frac": 0.35014836795252224,
+  "policy_cost_norm": 0.2284,
+  "policy_R": 5.804977110930123
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.05263157894736842,
+  "kept_frac": 0.0751730959446093,
+  "policy_cost_norm": 0.2248,
+  "policy_R": 5.101611311445051
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.2824620573355818,
+  "kept_frac": 0.5865479723046488,
+  "policy_cost_norm": 0.4928,
+  "policy_R": 11.165120738839097
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.2786745964316058,
+  "kept_frac": 0.5820969337289812,
+  "policy_cost_norm": 0.5828,
+  "policy_R": 10.192192978311319
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.1751412429378531,
+  "kept_frac": 0.17507418397626112,
+  "policy_cost_norm": 0.45520000000000005,
+  "policy_R": 7.999585552782708
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.15815485996705106,
+  "kept_frac": 0.30019782393669636,
+  "policy_cost_norm": 0.2656,
+  "policy_R": 7.018852025972222
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.12098765432098765,
+  "kept_frac": 0.20029673590504452,
+  "policy_cost_norm": 0.2408,
+  "policy_R": 5.813886045478558
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.1611842105263158,
+  "kept_frac": 0.1503461918892186,
+  "policy_cost_norm": 0.226,
+  "policy_R": 6.11005101158625
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.10837438423645321,
+  "kept_frac": 0.10039564787339268,
+  "policy_cost_norm": 0.252,
+  "policy_R": 5.420766772096877
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.10864197530864197,
+  "kept_frac": 0.20029673590504452,
+  "policy_cost_norm": 0.2688,
+  "policy_R": 6.381141124643204
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.2528856243441763,
+  "kept_frac": 0.4713155291790307,
+  "policy_cost_norm": 0.3236,
+  "policy_R": 7.632731971321987
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.07894736842105263,
+  "kept_frac": 0.1503461918892186,
+  "policy_cost_norm": 0.1852,
+  "policy_R": 5.663700029220472
+ },
+ {
+  "task": "pointgoal1_dsrl",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.08374384236453201,
+  "kept_frac": 0.10039564787339268,
+  "policy_cost_norm": 0.198,
+  "policy_R": 5.300067827765157
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.6944257891202149,
+  "kept_frac": 0.5967935871743487,
+  "policy_cost_norm": 3.7744999999999997,
+  "policy_R": 2564.9236060379485
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.7031963470319634,
+  "kept_frac": 0.6144288577154309,
+  "policy_cost_norm": 2.0745,
+  "policy_R": 2482.6961563355358
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.18933333333333333,
+  "kept_frac": 0.15030060120240482,
+  "policy_cost_norm": 0.0875,
+  "policy_R": 2324.175410153881
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.16489361702127658,
+  "kept_frac": 0.07535070140280561,
+  "policy_cost_norm": 0.001,
+  "policy_R": 2234.022127180305
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.710006373486297,
+  "kept_frac": 0.6288577154308618,
+  "policy_cost_norm": 9.065000000000001,
+  "policy_R": 2577.0539327240226
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.7004608294930875,
+  "kept_frac": 0.6088176352705411,
+  "policy_cost_norm": 5.000500000000001,
+  "policy_R": 2521.402045870547
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.16489361702127658,
+  "kept_frac": 0.07535070140280561,
+  "policy_cost_norm": 0.0185,
+  "policy_R": 2291.799626075204
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.2545090180360721,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.054000000000000006,
+  "policy_R": 2133.5583775642694
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.21866666666666668,
+  "kept_frac": 0.15030060120240482,
+  "policy_cost_norm": 1.7530000000000001,
+  "policy_R": 2284.95886487178
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.244,
+  "kept_frac": 0.10020040080160321,
+  "policy_cost_norm": 0.053500000000000006,
+  "policy_R": 2490.5812999364125
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.18617021276595744,
+  "kept_frac": 0.07535070140280561,
+  "policy_cost_norm": 0.0015,
+  "policy_R": 2238.721021430605
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.25851703406813625,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.006500000000000001,
+  "policy_R": 1857.0470498565132
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.7056921086675291,
+  "kept_frac": 0.6196392785571142,
+  "policy_cost_norm": 3.353,
+  "policy_R": 2074.5209172523973
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.208,
+  "kept_frac": 0.15030060120240482,
+  "policy_cost_norm": 0.0125,
+  "policy_R": 2261.5037102325737
+ },
+ {
+  "task": "halfcheetah_velocity",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.212,
+  "kept_frac": 0.10020040080160321,
+  "policy_cost_norm": 0.2085,
+  "policy_R": 2460.97313572013
+ },
+ {
+  "task": "cargoal2",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.42935079105291873,
+  "kept_frac": 0.44652862362971985,
+  "policy_cost_norm": 0.8628,
+  "policy_R": 4.535565989081997
+ },
+ {
+  "task": "cargoal2",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.4590976698066435,
+  "kept_frac": 0.4913520097442144,
+  "policy_cost_norm": 1.0452,
+  "policy_R": 5.2284353786447575
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.25334957369062117,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.884,
+  "policy_R": 3.5108646430476416
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.27007299270072993,
+  "kept_frac": 0.10012180267965895,
+  "policy_cost_norm": 0.6564,
+  "policy_R": 3.160179736573588
+ },
+ {
+  "task": "cargoal2",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.4129438717067583,
+  "kept_frac": 0.4253349573690621,
+  "policy_cost_norm": 0.8240000000000001,
+  "policy_R": 4.767602565506504
+ },
+ {
+  "task": "cargoal2",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.4388451443569554,
+  "kept_frac": 0.464068209500609,
+  "policy_cost_norm": 0.8456,
+  "policy_R": 4.55494235429235
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.2725060827250608,
+  "kept_frac": 0.10012180267965895,
+  "policy_cost_norm": 0.7552,
+  "policy_R": 3.9260251852305976
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.23751522533495736,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.4672,
+  "policy_R": 2.9902037305195397
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.25091352009744217,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.9376000000000001,
+  "policy_R": 4.012031252418657
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.26277372262773724,
+  "kept_frac": 0.10012180267965895,
+  "policy_cost_norm": 0.8484,
+  "policy_R": 4.38701980813089
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.2822384428223844,
+  "kept_frac": 0.10012180267965895,
+  "policy_cost_norm": 0.7831999999999999,
+  "policy_R": 4.1986293044204075
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.2557856272838002,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.7548,
+  "policy_R": 2.9924994344031104
+ },
+ {
+  "task": "cargoal2",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.4239956568946797,
+  "kept_frac": 0.448721071863581,
+  "policy_cost_norm": 0.6587999999999999,
+  "policy_R": 4.001311414844119
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.25334957369062117,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.5115999999999999,
+  "policy_R": 3.516436289294865
+ },
+ {
+  "task": "cargoal2",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.2798053527980535,
+  "kept_frac": 0.10012180267965895,
+  "policy_cost_norm": 0.6656,
+  "policy_R": 3.9551604046145377
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.7377232142857143,
+  "kept_frac": 0.531435349940688,
+  "policy_cost_norm": 1.778,
+  "policy_R": 117.3167602306048
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.7383073496659243,
+  "kept_frac": 0.5326215895610913,
+  "policy_cost_norm": 2.408,
+  "policy_R": 123.03219329687252
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.378698224852071,
+  "kept_frac": 0.20047449584816132,
+  "policy_cost_norm": 3.8815,
+  "policy_R": 131.10808293681694
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.47928994082840237,
+  "kept_frac": 0.10023724792408066,
+  "policy_cost_norm": 18.6025,
+  "policy_R": 168.0904082785983
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.7365470852017937,
+  "kept_frac": 0.5290628706998813,
+  "policy_cost_norm": 6.4784999999999995,
+  "policy_R": 136.1712926695215
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.7473118279569892,
+  "kept_frac": 0.5516014234875445,
+  "policy_cost_norm": 0.509,
+  "policy_R": 104.35949747946732
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.46745562130177515,
+  "kept_frac": 0.10023724792408066,
+  "policy_cost_norm": 0.0435,
+  "policy_R": 138.48626891110763
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.3816568047337278,
+  "kept_frac": 0.20047449584816132,
+  "policy_cost_norm": 0.5485,
+  "policy_R": 122.33952329576918
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.3816568047337278,
+  "kept_frac": 0.20047449584816132,
+  "policy_cost_norm": 0.24300000000000002,
+  "policy_R": 99.33960394078153
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.48520710059171596,
+  "kept_frac": 0.10023724792408066,
+  "policy_cost_norm": 3.6670000000000003,
+  "policy_R": 153.36441319233305
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.5088757396449705,
+  "kept_frac": 0.10023724792408066,
+  "policy_cost_norm": 3.435,
+  "policy_R": 149.40533260188568
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.378698224852071,
+  "kept_frac": 0.20047449584816132,
+  "policy_cost_norm": 1.215,
+  "policy_R": 104.70210376978841
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.7377232142857143,
+  "kept_frac": 0.531435349940688,
+  "policy_cost_norm": 0.5309999999999999,
+  "policy_R": 99.41198966570433
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.3816568047337278,
+  "kept_frac": 0.20047449584816132,
+  "policy_cost_norm": 0.533,
+  "policy_R": 116.20365719435351
+ },
+ {
+  "task": "swimmer_velocity",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.46745562130177515,
+  "kept_frac": 0.10023724792408066,
+  "policy_cost_norm": 0.025500000000000002,
+  "policy_R": 135.02800009982846
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.5664968873797397,
+  "kept_frac": 0.6474899230487358,
+  "policy_cost_norm": 0.24500000000000002,
+  "policy_R": 2713.8815601899296
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.5730211817168339,
+  "kept_frac": 0.6573836570172225,
+  "policy_cost_norm": 0.034499999999999996,
+  "policy_R": 2706.34815663484
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.17399267399267399,
+  "kept_frac": 0.20007328691828508,
+  "policy_cost_norm": 0.261,
+  "policy_R": 2691.6178733811034
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.08424908424908426,
+  "kept_frac": 0.10003664345914254,
+  "policy_cost_norm": 1.032,
+  "policy_R": 2104.7425838633226
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.5692567567567568,
+  "kept_frac": 0.6507878343715646,
+  "policy_cost_norm": 0.0,
+  "policy_R": 2703.414967838997
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.5631067961165048,
+  "kept_frac": 0.6416269695859289,
+  "policy_cost_norm": 0.6115,
+  "policy_R": 2753.5335395924467
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.07326007326007326,
+  "kept_frac": 0.10003664345914254,
+  "policy_cost_norm": 0.006,
+  "policy_R": 2687.572207959273
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.2765567765567766,
+  "kept_frac": 0.20007328691828508,
+  "policy_cost_norm": 0.0,
+  "policy_R": 2582.8809180282888
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.23626373626373626,
+  "kept_frac": 0.20007328691828508,
+  "policy_cost_norm": 0.6935,
+  "policy_R": 2666.0539420452324
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.09157509157509157,
+  "kept_frac": 0.10003664345914254,
+  "policy_cost_norm": 0.0025,
+  "policy_R": 2678.8591618346272
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.09523809523809523,
+  "kept_frac": 0.10003664345914254,
+  "policy_cost_norm": 0.0015,
+  "policy_R": 2680.481395993686
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.24358974358974358,
+  "kept_frac": 0.20007328691828508,
+  "policy_cost_norm": 0.001,
+  "policy_R": 2650.6950835161038
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.5732590529247911,
+  "kept_frac": 0.6577500916086478,
+  "policy_cost_norm": 0.2985,
+  "policy_R": 2661.242012560112
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.22893772893772893,
+  "kept_frac": 0.20007328691828508,
+  "policy_cost_norm": 0.0,
+  "policy_R": 2680.6398679606755
+ },
+ {
+  "task": "walker2d_velocity",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.08791208791208792,
+  "kept_frac": 0.10003664345914254,
+  "policy_cost_norm": 0.057499999999999996,
+  "policy_R": 2704.457784234845
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.5834165834165834,
+  "kept_frac": 0.5816385822196397,
+  "policy_cost_norm": 1.7116,
+  "policy_R": 11.288047042752398
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.5844091360476663,
+  "kept_frac": 0.5851249273678094,
+  "policy_cost_norm": 1.6987999999999999,
+  "policy_R": 11.240488269188901
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.3309143686502177,
+  "kept_frac": 0.20017431725740847,
+  "policy_cost_norm": 0.8852,
+  "policy_R": 6.453723563046996
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.34492753623188405,
+  "kept_frac": 0.10023242300987797,
+  "policy_cost_norm": 0.7120000000000001,
+  "policy_R": 5.475814487726705
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.5917675544794189,
+  "kept_frac": 0.5999418942475305,
+  "policy_cost_norm": 1.6872,
+  "policy_R": 10.015582964888079
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.5958969465648855,
+  "kept_frac": 0.6089482858803021,
+  "policy_cost_norm": 1.6147999999999998,
+  "policy_R": 11.06311486249503
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.336231884057971,
+  "kept_frac": 0.10023242300987797,
+  "policy_cost_norm": 0.8284,
+  "policy_R": 6.895889632580499
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.3265602322206096,
+  "kept_frac": 0.20017431725740847,
+  "policy_cost_norm": 0.8676,
+  "policy_R": 6.592512931578336
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.3352685050798258,
+  "kept_frac": 0.20017431725740847,
+  "policy_cost_norm": 0.7464,
+  "policy_R": 6.898984612752909
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.34202898550724636,
+  "kept_frac": 0.10023242300987797,
+  "policy_cost_norm": 0.7916,
+  "policy_R": 7.255505450792162
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.34782608695652173,
+  "kept_frac": 0.10023242300987797,
+  "policy_cost_norm": 0.6108,
+  "policy_R": 6.8282288735399455
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.32365747460087085,
+  "kept_frac": 0.20017431725740847,
+  "policy_cost_norm": 0.9304000000000001,
+  "policy_R": 5.9331083520007875
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.5930232558139535,
+  "kept_frac": 0.599651365485183,
+  "policy_cost_norm": 1.6680000000000001,
+  "policy_R": 11.979243957649095
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.3251088534107402,
+  "kept_frac": 0.20017431725740847,
+  "policy_cost_norm": 0.7812,
+  "policy_R": 6.130773688461208
+ },
+ {
+  "task": "pointgoal2",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.3536231884057971,
+  "kept_frac": 0.10023242300987797,
+  "policy_cost_norm": 0.9672,
+  "policy_R": 6.864876478413931
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.781305114638448,
+  "kept_frac": 0.50625,
+  "policy_cost_norm": 2.324,
+  "policy_R": 858.4236525296254
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.7833333333333333,
+  "kept_frac": 0.5089285714285714,
+  "policy_cost_norm": 3.6119999999999997,
+  "policy_R": 840.6286204017647
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.6160714285714286,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 1.393,
+  "policy_R": 1289.764794396107
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.8080357142857143,
+  "kept_frac": 0.1,
+  "policy_cost_norm": 3.6534999999999997,
+  "policy_R": 1056.2500313434589
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.7580803134182175,
+  "kept_frac": 0.4558035714285714,
+  "policy_cost_norm": 5.0155,
+  "policy_R": 1049.0289292165826
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.7833333333333333,
+  "kept_frac": 0.5089285714285714,
+  "policy_cost_norm": 2.556,
+  "policy_R": 1183.8259617183394
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.8169642857142857,
+  "kept_frac": 0.1,
+  "policy_cost_norm": 0.49400000000000005,
+  "policy_R": 497.69024445372685
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.6049107142857143,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.16,
+  "policy_R": 1233.500063279561
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.6026785714285714,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.9574999999999999,
+  "policy_R": 619.2119283460645
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.7901785714285714,
+  "kept_frac": 0.1,
+  "policy_cost_norm": 2.857,
+  "policy_R": 1366.4825347827712
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.7901785714285714,
+  "kept_frac": 0.1,
+  "policy_cost_norm": 5.732,
+  "policy_R": 1152.8754772423006
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.6071428571428571,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 2.3845,
+  "policy_R": 1402.4399699640405
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.7831431079894644,
+  "kept_frac": 0.5084821428571429,
+  "policy_cost_norm": 5.5225,
+  "policy_R": 1556.4960919677637
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.6138392857142857,
+  "kept_frac": 0.2,
+  "policy_cost_norm": 0.858,
+  "policy_R": 1201.3336845221506
+ },
+ {
+  "task": "hopper_velocity",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.7991071428571429,
+  "kept_frac": 0.1,
+  "policy_cost_norm": 24.329,
+  "policy_R": 1621.5548471688764
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "pref",
+  "seed": 3,
+  "kept_unsafe": 0.7128005198180637,
+  "kept_frac": 0.6843041351711872,
+  "policy_cost_norm": 2.12,
+  "policy_R": 2964.945898201984
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "pref",
+  "seed": 4,
+  "kept_unsafe": 0.7161043921069382,
+  "kept_frac": 0.6985326811916407,
+  "policy_cost_norm": 3.127,
+  "policy_R": 2976.555100175568
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2",
+  "seed": 3,
+  "kept_unsafe": 0.35777777777777775,
+  "kept_frac": 0.20008892841262785,
+  "policy_cost_norm": 0.1335,
+  "policy_R": 2587.954891952313
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2R50",
+  "seed": 4,
+  "kept_unsafe": 0.49333333333333335,
+  "kept_frac": 0.10004446420631392,
+  "policy_cost_norm": 0.1105,
+  "policy_R": 2530.915707615161
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "pref",
+  "seed": 2,
+  "kept_unsafe": 0.700136612021858,
+  "kept_frac": 0.6509559804357492,
+  "policy_cost_norm": 2.0484999999999998,
+  "policy_R": 2913.4344980803567
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "pref",
+  "seed": 0,
+  "kept_unsafe": 0.6986959505833905,
+  "kept_frac": 0.6478434859937751,
+  "policy_cost_norm": 4.9,
+  "policy_R": 2985.355999191026
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2R50",
+  "seed": 3,
+  "kept_unsafe": 0.49777777777777776,
+  "kept_frac": 0.10004446420631392,
+  "policy_cost_norm": 0.05500000000000001,
+  "policy_R": 2536.2479585683473
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2",
+  "seed": 0,
+  "kept_unsafe": 0.36,
+  "kept_frac": 0.20008892841262785,
+  "policy_cost_norm": 0.017,
+  "policy_R": 2455.2735167298542
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2",
+  "seed": 1,
+  "kept_unsafe": 0.36,
+  "kept_frac": 0.20008892841262785,
+  "policy_cost_norm": 0.04,
+  "policy_R": 2579.367201218153
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2R50",
+  "seed": 0,
+  "kept_unsafe": 0.5066666666666667,
+  "kept_frac": 0.10004446420631392,
+  "policy_cost_norm": 0.041499999999999995,
+  "policy_R": 2525.1647912300373
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2R50",
+  "seed": 1,
+  "kept_unsafe": 0.5022222222222222,
+  "kept_frac": 0.10004446420631392,
+  "policy_cost_norm": 0.0685,
+  "policy_R": 2553.089308811749
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2",
+  "seed": 2,
+  "kept_unsafe": 0.35777777777777775,
+  "kept_frac": 0.20008892841262785,
+  "policy_cost_norm": 0.034,
+  "policy_R": 2496.0546660113832
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "pref",
+  "seed": 1,
+  "kept_unsafe": 0.7091267235718975,
+  "kept_frac": 0.6771898621609604,
+  "policy_cost_norm": 3.6325000000000003,
+  "policy_R": 2973.251685367437
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2",
+  "seed": 4,
+  "kept_unsafe": 0.35333333333333333,
+  "kept_frac": 0.20008892841262785,
+  "policy_cost_norm": 0.076,
+  "policy_R": 2516.0321738256303
+ },
+ {
+  "task": "ant_velocity",
+  "variant": "lttv2R50",
+  "seed": 2,
+  "kept_unsafe": 0.5022222222222222,
+  "kept_frac": 0.10004446420631392,
+  "policy_cost_norm": 0.023,
+  "policy_R": 2519.206131246987
+ }
+]

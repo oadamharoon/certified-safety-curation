@@ -1,0 +1,208 @@
+{
+ "n_points": 25,
+ "r2_contam": 0.20696362980998673,
+ "r2_full": 0.23802830521158536,
+ "delta_r2": 0.03106467540159863,
+ "rows": [
+  {
+   "task": "ant_velocity",
+   "sel": "ant_velocity_a40new_q70_kept.json",
+   "contam": 0.40296296296296297,
+   "mean_margin": 1.3371946482661423,
+   "p10_margin": 0.9530202507921319,
+   "cost_norm": 0.25833333333333336
+  },
+  {
+   "task": "ant_velocity",
+   "sel": "ant_velocity_a40new_q80_kept.json",
+   "contam": 0.3622222222222222,
+   "mean_margin": 1.4812310177578318,
+   "p10_margin": 1.3038100605549305,
+   "cost_norm": 0.07933333333333334
+  },
+  {
+   "task": "ant_velocity",
+   "sel": "ant_velocity_a40new_q85_kept.json",
+   "contam": 0.34615384615384615,
+   "mean_margin": 1.5360469798518865,
+   "p10_margin": 1.43511888018569,
+   "cost_norm": 0.037333333333333336
+  },
+  {
+   "task": "cargoal1_dsrl",
+   "sel": "cargoal1_dsrl_a40new_q50_kept.json",
+   "contam": 0.36483253588516745,
+   "mean_margin": 0.8041993133075512,
+   "p10_margin": -0.05026284664765569,
+   "cost_norm": 0.34826666666666667
+  },
+  {
+   "task": "cargoal1_dsrl",
+   "sel": "cargoal1_dsrl_a40new_q60_kept.json",
+   "contam": 0.3213751868460389,
+   "mean_margin": 1.0199664796800674,
+   "p10_margin": 0.23233191967440492,
+   "cost_norm": 0.34919999999999995
+  },
+  {
+   "task": "cargoal1_dsrl",
+   "sel": "cargoal1_dsrl_a40new_q65_kept.json",
+   "contam": 0.2923076923076923,
+   "mean_margin": 1.140984165034308,
+   "p10_margin": 0.3889472789295703,
+   "cost_norm": 0.38159999999999994
+  },
+  {
+   "task": "cargoal2",
+   "sel": "cargoal2_a40new_q65_kept.json",
+   "contam": 0.34933890048712596,
+   "mean_margin": 1.0991723510759115,
+   "p10_margin": 0.3505108286735702,
+   "cost_norm": 0.7498666666666667
+  },
+  {
+   "task": "cargoal2",
+   "sel": "cargoal2_a40new_q70_kept.json",
+   "contam": 0.31006493506493504,
+   "mean_margin": 1.229861252248861,
+   "p10_margin": 0.49848605293646425,
+   "cost_norm": 0.6401333333333333
+  },
+  {
+   "task": "cargoal2",
+   "sel": "cargoal2_a40new_q75_kept.json",
+   "contam": 0.27848101265822783,
+   "mean_margin": 1.379957476510693,
+   "p10_margin": 0.6650339226646147,
+   "cost_norm": 0.7876000000000001
+  },
+  {
+   "task": "carrun_b",
+   "sel": "carrun_b_echonew_q85_kept.json",
+   "contam": 0.05102040816326531,
+   "mean_margin": 1.711656844423779,
+   "p10_margin": 1.4305753207128566,
+   "cost_norm": 0.065
+  },
+  {
+   "task": "halfcheetah_velocity",
+   "sel": "halfcheetah_velocity_a40new_q75_kept.json",
+   "contam": 0.33653846153846156,
+   "mean_margin": 1.4464190019919276,
+   "p10_margin": 0.8229858363748473,
+   "cost_norm": 0.261
+  },
+  {
+   "task": "halfcheetah_velocity",
+   "sel": "halfcheetah_velocity_a40new_q80_kept.json",
+   "contam": 0.2625250501002004,
+   "mean_margin": 1.602621536794965,
+   "p10_margin": 1.088470702307729,
+   "cost_norm": 0.7308333333333333
+  },
+  {
+   "task": "halfcheetah_velocity",
+   "sel": "halfcheetah_velocity_a40new_q85_kept.json",
+   "contam": 0.19466666666666665,
+   "mean_margin": 1.765551119324491,
+   "p10_margin": 1.298425276101192,
+   "cost_norm": 0.02066666666666667
+  },
+  {
+   "task": "pointgoal1_dsrl",
+   "sel": "pointgoal1_dsrl_a40new_q30_kept.json",
+   "contam": 0.3201413427561837,
+   "mean_margin": 0.4517906710195548,
+   "p10_margin": -0.5254624629050664,
+   "cost_norm": 0.6438666666666667
+  },
+  {
+   "task": "pointgoal1_dsrl",
+   "sel": "pointgoal1_dsrl_a40new_q35_kept.json",
+   "contam": 0.2975646879756469,
+   "mean_margin": 0.5339771377482871,
+   "p10_margin": -0.4329356400194335,
+   "cost_norm": 0.5532
+  },
+  {
+   "task": "pointgoal1_dsrl",
+   "sel": "pointgoal1_dsrl_a40new_q40_kept.json",
+   "contam": 0.28359439406430337,
+   "mean_margin": 0.6213889979510033,
+   "p10_margin": -0.3329275511003098,
+   "cost_norm": 0.44386666666666663
+  },
+  {
+   "task": "pointgoal2",
+   "sel": "pointgoal2_a40new_q75_kept.json",
+   "contam": 0.3716608594657375,
+   "mean_margin": 1.3764194023037848,
+   "p10_margin": 0.8976029561573983,
+   "cost_norm": 0.8782666666666666
+  },
+  {
+   "task": "pointgoal2",
+   "sel": "pointgoal2_a40new_q80_kept.json",
+   "contam": 0.3193033381712627,
+   "mean_margin": 1.496069350217644,
+   "p10_margin": 1.0806121202485108,
+   "cost_norm": 0.6548
+  },
+  {
+   "task": "pointgoal2",
+   "sel": "pointgoal2_a40new_q85_kept.json",
+   "contam": 0.2572533849129594,
+   "mean_margin": 1.6272785065987652,
+   "p10_margin": 1.2666556609486663,
+   "cost_norm": 0.6253333333333333
+  },
+  {
+   "task": "swimmer_velocity",
+   "sel": "swimmer_velocity_a40new_q75_kept.json",
+   "contam": 0.45260663507109006,
+   "mean_margin": 1.2995088326794184,
+   "p10_margin": 0.8159232916688912,
+   "cost_norm": 3.275333333333333
+  },
+  {
+   "task": "swimmer_velocity",
+   "sel": "swimmer_velocity_a40new_q80_kept.json",
+   "contam": 0.3343195266272189,
+   "mean_margin": 1.4215240657156518,
+   "p10_margin": 0.9752873411169951,
+   "cost_norm": 4.798666666666666
+  },
+  {
+   "task": "swimmer_velocity",
+   "sel": "swimmer_velocity_a40new_q85_kept.json",
+   "contam": 0.233201581027668,
+   "mean_margin": 1.5693914439461365,
+   "p10_margin": 1.1791703255729509,
+   "cost_norm": 0.6226666666666667
+  },
+  {
+   "task": "walker2d_velocity",
+   "sel": "walker2d_velocity_a40new_q55_kept.json",
+   "contam": 0.3941368078175896,
+   "mean_margin": 1.0021780985658828,
+   "p10_margin": 0.6715346716744575,
+   "cost_norm": 0.43899999999999995
+  },
+  {
+   "task": "walker2d_velocity",
+   "sel": "walker2d_velocity_a40new_q60_kept.json",
+   "contam": 0.32875457875457875,
+   "mean_margin": 1.0566492433133814,
+   "p10_margin": 0.8444134580879314,
+   "cost_norm": 0.030166666666666668
+  },
+  {
+   "task": "walker2d_velocity",
+   "sel": "walker2d_velocity_a40new_q65_kept.json",
+   "contam": 0.2481675392670157,
+   "mean_margin": 1.0953701953480215,
+   "p10_margin": 0.9890294374204452,
+   "cost_norm": 0.07116666666666666
+  }
+ ]
+}

@@ -8,13 +8,48 @@ Clopper-Pearson intervals. CPU-only.
 
 Writes iclr2027/data/review_response/guarantee_stats_2000.json
 """
+
+# --- paths ------------------------------------------------------------------
+# The research tree addressed itself by absolute path; these roots replace it. Set
+# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+import os as _os
+
+
+def _csc_root(_p):
+    """The repository root, found by the .csc-root marker rather than by depth."""
+    _d = _os.path.dirname(_os.path.abspath(_p))
+    while True:
+        if _os.path.exists(_os.path.join(_d, ".csc-root")):
+            return _d
+        _up = _os.path.dirname(_d)
+        if _up == _d:
+            return _os.path.dirname(_os.path.dirname(_os.path.abspath(_p)))
+        _d = _up
+
+
+# __file__ is undefined when a script's source is exec'd in a fresh namespace, which the
+# audit does to reuse the table builder's tables; fall back to the working directory, which
+# the .csc-root walk resolves from anywhere inside the repository.
+_self = globals().get("__file__") or _os.path.join(_os.getcwd(), "_")
+CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(_self))
+_WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+_runs = _os.path.join(_WS, "runs")
+CSC_RUNS = _os.environ.get("CSC_RUNS", _runs if _os.path.isdir(_runs) else _os.path.join(CSC_REPO, "runs"))
+CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
+CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))
+CSC_PAPER_DATA = _os.path.join(CSC_PAPER, "data")
+# the run configs are carried by the repository, so they resolve without a working tree
+CSC_CONFIG = _os.environ.get("CSC_CONFIG", _os.path.join(CSC_REPO, "configs"))
+# -----------------------------------------------------------------------------
+
 import json, os, pickle, sys
 import numpy as np
 import torch
 import yaml
 from scipy.stats import hypergeom, beta
 
-D = "/home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data"
+D = CSC_WORK
 sys.path.insert(0, D); os.chdir(D)
 from model.policy import VEnsemble
 
@@ -86,6 +121,6 @@ for task in TASKS:
             f"n{n}:cert{sd[str(n)]['cert_rate']:.2f}/unc{sd[str(n)]['false_cert_rate_uncond']:.3f}"
             for n in SIZES), flush=True)
     out[task] = entry
-dst = "/home/omniverse/workspace/safevlmcpl/iclr2027/data/review_response/guarantee_stats_2000.json"
+dst = CSC_PAPER_DATA + "/review_response/guarantee_stats_2000.json"
 json.dump(out, open(dst, "w"), indent=1)
 print("GUARANTEE VALIDATION DONE ->", dst, flush=True)

@@ -35,10 +35,35 @@ def main() -> None:
 
     with open(os.path.join(cfg["output_dir"], "active_segments.pkl"), "rb") as f:
         active = pickle.load(f)
-    with open(os.path.join(cfg["output_dir"], "gt_labels.json"), "r") as f:
+    labels_in = os.environ.get("LABELS_IN", "gt_labels.json")
+    with open(os.path.join(cfg["output_dir"], labels_in), "r") as f:
         pref_data = json.load(f)
     if not pref_data:
         raise RuntimeError("No GT labels found - run 03b_label_by_cost.py first.")
+
+    # Composability arm: restrict CPL to a certified selection, the same way
+    # CDT is restricted via --subset_h5. Segments carry traj_id indexing the
+    # trajectory pickle, so we keep only segments drawn from selected
+    # trajectories, drop preference pairs with an endpoint outside the
+    # selection, and remap the surviving pair indices.
+    subset_p = os.environ.get("SUBSET_KEPT")
+    if subset_p:
+        kept = set(int(i) for i in json.load(open(subset_p))["kept"])
+        keep_seg = [i for i, s in enumerate(active) if int(s["traj_id"]) in kept]
+        remap = {old_i: new_i for new_i, old_i in enumerate(keep_seg)}
+        n_seg_before, n_pair_before = len(active), len(pref_data)
+        active = [active[i] for i in keep_seg]
+        pref_data = [dict(e, seg_A_idx=remap[e["seg_A_idx"]],
+                          seg_B_idx=remap[e["seg_B_idx"]])
+                     for e in pref_data
+                     if e["seg_A_idx"] in remap and e["seg_B_idx"] in remap]
+        if len(pref_data) < 50:
+            raise RuntimeError(
+                f"only {len(pref_data)} preference pairs survive the selection "
+                f"in {subset_p}; too few to fine-tune on")
+        print(f"SUBSET {os.path.basename(subset_p)}: {len(kept)} trajectories | "
+              f"segments {n_seg_before} -> {len(active)} | "
+              f"pairs {n_pair_before} -> {len(pref_data)}", flush=True)
 
     obs_dim = active[0]["observations"].shape[1]
     act_dim = active[0]["actions"].shape[1]

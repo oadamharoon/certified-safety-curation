@@ -1,4 +1,18 @@
 #!/bin/bash
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/distinct_logs
@@ -23,8 +37,8 @@ run_cdt () {
   IFS=: read e lim <<< "$(T2ENV $task)"
   local tag="cdt_${base}_s${seed}"
   [ -f "$LOGDIR/done_${tag}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/osrl
-  env PYTHONNOUSERSITE=1 PYTHONPATH=/home/omniverse/workspace/safevlmcpl/osrl \
+  cd ${CSC_OSRL}
+  env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
     conda run -n safevlmcpl --no-capture-output \
     python examples/train/train_cdt.py --task "$e" --seed "$seed" \
     --cost_limit "$lim" --device cuda --augment_percent 0.0 --random_aug 0.0 \
@@ -40,7 +54,7 @@ run_bc () {
   local tag="bc${q}_seed${seed}"
   local key="${task}_${tag}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   env SAFETY_VLM_TASK=$task KEPT_JSON="$kj" SEED_OVERRIDE=$seed OUT_TAG="$tag" \
     WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
     conda run -n safevlmcpl --no-capture-output python $S/bc_on_subset.py \

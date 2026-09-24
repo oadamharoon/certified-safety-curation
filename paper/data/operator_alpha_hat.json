@@ -1,0 +1,77 @@
+{
+ "halfcheetah_velocity": {
+  "q85": {
+   "selection": "halfcheetah_velocity_a25new_q85",
+   "n": 375,
+   "contamination": 0.192
+  },
+  "q80": {
+   "selection": "halfcheetah_velocity_a25new_q80",
+   "n": 499,
+   "contamination": 0.2625250501002004
+  },
+  "q75": {
+   "selection": "halfcheetah_velocity_a25new_q75",
+   "n": 624,
+   "contamination": 0.33653846153846156
+  }
+ },
+ "walker2d_velocity": {
+  "q75": {
+   "selection": "walker2d_velocity_a25new_q75",
+   "n": 683,
+   "contamination": 0.1390922401171303
+  },
+  "q70": {
+   "selection": "walker2d_velocity_a25new_q70",
+   "n": 819,
+   "contamination": 0.17704517704517705
+  },
+  "q65": {
+   "selection": "walker2d_velocity_a25new_q65",
+   "n": 955,
+   "contamination": 0.2481675392670157
+  }
+ },
+ "cargoal1_dsrl": {
+  "q85": {
+   "selection": "cargoal1_dsrl_a25new_q85",
+   "n": 251,
+   "contamination": 0.1752988047808765
+  },
+  "q80": {
+   "selection": "cargoal1_dsrl_a25new_q80",
+   "n": 335,
+   "contamination": 0.20597014925373133
+  },
+  "q75": {
+   "selection": "cargoal1_dsrl_a25new_q75",
+   "n": 418,
+   "contamination": 0.2511961722488038
+  }
+ },
+ "pointgoal1_dsrl": {
+  "q85": {
+   "selection": "pointgoal1_dsrl_a25_q85",
+   "n": 304,
+   "contamination": 0.12171052631578948
+  },
+  "q70": {
+   "selection": "pointgoal1_dsrl_a25_q70",
+   "n": 607,
+   "contamination": 0.1828665568369028
+  },
+  "q65": {
+   "selection": "pointgoal1_dsrl_a25_q65",
+   "n": 708,
+   "contamination": 0.2076271186440678
+  }
+ },
+ "carrun_b": {
+  "echonew": {
+   "selection": "carrun_b_echonew_q85",
+   "n": 98,
+   "contamination": 0.05102040816326531
+  }
+ }
+}

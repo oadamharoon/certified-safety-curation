@@ -1,9 +1,44 @@
 """Fit n50 vs margin across the combined sweep (n in 50..3200)."""
+
+# --- paths ------------------------------------------------------------------
+# The research tree addressed itself by absolute path; these roots replace it. Set
+# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+import os as _os
+
+
+def _csc_root(_p):
+    """The repository root, found by the .csc-root marker rather than by depth."""
+    _d = _os.path.dirname(_os.path.abspath(_p))
+    while True:
+        if _os.path.exists(_os.path.join(_d, ".csc-root")):
+            return _d
+        _up = _os.path.dirname(_d)
+        if _up == _d:
+            return _os.path.dirname(_os.path.dirname(_os.path.abspath(_p)))
+        _d = _up
+
+
+# __file__ is undefined when a script's source is exec'd in a fresh namespace, which the
+# audit does to reuse the table builder's tables; fall back to the working directory, which
+# the .csc-root walk resolves from anywhere inside the repository.
+_self = globals().get("__file__") or _os.path.join(_os.getcwd(), "_")
+CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(_self))
+_WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+_runs = _os.path.join(_WS, "runs")
+CSC_RUNS = _os.environ.get("CSC_RUNS", _runs if _os.path.isdir(_runs) else _os.path.join(CSC_REPO, "runs"))
+CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
+CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))
+CSC_PAPER_DATA = _os.path.join(CSC_PAPER, "data")
+# the run configs are carried by the repository, so they resolve without a working tree
+CSC_CONFIG = _os.environ.get("CSC_CONFIG", _os.path.join(CSC_REPO, "configs"))
+# -----------------------------------------------------------------------------
+
 import json
 import numpy as np
-G = json.load(open("/home/omniverse/workspace/safevlmcpl/iclr2027/data/review_response/guarantee_stats_2000.json"))
-E = json.load(open("/home/omniverse/workspace/safevlmcpl/iclr2027/data/review_response/label_complexity_ext.json"))
-M = {r["task"]: r["margin"] for r in json.load(open("/home/omniverse/workspace/safevlmcpl/iclr2027/data/review_response/margin_vs_yield.json"))}
+G = json.load(open(CSC_PAPER_DATA + "/review_response/guarantee_stats_2000.json"))
+E = json.load(open(CSC_PAPER_DATA + "/review_response/label_complexity_ext.json"))
+M = {r["task"]: r["margin"] for r in json.load(open(CSC_PAPER_DATA + "/review_response/margin_vs_yield.json"))}
 TARGET = 0.5
 rows = []
 for task, m in M.items():
@@ -37,4 +72,4 @@ print(f"  slope {slope:.2f}  (theory -2; prereg band [-2.6, -1.4])   R^2 = {r2:.
 print(f"  n50 ~ {np.exp(b):.2f} / margin^{-slope:.2f}")
 json.dump({"slope": float(slope), "intercept": float(b), "r2": float(r2),
            "n50": {t: n for t, m, n, _ in rows}}, 
-          open("/home/omniverse/workspace/safevlmcpl/iclr2027/data/review_response/label_complexity.json","w"), indent=1)
+          open(CSC_PAPER_DATA + "/review_response/label_complexity.json","w"), indent=1)

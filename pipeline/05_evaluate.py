@@ -32,6 +32,13 @@ def main() -> None:
                     help="Suffix for eval_results_<suffix>.json (default: empty → eval_results.json)")
     args, _ = ap.parse_known_args()  # allow --task to pass through
     cfg = load_cfg(args.config)
+    # EVAL_EPISODES / SEED_OVERRIDE follow the pipeline's existing env-override
+    # convention (see 04q line 159). Both default to the config, so unset behaviour
+    # is byte-identical to before: the published 100-episode results are unaffected.
+    if "EVAL_EPISODES" in os.environ:
+        cfg["eval_episodes"] = int(os.environ["EVAL_EPISODES"])
+    if "SEED_OVERRIDE" in os.environ:
+        cfg["seed"] = int(os.environ["SEED_OVERRIDE"])
     set_seed(cfg["seed"])
     os.makedirs(cfg["output_dir"], exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

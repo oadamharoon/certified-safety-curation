@@ -2,11 +2,25 @@
 # BulletGym extension: full pipeline on 5 tasks, budget 10, zero tuning.
 # Per task: segment -> label -> V x3 -> {calfilt x5, vfilt x5, BC-All, BC-Safe x5} -> evals
 # Then: 2000-draw guarantee resampling over the bullet scores.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/bullet_logs
 mkdir -p "$LOGDIR"
-cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+cd ${CSC_WORK}
 log_run () { echo "[$(date +%m/%d-%H:%M:%S)] $1" | tee -a "$LOGDIR/progress.log"; }
 
 TASKS="ballrun_b:0.090 ballcircle_b:0.097 carcircle_b:0.114 carrun_b:0.462 dronerun_b:0.280"
@@ -50,7 +64,7 @@ export LOGDIR S LIM
 run_arm () {
   local task=$1 kind=$2 seed=$3 frac=$4
   local tag key
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   local B="env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="
   case $kind in
     calfilt) tag="calfilt_lttv2_seed${seed}"
@@ -106,7 +120,7 @@ log_run "POLICY STAGE COMPLETE"
 env CUDA_VISIBLE_DEVICES="" OMP_NUM_THREADS=8 conda run -n safevlmcpl --no-capture-output \
   python $S/bullet_guarantee.py > "$LOGDIR/guarantee.log" 2>&1 \
   && log_run "GUARANTEE STAGE COMPLETE" || log_run "FAIL guarantee stage"
-cd /home/omniverse/workspace/safevlmcpl/iclr2027
+cd ${CSC_PAPER}
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py \
   >> "$LOGDIR/progress.log" 2>&1 && log_run "HARVEST COMPLETE"
 log_run "BULLETGYM ALL DONE"

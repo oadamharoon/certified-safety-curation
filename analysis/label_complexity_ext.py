@@ -1,16 +1,51 @@
 """Extend the calibration-size sweep for positive-margin tasks, so the
 1/margin^2 scaling can actually be fitted. CPU-only."""
+
+# --- paths ------------------------------------------------------------------
+# The research tree addressed itself by absolute path; these roots replace it. Set
+# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+import os as _os
+
+
+def _csc_root(_p):
+    """The repository root, found by the .csc-root marker rather than by depth."""
+    _d = _os.path.dirname(_os.path.abspath(_p))
+    while True:
+        if _os.path.exists(_os.path.join(_d, ".csc-root")):
+            return _d
+        _up = _os.path.dirname(_d)
+        if _up == _d:
+            return _os.path.dirname(_os.path.dirname(_os.path.abspath(_p)))
+        _d = _up
+
+
+# __file__ is undefined when a script's source is exec'd in a fresh namespace, which the
+# audit does to reuse the table builder's tables; fall back to the working directory, which
+# the .csc-root walk resolves from anywhere inside the repository.
+_self = globals().get("__file__") or _os.path.join(_os.getcwd(), "_")
+CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(_self))
+_WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+_runs = _os.path.join(_WS, "runs")
+CSC_RUNS = _os.environ.get("CSC_RUNS", _runs if _os.path.isdir(_runs) else _os.path.join(CSC_REPO, "runs"))
+CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
+CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))
+CSC_PAPER_DATA = _os.path.join(CSC_PAPER, "data")
+# the run configs are carried by the repository, so they resolve without a working tree
+CSC_CONFIG = _os.environ.get("CSC_CONFIG", _os.path.join(CSC_REPO, "configs"))
+# -----------------------------------------------------------------------------
+
 import json, os, pickle, sys
 import numpy as np, torch, yaml
 from scipy.stats import hypergeom
-D = "/home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data"
+D = CSC_WORK
 sys.path.insert(0, D); os.chdir(D)
 from model.policy import VEnsemble
 torch.set_num_threads(6)
 cfg = yaml.safe_load(open("config.yaml"))
 QS = [0.85,0.80,0.75,0.70,0.65,0.60,0.55,0.50,0.45,0.40,0.35,0.30]
 ALPHA, DELTA, REPS = 0.25, 0.1, 1000
-M = {r["task"]: r["margin"] for r in json.load(open("/home/omniverse/workspace/safevlmcpl/iclr2027/data/review_response/margin_vs_yield.json"))}
+M = {r["task"]: r["margin"] for r in json.load(open(CSC_PAPER_DATA + "/review_response/margin_vs_yield.json"))}
 TASKS = [t for t, m in M.items() if m > 0]
 EXTRA = [800, 1600, 3200]
 out = {}
@@ -52,5 +87,5 @@ for task in sorted(TASKS, key=lambda t: -M[t]):
                  "rates": {n: float(np.mean(v)) for n, v in per.items()}}
     print(f"{task:22s} margin {M[task]:.3f} " +
           " ".join(f"n{n}:{np.mean(v):.2f}" for n, v in sorted(per.items(), key=lambda kv: int(kv[0]))), flush=True)
-json.dump(out, open("/home/omniverse/workspace/safevlmcpl/iclr2027/data/review_response/label_complexity_ext.json", "w"), indent=1)
+json.dump(out, open(CSC_PAPER_DATA + "/review_response/label_complexity_ext.json", "w"), indent=1)
 print("EXTENSION DONE", flush=True)

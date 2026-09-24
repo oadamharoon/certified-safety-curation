@@ -1,6 +1,14 @@
 # data and artifacts (large, regenerable)
 outputs/
-runs/
+runs/*
+# ...except the evidence the paper's appendix tables are derived from
+!runs/selections/
+runs/selections/*
+!runs/selections/v2_summary.json
+!runs/logs/
+runs/logs/*
+!runs/logs/policycert/
+!runs/logs/policycert_v2/
 wandb/
 data/raw/
 *.pt
@@ -17,6 +25,8 @@ __pycache__/
 # latex build
 *.aux
 *.log
+!runs/logs/policycert/*.log
+!runs/logs/policycert_v2/*.log
 *.out
 *.bbl
 *.blg

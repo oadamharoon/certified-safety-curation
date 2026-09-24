@@ -1,0 +1,128 @@
+{
+ "halfcheetah_velocity": {
+  "pool_unsafe_frac": 0.8176352705410822,
+  "pool_mean_cost": 115.43006012024048,
+  "budget": 20,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "walker2d_velocity": {
+  "pool_unsafe_frac": 0.7163796262367167,
+  "pool_mean_cost": 95.8574569439355,
+  "budget": 20,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "ant_velocity": {
+  "pool_unsafe_frac": 0.8012449977767897,
+  "pool_mean_cost": 109.23966207203202,
+  "budget": 20,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "hopper_velocity": {
+  "pool_unsafe_frac": 0.8870535714285714,
+  "pool_mean_cost": 119.01517857142858,
+  "budget": 20,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "swimmer_velocity": {
+  "pool_unsafe_frac": 0.8606168446026097,
+  "pool_mean_cost": 93.24317912218268,
+  "budget": 20,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "cargoal1_dsrl": {
+  "pool_unsafe_frac": 0.6014362657091562,
+  "pool_mean_cost": 43.23818073010174,
+  "budget": 25,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "cargoal2": {
+  "pool_unsafe_frac": 0.6757612667478684,
+  "pool_mean_cost": 69.72959805115713,
+  "budget": 25,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "pointgoal1_dsrl": {
+  "pool_unsafe_frac": 0.4817012858555885,
+  "pool_mean_cost": 30.68496538081108,
+  "budget": 25,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "pointgoal2": {
+  "pool_unsafe_frac": 0.7434631028471819,
+  "pool_mean_cost": 76.61446833236491,
+  "budget": 25,
+  "T_max": 1000,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "ballrun_b": {
+  "pool_unsafe_frac": 0.9095744680851063,
+  "pool_mean_cost": 48.68191489361702,
+  "budget": 10,
+  "T_max": 100,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "ballcircle_b": {
+  "pool_unsafe_frac": 0.9029345372460497,
+  "pool_mean_cost": 43.103837471783294,
+  "budget": 10,
+  "T_max": 200,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "carcircle_b": {
+  "pool_unsafe_frac": 0.8862068965517241,
+  "pool_mean_cost": 49.76689655172414,
+  "budget": 10,
+  "T_max": 300,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "carrun_b": {
+  "pool_unsafe_frac": 0.5376344086021505,
+  "pool_mean_cost": 14.244239631336406,
+  "budget": 10,
+  "T_max": 200,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ },
+ "dronerun_b": {
+  "pool_unsafe_frac": 0.7201005025125629,
+  "pool_mean_cost": 50.49949748743719,
+  "budget": 10,
+  "T_max": 200,
+  "frac_test_rate": 0.0,
+  "mean_test_apriori_rate": 0.0,
+  "mean_test_plugin_rate": 0.0
+ }
+}

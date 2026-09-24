@@ -178,7 +178,10 @@ def main() -> None:
                 "state_dict": policy.state_dict()}, out_path)
     print(f"Saved BC+V-AWR policy -> {out_path}")
     # Also save V network for diagnostics / future reuse
-    v_path = os.path.join(cfg["output_dir"], "v_network.pt")
+    # tag the diagnostic V too: concurrent jobs on one task otherwise race
+    # on this path and the file ends up belonging to whichever finished last
+    v_path = os.path.join(cfg["output_dir"],
+                          f"v_network_{_tag}.pt" if _tag else "v_network.pt")
     torch.save({"obs_dim": obs_dim, "hidden_dim": cfg["hidden_dim"],
                 "state_dict": v_net.state_dict()}, v_path)
     print(f"Saved V network -> {v_path}")

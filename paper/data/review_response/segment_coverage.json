@@ -1,0 +1,65 @@
+{
+ "halfcheetah_velocity": {
+  "n_segments": 83174,
+  "states_covered": 1000,
+  "total_pool_states": 2495000,
+  "coverage_frac": 0.0004008016032064128,
+  "within_segment_overlap": 0.9995992337349011
+ },
+ "walker2d_velocity": {
+  "n_segments": 72156,
+  "states_covered": 1000,
+  "total_pool_states": 2121658,
+  "coverage_frac": 0.00047132949796809855,
+  "within_segment_overlap": 0.9995380379548017
+ },
+ "ant_velocity": {
+  "n_segments": 71130,
+  "states_covered": 1000,
+  "total_pool_states": 2092264,
+  "coverage_frac": 0.0004779511572153418,
+  "within_segment_overlap": 0.9995313744786541
+ },
+ "hopper_velocity": {
+  "n_segments": 45339,
+  "states_covered": 1000,
+  "total_pool_states": 1322478,
+  "coverage_frac": 0.0007561562460774395,
+  "within_segment_overlap": 0.9992647977826301
+ },
+ "swimmer_velocity": {
+  "n_segments": 51800,
+  "states_covered": 1000,
+  "total_pool_states": 1686000,
+  "coverage_frac": 0.0005931198102016608,
+  "within_segment_overlap": 0.9993564993564994
+ },
+ "cargoal1_dsrl": {
+  "n_segments": 41674,
+  "states_covered": 1000,
+  "total_pool_states": 1671000,
+  "coverage_frac": 0.0005984440454817474,
+  "within_segment_overlap": 0.9992001407752236
+ },
+ "cargoal2": {
+  "n_segments": 87537,
+  "states_covered": 1000,
+  "total_pool_states": 4105000,
+  "coverage_frac": 0.000243605359317905,
+  "within_segment_overlap": 0.9996192086393944
+ },
+ "pointgoal1_dsrl": {
+  "n_segments": 43699,
+  "states_covered": 1000,
+  "total_pool_states": 2022000,
+  "coverage_frac": 0.0004945598417408506,
+  "within_segment_overlap": 0.999237206038277
+ },
+ "pointgoal2": {
+  "n_segments": 85724,
+  "states_covered": 1000,
+  "total_pool_states": 3442000,
+  "coverage_frac": 0.0002905287623474724,
+  "within_segment_overlap": 0.9996111551801907
+ }
+}

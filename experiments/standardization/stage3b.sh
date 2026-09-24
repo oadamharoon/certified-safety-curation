@@ -1,8 +1,22 @@
 #!/bin/bash
 # Stage 3b (persistent-path rebuild): ablation + BC-family arms, 14 affected tasks.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
-W=/home/omniverse/workspace/safevlmcpl/runs
-D=/home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+W=${CSC_RUNS}
+D=${CSC_WORK}
 LOGDIR=$W/logs/stage3b
 mkdir -p "$LOGDIR"
 log_run () { echo "[$(date +%m/%d-%H:%M:%S)] $1" | tee -a "$LOGDIR/progress.log"; }
@@ -67,6 +81,6 @@ for t in $ANA3; do for s in 0 1 2; do for k in a10 a40 lo lo50 lo100 lo400 losf1
 for t in pointgoal2 ballrun_b ballcircle_b carcircle_b dronerun_b; do for s in 0 1 2; do echo "$t tier2 $s"; done; done >> "$J"
 log_run "STAGE3b: $(wc -l < $J) jobs (persistent logs at $LOGDIR)"
 xargs -a "$J" -L1 -P 8 bash -c 'run_arm "$@"' _
-cd /home/omniverse/workspace/safevlmcpl/iclr2027
+cd ${CSC_PAPER}
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "STAGE3B DONE ($(ls $LOGDIR/done_* 2>/dev/null | wc -l) arms)"

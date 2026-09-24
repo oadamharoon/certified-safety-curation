@@ -1,0 +1,469 @@
+{
+ "T_lab_values": [
+  3.0
+ ],
+ "n_tasks": 9,
+ "rate_min": 0.053,
+ "rate_max": 0.146,
+ "per_task": {
+  "ant_velocity": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.114,
+   "rate_max": 0.13,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 130,
+     "n_pairs": 1000,
+     "rate": 0.13,
+     "log": "runs/logs/v2variants/ant_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 130,
+     "n_pairs": 1000,
+     "rate": 0.13,
+     "log": "runs/logs/v2variants/ant_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 120,
+     "n_pairs": 1000,
+     "rate": 0.12,
+     "log": "runs/logs/v2variants/ant_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 120,
+     "n_pairs": 1000,
+     "rate": 0.12,
+     "log": "runs/logs/v2variants/ant_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 114,
+     "n_pairs": 1000,
+     "rate": 0.114,
+     "log": "runs/logs/v2variants/ant_velocity_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 114,
+     "n_pairs": 1000,
+     "rate": 0.114,
+     "log": "runs/logs/v2variants/ant_velocity_boltz_s2.log"
+    }
+   ]
+  },
+  "cargoal1_dsrl": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.064,
+   "rate_max": 0.084,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 78,
+     "n_pairs": 1000,
+     "rate": 0.078,
+     "log": "runs/logs/v2variants/cargoal1_dsrl_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 78,
+     "n_pairs": 1000,
+     "rate": 0.078,
+     "log": "runs/logs/v2variants/cargoal1_dsrl_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 84,
+     "n_pairs": 1000,
+     "rate": 0.084,
+     "log": "runs/logs/v2variants/cargoal1_dsrl_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 84,
+     "n_pairs": 1000,
+     "rate": 0.084,
+     "log": "runs/logs/v2variants/cargoal1_dsrl_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 64,
+     "n_pairs": 1000,
+     "rate": 0.064,
+     "log": "runs/logs/v2variants/cargoal1_dsrl_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 64,
+     "n_pairs": 1000,
+     "rate": 0.064,
+     "log": "runs/logs/v2variants/cargoal1_dsrl_boltz_s2.log"
+    }
+   ]
+  },
+  "cargoal2": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.061,
+   "rate_max": 0.07200000000000001,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 67,
+     "n_pairs": 1000,
+     "rate": 0.067,
+     "log": "runs/logs/v2variants/cargoal2_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 67,
+     "n_pairs": 1000,
+     "rate": 0.067,
+     "log": "runs/logs/v2variants/cargoal2_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 72,
+     "n_pairs": 1000,
+     "rate": 0.07200000000000001,
+     "log": "runs/logs/v2variants/cargoal2_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 72,
+     "n_pairs": 1000,
+     "rate": 0.07200000000000001,
+     "log": "runs/logs/v2variants/cargoal2_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 61,
+     "n_pairs": 1000,
+     "rate": 0.061,
+     "log": "runs/logs/v2variants/cargoal2_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 61,
+     "n_pairs": 1000,
+     "rate": 0.061,
+     "log": "runs/logs/v2variants/cargoal2_boltz_s2.log"
+    }
+   ]
+  },
+  "halfcheetah_velocity": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.11699999999999999,
+   "rate_max": 0.13,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 130,
+     "n_pairs": 1000,
+     "rate": 0.13,
+     "log": "runs/logs/v2variants/halfcheetah_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 130,
+     "n_pairs": 1000,
+     "rate": 0.13,
+     "log": "runs/logs/v2variants/halfcheetah_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 125,
+     "n_pairs": 1000,
+     "rate": 0.125,
+     "log": "runs/logs/v2variants/halfcheetah_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 125,
+     "n_pairs": 1000,
+     "rate": 0.125,
+     "log": "runs/logs/v2variants/halfcheetah_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 117,
+     "n_pairs": 1000,
+     "rate": 0.11699999999999999,
+     "log": "runs/logs/v2variants/halfcheetah_velocity_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 117,
+     "n_pairs": 1000,
+     "rate": 0.11699999999999999,
+     "log": "runs/logs/v2variants/halfcheetah_velocity_boltz_s2.log"
+    }
+   ]
+  },
+  "hopper_velocity": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.053,
+   "rate_max": 0.069,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 69,
+     "n_pairs": 1000,
+     "rate": 0.069,
+     "log": "runs/logs/v2variants/hopper_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 69,
+     "n_pairs": 1000,
+     "rate": 0.069,
+     "log": "runs/logs/v2variants/hopper_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 56,
+     "n_pairs": 1000,
+     "rate": 0.055999999999999994,
+     "log": "runs/logs/v2variants/hopper_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 56,
+     "n_pairs": 1000,
+     "rate": 0.055999999999999994,
+     "log": "runs/logs/v2variants/hopper_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 53,
+     "n_pairs": 1000,
+     "rate": 0.053,
+     "log": "runs/logs/v2variants/hopper_velocity_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 53,
+     "n_pairs": 1000,
+     "rate": 0.053,
+     "log": "runs/logs/v2variants/hopper_velocity_boltz_s2.log"
+    }
+   ]
+  },
+  "pointgoal1_dsrl": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.078,
+   "rate_max": 0.092,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 91,
+     "n_pairs": 1000,
+     "rate": 0.091,
+     "log": "runs/logs/v2variants/pointgoal1_dsrl_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 91,
+     "n_pairs": 1000,
+     "rate": 0.091,
+     "log": "runs/logs/v2variants/pointgoal1_dsrl_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 92,
+     "n_pairs": 1000,
+     "rate": 0.092,
+     "log": "runs/logs/v2variants/pointgoal1_dsrl_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 92,
+     "n_pairs": 1000,
+     "rate": 0.092,
+     "log": "runs/logs/v2variants/pointgoal1_dsrl_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 78,
+     "n_pairs": 1000,
+     "rate": 0.078,
+     "log": "runs/logs/v2variants/pointgoal1_dsrl_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 78,
+     "n_pairs": 1000,
+     "rate": 0.078,
+     "log": "runs/logs/v2variants/pointgoal1_dsrl_boltz_s2.log"
+    }
+   ]
+  },
+  "pointgoal2": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.063,
+   "rate_max": 0.073,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 73,
+     "n_pairs": 1000,
+     "rate": 0.073,
+     "log": "runs/logs/v2variants/pointgoal2_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 73,
+     "n_pairs": 1000,
+     "rate": 0.073,
+     "log": "runs/logs/v2variants/pointgoal2_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 64,
+     "n_pairs": 1000,
+     "rate": 0.064,
+     "log": "runs/logs/v2variants/pointgoal2_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 64,
+     "n_pairs": 1000,
+     "rate": 0.064,
+     "log": "runs/logs/v2variants/pointgoal2_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 63,
+     "n_pairs": 1000,
+     "rate": 0.063,
+     "log": "runs/logs/v2variants/pointgoal2_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 63,
+     "n_pairs": 1000,
+     "rate": 0.063,
+     "log": "runs/logs/v2variants/pointgoal2_boltz_s2.log"
+    }
+   ]
+  },
+  "swimmer_velocity": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.128,
+   "rate_max": 0.146,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 146,
+     "n_pairs": 1000,
+     "rate": 0.146,
+     "log": "runs/logs/v2variants/swimmer_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 146,
+     "n_pairs": 1000,
+     "rate": 0.146,
+     "log": "runs/logs/v2variants/swimmer_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 128,
+     "n_pairs": 1000,
+     "rate": 0.128,
+     "log": "runs/logs/v2variants/swimmer_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 128,
+     "n_pairs": 1000,
+     "rate": 0.128,
+     "log": "runs/logs/v2variants/swimmer_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 139,
+     "n_pairs": 1000,
+     "rate": 0.139,
+     "log": "runs/logs/v2variants/swimmer_velocity_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 139,
+     "n_pairs": 1000,
+     "rate": 0.139,
+     "log": "runs/logs/v2variants/swimmer_velocity_boltz_s2.log"
+    }
+   ]
+  },
+  "walker2d_velocity": {
+   "T_lab": [
+    3.0
+   ],
+   "rate_min": 0.063,
+   "rate_max": 0.07400000000000001,
+   "runs": [
+    {
+     "T_lab": 3.0,
+     "flipped": 74,
+     "n_pairs": 1000,
+     "rate": 0.07400000000000001,
+     "log": "runs/logs/v2variants/walker2d_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 74,
+     "n_pairs": 1000,
+     "rate": 0.07400000000000001,
+     "log": "runs/logs/v2variants/walker2d_velocity_boltz_s0.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 63,
+     "n_pairs": 1000,
+     "rate": 0.063,
+     "log": "runs/logs/v2variants/walker2d_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 63,
+     "n_pairs": 1000,
+     "rate": 0.063,
+     "log": "runs/logs/v2variants/walker2d_velocity_boltz_s1.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 69,
+     "n_pairs": 1000,
+     "rate": 0.069,
+     "log": "runs/logs/v2variants/walker2d_velocity_boltz_s2.log"
+    },
+    {
+     "T_lab": 3.0,
+     "flipped": 69,
+     "n_pairs": 1000,
+     "rate": 0.069,
+     "log": "runs/logs/v2variants/walker2d_velocity_boltz_s2.log"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,24 @@
+{
+  "walker2d_velocity/seed1": {
+    "task": "walker2d_velocity",
+    "seed": 1,
+    "q": 0.85,
+    "n_trajs": 2729,
+    "cost_limit": 20.0,
+    "kept_frac": 0.15023818248442652,
+    "kept_unsafe": 0.13902439024390245,
+    "checkpoint": "v_ensemble_pess_seed1.pt",
+    "checkpoint_mtime": 1789440856.4355175
+  },
+  "hopper_velocity/seed0": {
+    "task": "hopper_velocity",
+    "seed": 0,
+    "q": 0.85,
+    "n_trajs": 2240,
+    "cost_limit": 20.0,
+    "kept_frac": 0.15,
+    "kept_unsafe": 0.5178571428571429,
+    "checkpoint": "v_ensemble_pess_seed0.pt",
+    "checkpoint_mtime": 1789441091.1824622
+  }
+}

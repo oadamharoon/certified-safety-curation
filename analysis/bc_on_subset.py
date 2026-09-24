@@ -3,11 +3,46 @@
 Env: SAFETY_VLM_TASK, KEPT_JSON (path), SEED_OVERRIDE, OUT_TAG.
 Saves bc_<OUT_TAG>_policy.pt in the task output_dir (04p-compatible format).
 """
+
+# --- paths ------------------------------------------------------------------
+# The research tree addressed itself by absolute path; these roots replace it. Set
+# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+import os as _os
+
+
+def _csc_root(_p):
+    """The repository root, found by the .csc-root marker rather than by depth."""
+    _d = _os.path.dirname(_os.path.abspath(_p))
+    while True:
+        if _os.path.exists(_os.path.join(_d, ".csc-root")):
+            return _d
+        _up = _os.path.dirname(_d)
+        if _up == _d:
+            return _os.path.dirname(_os.path.dirname(_os.path.abspath(_p)))
+        _d = _up
+
+
+# __file__ is undefined when a script's source is exec'd in a fresh namespace, which the
+# audit does to reuse the table builder's tables; fall back to the working directory, which
+# the .csc-root walk resolves from anywhere inside the repository.
+_self = globals().get("__file__") or _os.path.join(_os.getcwd(), "_")
+CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(_self))
+_WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+_runs = _os.path.join(_WS, "runs")
+CSC_RUNS = _os.environ.get("CSC_RUNS", _runs if _os.path.isdir(_runs) else _os.path.join(CSC_REPO, "runs"))
+CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
+CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))
+CSC_PAPER_DATA = _os.path.join(CSC_PAPER, "data")
+# the run configs are carried by the repository, so they resolve without a working tree
+CSC_CONFIG = _os.environ.get("CSC_CONFIG", _os.path.join(CSC_REPO, "configs"))
+# -----------------------------------------------------------------------------
+
 import json, os, pickle, sys
 import numpy as np
 import torch
 
-REPO = "/home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data"
+REPO = CSC_WORK
 sys.path.insert(0, REPO)
 os.chdir(REPO)
 from utils.common import load_cfg, set_seed
@@ -17,6 +52,10 @@ from model.train import bc_pretrain
 cfg = load_cfg()
 if "SEED_OVERRIDE" in os.environ:
     cfg["seed"] = int(os.environ["SEED_OVERRIDE"])
+if "BATCH_SIZE" in os.environ:   # B4 protocol identification; unset = task config
+    cfg["batch_size"] = int(os.environ["BATCH_SIZE"])
+if "BC_EPOCHS" in os.environ:
+    cfg["bc_only_epochs"] = int(os.environ["BC_EPOCHS"])
 seed = int(cfg["seed"])
 set_seed(seed)
 out_tag = os.environ["OUT_TAG"]

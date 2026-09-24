@@ -1,0 +1,286 @@
+{
+ "halfcheetah_velocity": {
+  "limit": 20,
+  "n": 2495,
+  "a25": {
+   "v_seed": 4,
+   "deployed": {
+    "name": "halfcheetah_velocity_cert_seed4",
+    "n": 375,
+    "contamination": 0.192
+   },
+   "cert_rate_500": 0.232,
+   "distinct": [
+    {
+     "name": "halfcheetah_velocity_a25new_q85",
+     "q": 0.85,
+     "prob": 0.188,
+     "n": 375,
+     "contamination": 0.192
+    },
+    {
+     "name": "halfcheetah_velocity_a25new_q80",
+     "q": 0.8,
+     "prob": 0.038,
+     "n": 499,
+     "contamination": 0.2625250501002004
+    },
+    {
+     "name": "halfcheetah_velocity_a25new_q75",
+     "q": 0.75,
+     "prob": 0.006,
+     "n": 624,
+     "contamination": 0.33653846153846156
+    }
+   ]
+  },
+  "a40": {
+   "v_seed": 0,
+   "deployed": {
+    "name": "halfcheetah_velocity_a40_seed0",
+    "n": 375,
+    "contamination": 0.19466666666666665
+   },
+   "cert_rate_500": 0.868,
+   "distinct": [
+    {
+     "name": "halfcheetah_velocity_a40new_q85",
+     "q": 0.85,
+     "prob": 0.202,
+     "n": 375,
+     "contamination": 0.19466666666666665
+    },
+    {
+     "name": "halfcheetah_velocity_a40new_q80",
+     "q": 0.8,
+     "prob": 0.348,
+     "n": 499,
+     "contamination": 0.2625250501002004
+    },
+    {
+     "name": "halfcheetah_velocity_a40new_q75",
+     "q": 0.75,
+     "prob": 0.256,
+     "n": 624,
+     "contamination": 0.33653846153846156
+    }
+   ]
+  }
+ },
+ "cargoal1_dsrl": {
+  "limit": 25,
+  "n": 1671,
+  "a25": {
+   "v_seed": 3,
+   "deployed": {
+    "name": "cargoal1_dsrl_cert_seed3",
+    "n": 251,
+    "contamination": 0.1752988047808765
+   },
+   "cert_rate_500": 0.324,
+   "distinct": [
+    {
+     "name": "cargoal1_dsrl_a25new_q85",
+     "q": 0.85,
+     "prob": 0.11,
+     "n": 251,
+     "contamination": 0.1752988047808765
+    },
+    {
+     "name": "cargoal1_dsrl_a25new_q80",
+     "q": 0.8,
+     "prob": 0.158,
+     "n": 335,
+     "contamination": 0.20597014925373133
+    },
+    {
+     "name": "cargoal1_dsrl_a25new_q75",
+     "q": 0.75,
+     "prob": 0.034,
+     "n": 418,
+     "contamination": 0.2511961722488038
+    }
+   ]
+  },
+  "a40": {
+   "v_seed": 0,
+   "deployed": {
+    "name": "cargoal1_dsrl_a40_seed0",
+    "n": 335,
+    "contamination": 0.2
+   },
+   "cert_rate_500": 0.912,
+   "distinct": [
+    {
+     "name": "cargoal1_dsrl_a40new_q65",
+     "q": 0.65,
+     "prob": 0.148,
+     "n": 585,
+     "contamination": 0.2923076923076923
+    },
+    {
+     "name": "cargoal1_dsrl_a40new_q60",
+     "q": 0.6,
+     "prob": 0.19,
+     "n": 669,
+     "contamination": 0.3213751868460389
+    },
+    {
+     "name": "cargoal1_dsrl_a40new_q50",
+     "q": 0.5,
+     "prob": 0.144,
+     "n": 836,
+     "contamination": 0.36483253588516745
+    }
+   ]
+  }
+ },
+ "walker2d_velocity": {
+  "limit": 20,
+  "n": 2729,
+  "a25": {
+   "v_seed": 2,
+   "deployed": {
+    "name": "walker2d_velocity_cert_seed2",
+    "n": 683,
+    "contamination": 0.1390922401171303
+   },
+   "cert_rate_500": 0.484,
+   "distinct": [
+    {
+     "name": "walker2d_velocity_a25new_q75",
+     "q": 0.75,
+     "prob": 0.088,
+     "n": 683,
+     "contamination": 0.1390922401171303
+    },
+    {
+     "name": "walker2d_velocity_a25new_q70",
+     "q": 0.7,
+     "prob": 0.28,
+     "n": 819,
+     "contamination": 0.17704517704517705
+    },
+    {
+     "name": "walker2d_velocity_a25new_q65",
+     "q": 0.65,
+     "prob": 0.06,
+     "n": 955,
+     "contamination": 0.2481675392670157
+    }
+   ]
+  },
+  "a40": {
+   "v_seed": 0,
+   "deployed": {
+    "name": "walker2d_velocity_a40_seed0",
+    "n": 955,
+    "contamination": 0.2481675392670157
+   },
+   "cert_rate_500": 0.976,
+   "distinct": [
+    {
+     "name": "walker2d_velocity_a40new_q65",
+     "q": 0.65,
+     "prob": 0.422,
+     "n": 955,
+     "contamination": 0.2481675392670157
+    },
+    {
+     "name": "walker2d_velocity_a40new_q60",
+     "q": 0.6,
+     "prob": 0.398,
+     "n": 1092,
+     "contamination": 0.32875457875457875
+    },
+    {
+     "name": "walker2d_velocity_a40new_q55",
+     "q": 0.55,
+     "prob": 0.092,
+     "n": 1228,
+     "contamination": 0.3941368078175896
+    }
+   ]
+  }
+ },
+ "ant_velocity": {
+  "limit": 20,
+  "n": 2249,
+  "a25": null,
+  "a40": {
+   "v_seed": 0,
+   "deployed": {
+    "name": "ant_velocity_a40_seed0",
+    "n": 675,
+    "contamination": 0.40296296296296297
+   },
+   "cert_rate_500": 0.18,
+   "distinct": [
+    {
+     "name": "ant_velocity_a40new_q85",
+     "q": 0.85,
+     "prob": 0.074,
+     "n": 338,
+     "contamination": 0.34615384615384615
+    },
+    {
+     "name": "ant_velocity_a40new_q80",
+     "q": 0.8,
+     "prob": 0.058,
+     "n": 450,
+     "contamination": 0.3622222222222222
+    },
+    {
+     "name": "ant_velocity_a40new_q70",
+     "q": 0.7,
+     "prob": 0.03,
+     "n": 675,
+     "contamination": 0.40296296296296297
+    }
+   ]
+  }
+ },
+ "hopper_velocity": {
+  "limit": 20,
+  "n": 2240,
+  "a25": null,
+  "a40": null
+ },
+ "swimmer_velocity": {
+  "limit": 20,
+  "n": 1686,
+  "a25": null,
+  "a40": {
+   "v_seed": 1,
+   "deployed": {
+    "name": "swimmer_velocity_a40_seed1",
+    "n": 253,
+    "contamination": 0.233201581027668
+   },
+   "cert_rate_500": 0.77,
+   "distinct": [
+    {
+     "name": "swimmer_velocity_a40new_q85",
+     "q": 0.85,
+     "prob": 0.464,
+     "n": 253,
+     "contamination": 0.233201581027668
+    },
+    {
+     "name": "swimmer_velocity_a40new_q80",
+     "q": 0.8,
+     "prob": 0.286,
+     "n": 338,
+     "contamination": 0.3343195266272189
+    },
+    {
+     "name": "swimmer_velocity_a40new_q75",
+     "q": 0.75,
+     "prob": 0.02,
+     "n": 422,
+     "contamination": 0.45260663507109006
+    }
+   ]
+  }
+ }
+}

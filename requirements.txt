@@ -1,0 +1,17 @@
+numpy>=1.24
+torch>=2.0
+gymnasium>=0.29
+mujoco>=2.3
+safety-gymnasium>=1.0      # provides SafetyPointGoal1Gymnasium-v0
+dsrl                        # offline DSRL datasets
+imageio
+pillow
+openai>=1.0                 # used by openai + openrouter backends
+transformers>=4.45          # local VLM backend (Qwen2-VL, SmolVLM, ...)
+accelerate>=0.30
+sentencepiece
+qwen-vl-utils               # helper for Qwen2-VL image preprocessing (optional)
+python-dotenv               # loads API keys from .env
+pyyaml
+tqdm
+wandb                       # training/eval monitoring (optional but recommended)

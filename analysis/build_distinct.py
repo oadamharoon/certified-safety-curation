@@ -1,12 +1,40 @@
 """Build the missing distinct certified selections (top-3-probability
 thresholds per task/level, minus those already run). Tags: {task}_{lvl}selq{QQ}.
 Writes subset h5 (for CDT) + kept json (for BC)."""
+
+# --- paths ------------------------------------------------------------------
+# The research tree addressed itself by absolute path; these roots replace it. Set
+# CSC_WORKSPACE (or the individual roots) to point at your own trees. See the README.
+import os as _os
+
+
+def _csc_root(_p):
+    """The repository root, found by the .csc-root marker rather than by depth."""
+    _d = _os.path.dirname(_os.path.abspath(_p))
+    while True:
+        if _os.path.exists(_os.path.join(_d, ".csc-root")):
+            return _d
+        _up = _os.path.dirname(_d)
+        if _up == _d:
+            return _os.path.dirname(_os.path.dirname(_os.path.abspath(_p)))
+        _d = _up
+
+
+CSC_REPO = _os.environ.get("CSC_REPO", _csc_root(__file__))
+_WS = _os.environ.get("CSC_WORKSPACE", _os.path.dirname(CSC_REPO))
+CSC_WORK = _os.environ.get("CSC_WORK", _os.path.join(_WS, "vlm-with-cpl", "new_data"))
+CSC_RUNS = _os.environ.get("CSC_RUNS", _os.path.join(_WS, "runs"))
+CSC_OSRL = _os.environ.get("CSC_OSRL", _os.path.join(_WS, "osrl"))
+CSC_PAPER = _os.environ.get("CSC_PAPER", _os.path.join(CSC_REPO, "paper"))
+CSC_PAPER_DATA = _os.path.join(CSC_PAPER, "data")
+# -----------------------------------------------------------------------------
+
 import json, os, pickle, sys
 import numpy as np
 import torch
 import h5py
 
-REPO = "/home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data"
+REPO = CSC_WORK
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "certified_h5")
 sys.path.insert(0, REPO)
 os.chdir(REPO)

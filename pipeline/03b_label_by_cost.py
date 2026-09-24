@@ -41,6 +41,21 @@ def main() -> None:
     with open(os.path.join(cfg["output_dir"], "active_segments.pkl"), "rb") as f:
         active = pickle.load(f)
 
+    # Composability arm: draw the same label budget from WITHIN a certified
+    # selection. Pairs are sampled to contrast cost, so filtering the existing
+    # full-pool pairs to the selection leaves almost none (0-3 of 1000); the
+    # label budget has to be re-drawn inside the selection instead. Indices are
+    # written in the ORIGINAL active-list space so 04c's subset remap applies
+    # unchanged.
+    subset_p = os.environ.get("SUBSET_KEPT")
+    pool_orig = list(range(len(active)))
+    if subset_p:
+        kept = set(int(i) for i in json.load(open(subset_p))["kept"])
+        pool_orig = [i for i, sg in enumerate(active) if int(sg["traj_id"]) in kept]
+        active = [active[i] for i in pool_orig]
+        print(f"SUBSET {os.path.basename(subset_p)}: {len(kept)} trajectories, "
+              f"{len(active)} segments in pool", flush=True)
+
     print(f"Sampling {cfg['num_pairs']} pairs and labeling from ground-truth cost ...")
 
     seen = set()
@@ -67,8 +82,8 @@ def main() -> None:
         label = 0 if c_a < c_b else 1
 
         pref_data.append({
-            "seg_A_idx":  int(i),
-            "seg_B_idx":  int(j),
+            "seg_A_idx":  int(pool_orig[i]),
+            "seg_B_idx":  int(pool_orig[j]),
             "preference": int(label),
             "cost_A":     c_a,
             "cost_B":     c_b,
@@ -76,7 +91,8 @@ def main() -> None:
             "reward_B":   seg_b["total_reward"],
         })
 
-    out_path = os.path.join(cfg["output_dir"], "gt_labels.json")
+    out_path = os.path.join(
+        cfg["output_dir"], os.environ.get("LABELS_OUT", "gt_labels.json"))
     with open(out_path, "w") as f:
         json.dump(pref_data, f)
 

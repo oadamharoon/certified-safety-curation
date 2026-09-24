@@ -1,0 +1,262 @@
+{
+  "n_binary_safe": 11,
+  "n_cardinal_safe": 12,
+  "n_tasks": 15,
+  "per_task": {
+    "halfcheetah_velocity": {
+      "binary": {
+        "R": 2337.404933916217,
+        "C": 6.61,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.19016152620315552
+      },
+      "cardinal": {
+        "R": 2405.190534572359,
+        "C": 30.956666666666667,
+        "safe": false,
+        "seeds": 3,
+        "kept_unsafe": 0.2378854602575302
+      },
+      "cost_limit": 20.0
+    },
+    "walker2d_velocity": {
+      "binary": {
+        "R": 2689.061574236595,
+        "C": 0.5066666666666666,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.12344086170196533
+      },
+      "cardinal": {
+        "R": 2694.81053770561,
+        "C": 0.013333333333333334,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.1187096784512202
+      },
+      "cost_limit": 20.0
+    },
+    "ant_velocity": {
+      "binary": {
+        "R": 2584.627119238999,
+        "C": 1.3299999999999998,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.35816402236620587
+      },
+      "cardinal": {
+        "R": 2518.1490420682203,
+        "C": 1.8833333333333335,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.34762980540593463
+      },
+      "cost_limit": 20.0
+    },
+    "hopper_velocity": {
+      "binary": {
+        "R": 841.477844638514,
+        "C": 49.54,
+        "safe": false,
+        "seeds": 3,
+        "kept_unsafe": 0.36021504799524945
+      },
+      "cardinal": {
+        "R": 1092.1789169790425,
+        "C": 7.3500000000000005,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.3978494604428609
+      },
+      "cost_limit": 20.0
+    },
+    "swimmer_velocity": {
+      "binary": {
+        "R": 119.75963960967137,
+        "C": 20.99,
+        "safe": false,
+        "seeds": 3,
+        "kept_unsafe": 0.14957265555858612
+      },
+      "cardinal": {
+        "R": 117.79493915918158,
+        "C": 19.62,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.2236467252175013
+      },
+      "cost_limit": 20.0
+    },
+    "cargoal1_dsrl": {
+      "binary": {
+        "R": 9.547707486056602,
+        "C": 7.3,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.287787785132726
+      },
+      "cardinal": {
+        "R": 9.582214913925666,
+        "C": 7.456666666666667,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.2807807723681132
+      },
+      "cost_limit": 25.0
+    },
+    "cargoal2": {
+      "binary": {
+        "R": 4.34573488597319,
+        "C": 18.703333333333333,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.32481202483177185
+      },
+      "cardinal": {
+        "R": 3.7832052208902396,
+        "C": 18.663333333333334,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.340601513783137
+      },
+      "cost_limit": 25.0
+    },
+    "pointgoal1_dsrl": {
+      "binary": {
+        "R": 8.955366145763287,
+        "C": 10.863333333333335,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.19452403982480368
+      },
+      "cardinal": {
+        "R": 7.990983804479676,
+        "C": 9.916666666666666,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.19707100093364716
+      },
+      "cost_limit": 25.0
+    },
+    "pointgoal2": {
+      "binary": {
+        "R": 6.269831320290816,
+        "C": 18.82,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.3582202196121216
+      },
+      "cardinal": {
+        "R": 5.645635296636445,
+        "C": 17.593333333333334,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.3559577663739522
+      },
+      "cost_limit": 25.0
+    },
+    "pointbutton1": {
+      "binary": {
+        "R": 0.765565336519952,
+        "C": 16.02,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.3604382971922557
+      },
+      "cardinal": {
+        "R": 0.7714625689142753,
+        "C": 19.013333333333332,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.3754325310389201
+      },
+      "cost_limit": 25.0
+    },
+    "pointbutton2": {
+      "binary": {
+        "R": 4.294138314477135,
+        "C": 27.146666666666665,
+        "safe": false,
+        "seeds": 3,
+        "kept_unsafe": 0.4300699234008789
+      },
+      "cardinal": {
+        "R": 5.522032606230948,
+        "C": 30.103333333333335,
+        "safe": false,
+        "seeds": 3,
+        "kept_unsafe": 0.46270397305488586
+      },
+      "cost_limit": 25.0
+    },
+    "carbutton1_t3": {
+      "binary": {
+        "R": 1.3865278890856498,
+        "C": 16.86,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.4216388165950775
+      },
+      "cardinal": {
+        "R": 1.8053964437960441,
+        "C": 20.59,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.46062053243319195
+      },
+      "cost_limit": 25.0
+    },
+    "carbutton2": {
+      "binary": {
+        "R": -1.6772721212133048,
+        "C": 19.28333333333333,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.40930232405662537
+      },
+      "cardinal": {
+        "R": -0.85905331756692,
+        "C": 22.820000000000004,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.4139534831047058
+      },
+      "cost_limit": 25.0
+    },
+    "pointcircle1": {
+      "binary": {
+        "R": 34.75000767337968,
+        "C": 1.1666666666666667,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.1374999980131785
+      },
+      "cardinal": {
+        "R": 36.002821773986035,
+        "C": 2.75,
+        "safe": true,
+        "seeds": 3,
+        "kept_unsafe": 0.16249999900658926
+      },
+      "cost_limit": 25.0
+    },
+    "pointcircle2": {
+      "binary": {
+        "R": 36.09622369101613,
+        "C": 64.46000000000001,
+        "safe": false,
+        "seeds": 3,
+        "kept_unsafe": 0.2077625592549642
+      },
+      "cardinal": {
+        "R": 36.024506660554636,
+        "C": 48.693333333333335,
+        "safe": false,
+        "seeds": 3,
+        "kept_unsafe": 0.2990867495536804
+      },
+      "cost_limit": 25.0
+    }
+  }
+}

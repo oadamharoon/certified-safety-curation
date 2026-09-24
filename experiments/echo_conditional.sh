@@ -1,6 +1,20 @@
 #!/bin/bash
 # Conditional composability echo (pre-registered decision rule):
 # runs ONLY if full-data CDT mean cost on CarRun exceeds 10.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/echo_logs
@@ -12,7 +26,7 @@ while ! grep -q "ROUND-2 QUEUE ALL DONE" $S/round2_logs/progress.log 2>/dev/null
 done
 log_run "ROUND-2 COMPLETE - EVALUATING ECHO RULE"
 
-DEC=$(cd /home/omniverse/workspace/safevlmcpl/iclr2027 && conda run -n safevlmcpl --no-capture-output python - <<'PYEOF'
+DEC=$(cd ${CSC_PAPER} && conda run -n safevlmcpl --no-capture-output python - <<'PYEOF'
 import json
 d = json.load(open("data/osrl_results.json"))
 e = d.get("carrun_b", {}).get("cdt", {})
@@ -26,7 +40,7 @@ log_run "echo rule decision: $DEC"
 case "$DEC" in
   TRIGGER)
     log_run "BUILDING CARRUN CERTIFIED SUBSET"
-    cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+    cd ${CSC_WORK}
     env CUDA_VISIBLE_DEVICES="" conda run -n safevlmcpl --no-capture-output python - > "$LOGDIR/build.log" 2>&1 <<'PYEOF'
 import json, pickle, sys, os
 import numpy as np, torch, h5py
@@ -34,7 +48,7 @@ sys.path.insert(0, ".")
 from model.policy import VEnsemble
 import yaml
 cfg = yaml.safe_load(open("config.yaml"))
-snap = json.load(open("/home/omniverse/workspace/safevlmcpl/iclr2027/data/results_snapshot.json"))
+snap = json.load(open("${CSC_PAPER_DATA}/results_snapshot.json"))
 meta = snap["carrun_b"]["calfilt_ltt"]["0"]["meta"]
 assert meta["certified"]
 tau = float(meta["tau"])
@@ -75,8 +89,8 @@ PYEOF
     for seed in 0 1 2; do
       tag="cdtecho_carrun_s${seed}"
       [ -f "$LOGDIR/done_${tag}" ] && continue
-      cd /home/omniverse/workspace/safevlmcpl/osrl
-      env PYTHONNOUSERSITE=1 PYTHONPATH=/home/omniverse/workspace/safevlmcpl/osrl \
+      cd ${CSC_OSRL}
+      env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
         conda run -n safevlmcpl --no-capture-output \
         python examples/train/train_cdt.py --task OfflineCarRun-v0 --seed $seed \
         --cost_limit 10 --device cuda --augment_percent 0.0 --random_aug 0.0 \
@@ -88,7 +102,7 @@ PYEOF
       tag="bcecho_carrun_seed${seed}"
       key="carrun_b_${tag}"
       [ -f "$LOGDIR/done_${key}" ] && continue
-      cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+      cd ${CSC_WORK}
       env SAFETY_VLM_TASK=carrun_b KEPT_JSON="$S/certified_h5/carrun_b_echocert_seed0_kept.json" \
         SEED_OVERRIDE=$seed OUT_TAG="$tag" WANDB_MODE=disabled OMP_NUM_THREADS=3 CUDA_VISIBLE_DEVICES="" \
         conda run -n safevlmcpl --no-capture-output python $S/bc_on_subset.py > "$LOGDIR/${key}.log" 2>&1 \
@@ -97,7 +111,7 @@ PYEOF
            --policy_file "bc_${tag}_policy.pt" --results_suffix "$tag" >> "$LOGDIR/${key}.log" 2>&1 \
         && { touch "$LOGDIR/done_${key}"; log_run "DONE $key"; } || log_run "FAIL $key"
     done
-    cd /home/omniverse/workspace/safevlmcpl/iclr2027
+    cd ${CSC_PAPER}
     conda run -n safevlmcpl --no-capture-output python scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
     conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
     log_run "ECHO COMPLETE"

@@ -1,7 +1,21 @@
 #!/bin/bash
 # A3: CDT retrained on the regenerated certified selections (composability).
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
-W=/home/omniverse/workspace/safevlmcpl/runs
+W=${CSC_RUNS}
 LOGDIR=$W/logs/a3cdt
 mkdir -p "$LOGDIR/runs"
 T2ENV () { case $1 in
@@ -18,8 +32,8 @@ run_cdt () {
   [ -z "${e:-}" ] && { echo "no env for $task" >> "$LOGDIR/progress.log"; return 1; }
   local tag="cdt_${base}_s${seed}"
   [ -f "$LOGDIR/done_${tag}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/osrl
-  env PYTHONNOUSERSITE=1 PYTHONPATH=/home/omniverse/workspace/safevlmcpl/osrl \
+  cd ${CSC_OSRL}
+  env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
     conda run -n safevlmcpl --no-capture-output \
     python examples/train/train_cdt.py --task "$e" --seed "$seed" \
     --cost_limit "$lim" --device cuda --augment_percent 0.0 --random_aug 0.0 \
@@ -32,6 +46,6 @@ J=$W/a3_jobs.txt; : > "$J"
 for h5 in $W/selections/*.hdf5; do for s in 0 1 2; do echo "$h5 $s" >> "$J"; done; done
 echo "[$(date +%m/%d-%H:%M:%S)] A3 CDT: $(wc -l < $J) jobs" >> "$LOGDIR/progress.log"
 xargs -a "$J" -L1 -P 5 bash -c 'run_cdt "$@"' _
-cd /home/omniverse/workspace/safevlmcpl/iclr2027
+cd ${CSC_PAPER}
 conda run -n safevlmcpl --no-capture-output python scripts/harvest_osrl.py >> "$LOGDIR/progress.log" 2>&1
 echo "[$(date +%m/%d-%H:%M:%S)] A3 CDT DONE ($(ls $LOGDIR/done_* 2>/dev/null | wc -l))" >> "$LOGDIR/progress.log"

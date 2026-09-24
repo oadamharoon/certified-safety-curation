@@ -1,6 +1,20 @@
 #!/bin/bash
 # Stage 2 of 1000-pair standardization: retrain all affected V ensembles.
 #   12 main tasks x 5 seeds (60) + 18 H-variants x 3 seeds (54) = 114
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/restd_v_logs
@@ -11,7 +25,7 @@ train_v () {
   local task=$1 seed=$2 cfgfile=$3 key_override=${4:-}
   local key="${key_override:-${task}}_s${seed}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   local CFG=""
   [ "$cfgfile" != "-" ] && CFG="SAFETY_VLM_CONFIG=$cfgfile"
   env SAFETY_VLM_TASK=$task $CFG WANDB_MODE=disabled OMP_NUM_THREADS=3 \

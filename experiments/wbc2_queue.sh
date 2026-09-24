@@ -1,6 +1,20 @@
 #!/bin/bash
 # Operator completion sets: clip sensitivity (+/-1, +/-3) + hard top-half,
 # on the identical 10 selections x 3 seeds. GPU training, CPU evals.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/wbc2_logs
@@ -12,7 +26,7 @@ run_arm () {
   local full="${tag}_seed${seed}"
   local key="${task}_${full}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   local EXTRA=""
   if [ "$mode" = w ]; then EXTRA="RETURN_WEIGHTED=1 WEIGHT_CLIP=$clip"; else EXTRA="RETURN_TOPHALF=1"; fi
   env SAFETY_VLM_TASK=$task KEPT_JSON="$kj" SEED_OVERRIDE=$seed OUT_TAG="$full" $EXTRA \
@@ -52,6 +66,6 @@ log_run "wbc2 jobs: $(wc -l < $J)"
 # log_run is called inside the xargs subshells, so it must be exported
 export -f log_run
 xargs -a "$J" -L1 -P 6 bash -c 'run_arm "$@"' _
-cd /home/omniverse/workspace/safevlmcpl/iclr2027
+cd ${CSC_PAPER}
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "WBC2 QUEUE ALL DONE"

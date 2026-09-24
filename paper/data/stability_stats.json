@@ -1,0 +1,40 @@
+{
+  "definition": "mean pairwise Jaccard of safe-task sets over the 15 tasks",
+  "draw_axis": {
+    "50": {
+      "arm": "labels_only_n50",
+      "jaccard": 0.7582417582417582,
+      "n_sets": 3
+    },
+    "100": {
+      "arm": "labels_only_n100",
+      "jaccard": 0.6098901098901098,
+      "n_sets": 3
+    },
+    "200": {
+      "arm": "labels_only",
+      "jaccard": 0.8498168498168498,
+      "n_sets": 3
+    },
+    "400": {
+      "arm": "labels_only_n400",
+      "jaccard": 0.9029304029304029,
+      "n_sets": 3
+    }
+  },
+  "learner_axis": {
+    "arm": "labels_only_fixdraw",
+    "jaccard": 0.9487179487179488,
+    "n_sets": 3
+  },
+  "scorer_axis": {
+    "vfilt_calsafe": {
+      "jaccard": 0.8952991452991453,
+      "n_sets": 3
+    },
+    "calfilt_csf": {
+      "jaccard": 0.8003663003663003,
+      "n_sets": 3
+    }
+  }
+}

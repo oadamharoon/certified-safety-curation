@@ -692,7 +692,7 @@ tasks:
     env_name: "EasySparseEnv"
     metadrive_task: "easy_sparse"        # key into utils/metadrive_utils.TASK_CONFIGS
     offline_env_name: "OfflineMetadrive-easysparse-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_easy_sparse.pkl"
     output_dir: "outputs/metadrive_easy_sparse_h10"
     prompt_template: "prompts/safety_metadrive.txt"
@@ -725,7 +725,7 @@ tasks:
     metadrive_task: "easy_sparse"
     metadrive_nonterminal: true
     offline_env_name: "OfflineMetadrive-easysparse-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_easy_sparse_nonterm.pkl"
     output_dir: "outputs/metadrive_easy_sparse_nonterm_h10"
     prompt_template: "prompts/safety_metadrive.txt"
@@ -760,7 +760,7 @@ tasks:
     env_name: "MediumDenseEnv"
     metadrive_task: "medium_dense"
     offline_env_name: "OfflineMetadrive-mediumdense-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_medium_dense.pkl"
     output_dir: "outputs/metadrive_medium_dense_h10"
     prompt_template: "prompts/safety_metadrive.txt"
@@ -811,7 +811,7 @@ tasks:
     metadrive_task: "dsrl_medium_mean"      # key into utils/metadrive_utils.TASK_CONFIGS
     metadrive_dsrl: true                    # uses make_metadrive_env(dsrl=True)
     offline_env_name: "OfflineMetadrive-mediummean-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediummean-v0-50-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-mediummean-v0-50-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_dsrl_medium_mean.pkl"
     output_dir: "outputs/metadrive_dsrl_medium_mean_h10"
     data_source: "metadrive"
@@ -863,7 +863,7 @@ tasks:
     metadrive_task: "medium_dense"
     metadrive_nonterminal: true
     offline_env_name: "OfflineMetadrive-mediumdense-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_medium_dense_nonterm.pkl"
     output_dir: "outputs/metadrive_medium_dense_nonterm_h10"
     prompt_template: "prompts/safety_metadrive.txt"

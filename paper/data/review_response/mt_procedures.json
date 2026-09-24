@@ -1,0 +1,479 @@
+{
+ "halfcheetah_velocity": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.193,
+    "false_rate": 0.0375,
+    "cond": 0.19430051813471502
+   },
+   "bonferroni": {
+    "cert_rate": 0.025,
+    "false_rate": 0.004,
+    "cond": 0.16
+   },
+   "holm": {
+    "cert_rate": 0.025,
+    "false_rate": 0.0045,
+    "cond": 0.18
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.246,
+    "false_rate": 0.038,
+    "cond": 0.15447154471544716
+   },
+   "bonferroni": {
+    "cert_rate": 0.038,
+    "false_rate": 0.0035,
+    "cond": 0.09210526315789473
+   },
+   "holm": {
+    "cert_rate": 0.038,
+    "false_rate": 0.004,
+    "cond": 0.10526315789473684
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.2265,
+    "false_rate": 0.0445,
+    "cond": 0.19646799116997793
+   },
+   "bonferroni": {
+    "cert_rate": 0.033,
+    "false_rate": 0.0045,
+    "cond": 0.13636363636363635
+   },
+   "holm": {
+    "cert_rate": 0.033,
+    "false_rate": 0.005,
+    "cond": 0.15151515151515152
+   }
+  }
+ },
+ "walker2d_velocity": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.4955,
+    "false_rate": 0.002,
+    "cond": 0.004036326942482341
+   },
+   "bonferroni": {
+    "cert_rate": 0.2645,
+    "false_rate": 0.0,
+    "cond": 0.0
+   },
+   "holm": {
+    "cert_rate": 0.2645,
+    "false_rate": 0.0,
+    "cond": 0.0
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.5225,
+    "false_rate": 0.001,
+    "cond": 0.0019138755980861245
+   },
+   "bonferroni": {
+    "cert_rate": 0.299,
+    "false_rate": 0.0,
+    "cond": 0.0
+   },
+   "holm": {
+    "cert_rate": 0.299,
+    "false_rate": 0.0,
+    "cond": 0.0
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.515,
+    "false_rate": 0.002,
+    "cond": 0.003883495145631068
+   },
+   "bonferroni": {
+    "cert_rate": 0.3225,
+    "false_rate": 0.0,
+    "cond": 0.0
+   },
+   "holm": {
+    "cert_rate": 0.3225,
+    "false_rate": 0.0,
+    "cond": 0.0
+   }
+  }
+ },
+ "ant_velocity": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.0045,
+    "false_rate": 0.0045,
+    "cond": 1.0
+   },
+   "bonferroni": {
+    "cert_rate": 0.0005,
+    "false_rate": 0.0005,
+    "cond": 1.0
+   },
+   "holm": {
+    "cert_rate": 0.0005,
+    "false_rate": 0.0005,
+    "cond": 1.0
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.003,
+    "false_rate": 0.003,
+    "cond": 1.0
+   },
+   "bonferroni": {
+    "cert_rate": 0.0005,
+    "false_rate": 0.0005,
+    "cond": 1.0
+   },
+   "holm": {
+    "cert_rate": 0.0005,
+    "false_rate": 0.0005,
+    "cond": 1.0
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.0055,
+    "false_rate": 0.0055,
+    "cond": 1.0
+   },
+   "bonferroni": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   },
+   "holm": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   }
+  }
+ },
+ "hopper_velocity": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   },
+   "bonferroni": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   },
+   "holm": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   },
+   "bonferroni": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   },
+   "holm": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   },
+   "bonferroni": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   },
+   "holm": {
+    "cert_rate": 0.0,
+    "false_rate": 0.0,
+    "cond": null
+   }
+  }
+ },
+ "swimmer_velocity": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.1005,
+    "false_rate": 0.003,
+    "cond": 0.029850746268656716
+   },
+   "bonferroni": {
+    "cert_rate": 0.0065,
+    "false_rate": 0.0,
+    "cond": 0.0
+   },
+   "holm": {
+    "cert_rate": 0.0065,
+    "false_rate": 0.0,
+    "cond": 0.0
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.1,
+    "false_rate": 0.0025,
+    "cond": 0.025
+   },
+   "bonferroni": {
+    "cert_rate": 0.0055,
+    "false_rate": 0.0,
+    "cond": 0.0
+   },
+   "holm": {
+    "cert_rate": 0.0055,
+    "false_rate": 0.0,
+    "cond": 0.0
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.087,
+    "false_rate": 0.0025,
+    "cond": 0.028735632183908046
+   },
+   "bonferroni": {
+    "cert_rate": 0.004,
+    "false_rate": 0.0,
+    "cond": 0.0
+   },
+   "holm": {
+    "cert_rate": 0.004,
+    "false_rate": 0.0,
+    "cond": 0.0
+   }
+  }
+ },
+ "cargoal1_dsrl": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.317,
+    "false_rate": 0.026,
+    "cond": 0.08201892744479496
+   },
+   "bonferroni": {
+    "cert_rate": 0.0565,
+    "false_rate": 0.001,
+    "cond": 0.017699115044247787
+   },
+   "holm": {
+    "cert_rate": 0.0565,
+    "false_rate": 0.0015,
+    "cond": 0.02654867256637168
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.349,
+    "false_rate": 0.06,
+    "cond": 0.17191977077363896
+   },
+   "bonferroni": {
+    "cert_rate": 0.067,
+    "false_rate": 0.0055,
+    "cond": 0.08208955223880597
+   },
+   "holm": {
+    "cert_rate": 0.067,
+    "false_rate": 0.006,
+    "cond": 0.08955223880597014
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.336,
+    "false_rate": 0.0325,
+    "cond": 0.09672619047619048
+   },
+   "bonferroni": {
+    "cert_rate": 0.062,
+    "false_rate": 0.0015,
+    "cond": 0.024193548387096774
+   },
+   "holm": {
+    "cert_rate": 0.062,
+    "false_rate": 0.0015,
+    "cond": 0.024193548387096774
+   }
+  }
+ },
+ "cargoal2": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.1615,
+    "false_rate": 0.025,
+    "cond": 0.15479876160990713
+   },
+   "bonferroni": {
+    "cert_rate": 0.0205,
+    "false_rate": 0.0015,
+    "cond": 0.07317073170731707
+   },
+   "holm": {
+    "cert_rate": 0.0205,
+    "false_rate": 0.0015,
+    "cond": 0.07317073170731707
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.158,
+    "false_rate": 0.023,
+    "cond": 0.14556962025316456
+   },
+   "bonferroni": {
+    "cert_rate": 0.0195,
+    "false_rate": 0.0005,
+    "cond": 0.02564102564102564
+   },
+   "holm": {
+    "cert_rate": 0.0195,
+    "false_rate": 0.0015,
+    "cond": 0.07692307692307693
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.139,
+    "false_rate": 0.019,
+    "cond": 0.1366906474820144
+   },
+   "bonferroni": {
+    "cert_rate": 0.017,
+    "false_rate": 0.0025,
+    "cond": 0.14705882352941177
+   },
+   "holm": {
+    "cert_rate": 0.017,
+    "false_rate": 0.0025,
+    "cond": 0.14705882352941177
+   }
+  }
+ },
+ "pointgoal1_dsrl": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.6635,
+    "false_rate": 0.049,
+    "cond": 0.07385079125847777
+   },
+   "bonferroni": {
+    "cert_rate": 0.2955,
+    "false_rate": 0.008,
+    "cond": 0.02707275803722504
+   },
+   "holm": {
+    "cert_rate": 0.2955,
+    "false_rate": 0.011,
+    "cond": 0.03722504230118443
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.6585,
+    "false_rate": 0.042,
+    "cond": 0.06378132118451026
+   },
+   "bonferroni": {
+    "cert_rate": 0.2855,
+    "false_rate": 0.0045,
+    "cond": 0.01576182136602452
+   },
+   "holm": {
+    "cert_rate": 0.2855,
+    "false_rate": 0.007,
+    "cond": 0.024518388791593695
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.6395,
+    "false_rate": 0.0465,
+    "cond": 0.0727130570758405
+   },
+   "bonferroni": {
+    "cert_rate": 0.3035,
+    "false_rate": 0.007,
+    "cond": 0.023064250411861616
+   },
+   "holm": {
+    "cert_rate": 0.3035,
+    "false_rate": 0.0105,
+    "cond": 0.03459637561779242
+   }
+  }
+ },
+ "pointgoal2": {
+  "0": {
+   "fixedseq": {
+    "cert_rate": 0.0515,
+    "false_rate": 0.0515,
+    "cond": 1.0
+   },
+   "bonferroni": {
+    "cert_rate": 0.0025,
+    "false_rate": 0.0025,
+    "cond": 1.0
+   },
+   "holm": {
+    "cert_rate": 0.0025,
+    "false_rate": 0.0025,
+    "cond": 1.0
+   }
+  },
+  "1": {
+   "fixedseq": {
+    "cert_rate": 0.063,
+    "false_rate": 0.063,
+    "cond": 1.0
+   },
+   "bonferroni": {
+    "cert_rate": 0.0025,
+    "false_rate": 0.0025,
+    "cond": 1.0
+   },
+   "holm": {
+    "cert_rate": 0.0025,
+    "false_rate": 0.0025,
+    "cond": 1.0
+   }
+  },
+  "2": {
+   "fixedseq": {
+    "cert_rate": 0.053,
+    "false_rate": 0.053,
+    "cond": 1.0
+   },
+   "bonferroni": {
+    "cert_rate": 0.0035,
+    "false_rate": 0.0035,
+    "cond": 1.0
+   },
+   "holm": {
+    "cert_rate": 0.0035,
+    "false_rate": 0.0035,
+    "cond": 1.0
+   }
+  }
+ }
+}

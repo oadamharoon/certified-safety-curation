@@ -2,11 +2,25 @@
 # Segment-length sweep: H in {10, 50}, 9 analysis tasks, full pipeline.
 # Per (task, H): 01 segment -> 03b label -> 04n V x3 -> 04q calfilt+BC x3 -> 05 eval.
 # Runs alongside the no-aug CDT waves; BC/V nets are small.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/hsweep_logs
 mkdir -p "$LOGDIR"
-cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+cd ${CSC_WORK}
 log_run () { echo "[$(date +%m/%d-%H:%M:%S)] $1" | tee -a "$LOGDIR/progress.log"; }
 
 TASKS="halfcheetah_velocity:20 walker2d_velocity:20 ant_velocity:20 hopper_velocity:20 swimmer_velocity:20 cargoal1_dsrl:25 cargoal2:25 pointgoal1_dsrl:25 pointgoal2:25"

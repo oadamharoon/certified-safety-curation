@@ -491,6 +491,22 @@ tasks:
     max_active_segments: 100000
 
   cargoal1_dsrl:
+    collect:
+      n_episodes: 400
+      out_pickle: "data/trajectories_cargoal1_dsrl_vlmcollect.pkl"
+      max_steps_per_episode: 1000
+      seed_offset: 100000
+      use_bc_policy: true
+      auto_calibrate:
+        n_pilot: 15
+        max_iter: 5
+        sigma_lo: 0.05
+        sigma_hi: 0.60
+        target_frac: [0.85, 0.94]
+        target_cost_when_violating: [36, 48]
+    rating_scale: 5
+    vlm_strategy: "rating"
+    render_camera_id: 3
     # Phase 12e-3: CarGoal1 standard DSRL benchmark. Tested by both PReSa
     # AND PREFINE. Data from DSRL hdf5 (1671 trajectories, 1.7M trans).
     # Cost distribution: 20% safe at threshold 10, 40% at 25, 54% at 40.
@@ -499,7 +515,7 @@ tasks:
     offline_env_name: "OfflineCarGoal1Gymnasium-v0"
     data_pickle: "data/trajectories_cargoal1_dsrl.pkl"
     output_dir: "outputs/cargoal1_dsrl"
-    prompt_template: "prompts/safety_cargoal.txt"
+    prompt_template: "prompts/safety_cargoal_rating_safetyonly.txt"
     wandb_run_name: "cargoal1_dsrl"
     data_source: "dsrl"
     cost_safe_threshold: 0.0
@@ -515,6 +531,22 @@ tasks:
     max_active_segments: 100000
 
   pointgoal1_dsrl:
+    collect:
+      n_episodes: 400
+      out_pickle: "data/trajectories_pointgoal1_dsrl_vlmcollect.pkl"
+      max_steps_per_episode: 1000
+      seed_offset: 100000
+      use_bc_policy: true
+      auto_calibrate:
+        n_pilot: 15
+        max_iter: 5
+        sigma_lo: 0.05
+        sigma_hi: 0.60
+        target_frac: [0.73, 0.84]
+        target_cost_when_violating: [28, 38]
+    rating_scale: 5
+    vlm_strategy: "rating"
+    render_camera_id: 3
     # Phase 12e: PointGoal1 standard DSRL benchmark. Tested by both PReSa
     # AND PREFINE explicitly. Data from DSRL hdf5 (2022 trajectories
     # of 1000 steps, multi-policy mix), loaded via env.get_dataset().
@@ -524,7 +556,7 @@ tasks:
     offline_env_name: "OfflinePointGoal1Gymnasium-v0"
     data_pickle: "data/trajectories_pointgoal1_dsrl.pkl"
     output_dir: "outputs/pointgoal1_dsrl"
-    prompt_template: "prompts/safety_pointgoal.txt"
+    prompt_template: "prompts/safety_pointgoal_rating_safetyonly.txt"
     wandb_run_name: "pointgoal1_dsrl"
     data_source: "dsrl"
     cost_safe_threshold: 0.0
@@ -543,6 +575,9 @@ tasks:
     max_active_segments: 100000             # FULL data; no segment cap
 
   cargoal2:
+    rating_scale: 5
+    vlm_strategy: "rating"
+    render_camera_id: 3
     # Phase 12c: Standard DSRL benchmark setup matching PReSa / PREFINE / PbCRL.
     # Data comes from DSRL's published hdf5 (4105 trajectories of 1000 steps,
     # multi-policy mix) loaded via env.get_dataset(). NO online collection.
@@ -554,7 +589,7 @@ tasks:
     offline_env_name: "OfflineCarGoal2Gymnasium-v0"
     data_pickle: "data/trajectories_cargoal2.pkl"
     output_dir: "outputs/cargoal2"
-    prompt_template: "prompts/safety_cargoal.txt"
+    prompt_template: "prompts/safety_cargoal_rating_safetyonly.txt"
     wandb_run_name: "cargoal2_dsrl"
     data_source: "dsrl"
     # Segment-level safety threshold: per-segment cost <= 0 = safe (binary).
@@ -692,7 +727,7 @@ tasks:
     env_name: "EasySparseEnv"
     metadrive_task: "easy_sparse"        # key into utils/metadrive_utils.TASK_CONFIGS
     offline_env_name: "OfflineMetadrive-easysparse-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_easy_sparse.pkl"
     output_dir: "outputs/metadrive_easy_sparse"
     prompt_template: "prompts/safety_metadrive.txt"
@@ -725,7 +760,7 @@ tasks:
     metadrive_task: "easy_sparse"
     metadrive_nonterminal: true
     offline_env_name: "OfflineMetadrive-easysparse-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-easysparse-v0-85-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_easy_sparse_nonterm.pkl"
     output_dir: "outputs/metadrive_easy_sparse_nonterm"
     prompt_template: "prompts/safety_metadrive.txt"
@@ -760,7 +795,7 @@ tasks:
     env_name: "MediumDenseEnv"
     metadrive_task: "medium_dense"
     offline_env_name: "OfflineMetadrive-mediumdense-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_medium_dense.pkl"
     output_dir: "outputs/metadrive_medium_dense"
     prompt_template: "prompts/safety_metadrive.txt"
@@ -811,7 +846,7 @@ tasks:
     metadrive_task: "dsrl_medium_mean"      # key into utils/metadrive_utils.TASK_CONFIGS
     metadrive_dsrl: true                    # uses make_metadrive_env(dsrl=True)
     offline_env_name: "OfflineMetadrive-mediummean-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediummean-v0-50-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-mediummean-v0-50-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_dsrl_medium_mean.pkl"
     output_dir: "outputs/metadrive_dsrl_medium_mean"
     data_source: "metadrive"
@@ -863,7 +898,7 @@ tasks:
     metadrive_task: "medium_dense"
     metadrive_nonterminal: true
     offline_env_name: "OfflineMetadrive-mediumdense-v0"
-    dsrl_hdf5: "/home/prajwal/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
+    dsrl_hdf5: "~/.dsrl/datasets/SafeMetaDrive-mediumdense-v0-50-1000.hdf5"
     data_pickle: "data/trajectories_metadrive_medium_dense_nonterm.pkl"
     output_dir: "outputs/metadrive_medium_dense_nonterm"
     prompt_template: "prompts/safety_metadrive.txt"
@@ -1085,3 +1120,42 @@ tasks:
     traj_safe_min_reward: -1.0
     traj_unsafe_min_cost: 87.0
     cost_limit: 10
+  hopper_mix:
+    # Probe for the imitation-from-mixed-quality follow-up: D4RL hopper expert (400) +
+    # medium (1600). Synthetic per-step cost 0 (expert) / 1 (medium), so "unsafe" means
+    # "not from the expert buffer" and the certificate bounds the non-expert fraction.
+    # Built by scripts/00c_d4rl_mixture_to_pickle.py. obs_dim=11, act_dim=3.
+    env_name: "Hopper-v4"
+    offline_env_name: "none"
+    data_pickle: "data/trajectories_hopper_mix.pkl"
+    output_dir: "outputs/hopper_mix"
+    wandb_run_name: "hopper_mix_probe"
+    data_source: "d4rl_mix"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 0.5
+    traj_safe_max_cost: 0.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 1.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000
+
+  hopper_medq:
+    # Graded-quality variant: D4RL hopper MEDIUM buffer only, expert-quality = top 25% by
+    # return. Cost 0 (expert-quality) / 1 (rest). Built by 00d_d4rl_medium_quality_to_pickle.py. obs_dim=11, act_dim=3.
+    env_name: "Hopper-v4"
+    offline_env_name: "none"
+    data_pickle: "data/trajectories_hopper_medq.pkl"
+    output_dir: "outputs/hopper_medq"
+    wandb_run_name: "hopper_medq_probe"
+    data_source: "d4rl_mix"
+    cost_safe_threshold: 0.0
+    cost_contrast_min: 1.0
+    cost_limit: 0.5
+    traj_safe_max_cost: 0.0
+    traj_safe_min_reward: -1.0
+    traj_unsafe_min_cost: 1.0
+    bc_only_epochs: 100
+    batch_size: 512
+    max_active_segments: 100000

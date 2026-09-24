@@ -1,0 +1,6 @@
+halfcheetah_velocity 1 bc_calfilt_lttR50_seed1_policy.pt
+halfcheetah_velocity 3 bc_calfilt_lttR50_seed3_policy.pt
+halfcheetah_velocity 4 bc_calfilt_lttR50_seed4_policy.pt
+cargoal1_dsrl 3 bc_calfilt_lttR50_seed3_policy.pt
+pointgoal1_dsrl 0 bc_calfilt_lttR50_seed0_policy.pt
+pointgoal1_dsrl 3 bc_calfilt_lttR50_seed3_policy.pt

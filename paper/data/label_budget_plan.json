@@ -1,0 +1,56 @@
+{
+ "alpha": 0.25,
+ "delta": 0.1,
+ "target_rate": 0.9,
+ "deployed_n": 200,
+ "tasks": {
+  "halfcheetah_velocity": {
+   "margin": 0.055333333333333345,
+   "npool": 2495,
+   "n1": 375,
+   "k1": 73,
+   "n_for_target": 1281,
+   "rate_at_deployed_n": 0.20797528036909074
+  },
+  "walker2d_velocity": {
+   "margin": 0.10853658536585367,
+   "npool": 2729,
+   "n1": 410,
+   "k1": 58,
+   "n_for_target": 518,
+   "rate_at_deployed_n": 0.4899921802671829
+  },
+  "swimmer_velocity": {
+   "margin": 0.016798418972332002,
+   "npool": 1686,
+   "n1": 253,
+   "k1": 59,
+   "n_for_target": 4000,
+   "rate_at_deployed_n": 0.10457007769986625
+  },
+  "cargoal1_dsrl": {
+   "margin": 0.0747011952191235,
+   "npool": 1671,
+   "n1": 251,
+   "k1": 44,
+   "n_for_target": 4000,
+   "rate_at_deployed_n": 0.3155145260470661
+  },
+  "cargoal2": {
+   "margin": 0.038961038961038974,
+   "npool": 4105,
+   "n1": 616,
+   "k1": 130,
+   "n_for_target": 2280,
+   "rate_at_deployed_n": 0.15448946923348678
+  },
+  "pointgoal1_dsrl": {
+   "margin": 0.1282894736842105,
+   "npool": 2022,
+   "n1": 304,
+   "k1": 37,
+   "n_for_target": 360,
+   "rate_at_deployed_n": 0.6593226299974281
+  }
+ }
+}

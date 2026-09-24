@@ -276,7 +276,14 @@ def main() -> None:
     print(f"  fraction with cost > 0: "
           f"{(total_costs > 0).mean():.2%}")
 
-    out_path = cfg["data_pickle"]
+    # collect.out_pickle redirects the save. Without it this script writes to
+    # cfg["data_pickle"], i.e. it silently overwrites the DSRL dataset the whole
+    # pipeline reads from. Refuse to clobber an existing file unless asked.
+    out_path = coll.get("out_pickle") or cfg["data_pickle"]
+    if os.path.exists(out_path) and not bool(coll.get("overwrite", False)):
+        raise SystemExit(
+            f"refusing to overwrite existing {out_path}\n"
+            f"set collect.out_pickle to a new path, or collect.overwrite: true")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "wb") as f:
         pickle.dump(trajectories, f)

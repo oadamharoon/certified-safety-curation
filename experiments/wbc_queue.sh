@@ -1,6 +1,20 @@
 #!/bin/bash
 # Certified return-weighted cloning feasibility: 9 a25 selections x 3 seeds
 # + CarRun certified selection x 3 seeds. CPU only.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/wbc_logs
@@ -12,7 +26,7 @@ run_wbc () {
   local tag="${tag_base}_seed${seed}"
   local key="${task}_${tag}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   env SAFETY_VLM_TASK=$task KEPT_JSON="$kj" SEED_OVERRIDE=$seed OUT_TAG="$tag" \
     RETURN_WEIGHTED=1 WANDB_MODE=disabled OMP_NUM_THREADS=4 \
     conda run -n safevlmcpl --no-capture-output python $S/bc_on_subset.py \
@@ -44,6 +58,6 @@ log_run "wbc jobs: $(wc -l < $J)"
 # log_run is called inside the xargs subshells, so it must be exported
 export -f log_run
 xargs -a "$J" -L1 -P 6 bash -c 'run_wbc "$@"' _
-cd /home/omniverse/workspace/safevlmcpl/iclr2027
+cd ${CSC_PAPER}
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "WBC QUEUE ALL DONE"

@@ -1,5 +1,19 @@
 #!/bin/bash
 # T3.2 AWR temperature/clip sweep (5 cfg x 9 x 3 = 135) + T2.6 aggregators (2 x 9 x 3 = 54). CPU.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/t32t26_logs
@@ -13,7 +27,7 @@ run_awr () {
   local full="${tag}_seed${seed}"
   local key="${task}_${full}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
     AWR_BETA=$beta AWR_WEIGHT_CLIP=$clip SEED_OVERRIDE=$seed OUT_TAG=$full \
     conda run -n safevlmcpl --no-capture-output python scripts/04f_train_v_awr.py \
@@ -31,7 +45,7 @@ run_agg () {
   local tag="xagg_${agg}_seed${seed}"
   local key="${task}_${tag}"
   [ -f "$LOGDIR/done_${key}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/vlm-with-cpl/new_data
+  cd ${CSC_WORK}
   local frac=$(conda run -n safevlmcpl --no-capture-output python $S/t13_frac.py $task $seed | tail -1)
   env SAFETY_VLM_TASK=$task WANDB_MODE=disabled OMP_NUM_THREADS=3 \
     AGG_MODE=$agg FILTER_FRAC=$frac COST_LIMIT=$lim \
@@ -67,6 +81,6 @@ export -f dispatch
 # log_run is called inside the xargs subshells, so it must be exported
 export -f log_run
 xargs -a "$J" -L1 -P 8 bash -c 'dispatch "$@"' _
-cd /home/omniverse/workspace/safevlmcpl/iclr2027
+cd ${CSC_PAPER}
 conda run -n safevlmcpl --no-capture-output python scripts/collect_results.py >> "$LOGDIR/progress.log" 2>&1
 log_run "T32T26 QUEUE ALL DONE"

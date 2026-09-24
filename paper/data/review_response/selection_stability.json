@@ -1,0 +1,134 @@
+{
+ "n_settings": 12,
+ "modal_share_min": 0.20833333333333331,
+ "modal_share_max": 0.8286290322580645,
+ "n_settings_modal_share_above_half": 5,
+ "most_concentrated": {
+  "task": "carrun_b",
+  "level": "a40",
+  "modal_share_of_certified": 0.8286290322580645
+ },
+ "top3_share_min": 0.5285087719298245,
+ "settings": [
+  {
+   "task": "cargoal1_dsrl",
+   "level": "a25",
+   "cert_rate_500": 0.324,
+   "modal_share_of_certified": 0.4876543209876543,
+   "top3_share_of_certified": 0.9320987654320989,
+   "n_distinct_reported": 3,
+   "deployed_n": 251,
+   "deployed_is_a_grid_selection": true
+  },
+  {
+   "task": "halfcheetah_velocity",
+   "level": "a25",
+   "cert_rate_500": 0.232,
+   "modal_share_of_certified": 0.8103448275862069,
+   "top3_share_of_certified": 1.0,
+   "n_distinct_reported": 3,
+   "deployed_n": 375,
+   "deployed_is_a_grid_selection": true
+  },
+  {
+   "task": "walker2d_velocity",
+   "level": "a25",
+   "cert_rate_500": 0.484,
+   "modal_share_of_certified": 0.578512396694215,
+   "top3_share_of_certified": 0.8842975206611571,
+   "n_distinct_reported": 3,
+   "deployed_n": 683,
+   "deployed_is_a_grid_selection": true
+  },
+  {
+   "task": "ant_velocity",
+   "level": "a40",
+   "cert_rate_500": 0.18,
+   "modal_share_of_certified": 0.4111111111111111,
+   "top3_share_of_certified": 0.9,
+   "n_distinct_reported": 3,
+   "deployed_n": 675,
+   "deployed_is_a_grid_selection": true
+  },
+  {
+   "task": "cargoal1_dsrl",
+   "level": "a40",
+   "cert_rate_500": 0.912,
+   "modal_share_of_certified": 0.20833333333333331,
+   "top3_share_of_certified": 0.5285087719298245,
+   "n_distinct_reported": 3,
+   "deployed_n": 335,
+   "deployed_is_a_grid_selection": false
+  },
+  {
+   "task": "cargoal2",
+   "level": "a40",
+   "cert_rate_500": 0.756,
+   "modal_share_of_certified": 0.23809523809523808,
+   "top3_share_of_certified": 0.6507936507936508,
+   "n_distinct_reported": 3,
+   "deployed_n": null,
+   "deployed_is_a_grid_selection": null
+  },
+  {
+   "task": "carrun_b",
+   "level": "a40",
+   "cert_rate_500": 0.992,
+   "modal_share_of_certified": 0.8286290322580645,
+   "top3_share_of_certified": 1.0,
+   "n_distinct_reported": 2,
+   "deployed_n": null,
+   "deployed_is_a_grid_selection": null
+  },
+  {
+   "task": "halfcheetah_velocity",
+   "level": "a40",
+   "cert_rate_500": 0.868,
+   "modal_share_of_certified": 0.4009216589861751,
+   "top3_share_of_certified": 0.9285714285714286,
+   "n_distinct_reported": 3,
+   "deployed_n": 375,
+   "deployed_is_a_grid_selection": true
+  },
+  {
+   "task": "pointgoal1_dsrl",
+   "level": "a40",
+   "cert_rate_500": 0.996,
+   "modal_share_of_certified": 0.7771084337349398,
+   "top3_share_of_certified": 0.92570281124498,
+   "n_distinct_reported": 3,
+   "deployed_n": null,
+   "deployed_is_a_grid_selection": null
+  },
+  {
+   "task": "pointgoal2",
+   "level": "a40",
+   "cert_rate_500": 0.566,
+   "modal_share_of_certified": 0.48763250883392234,
+   "top3_share_of_certified": 0.9434628975265019,
+   "n_distinct_reported": 3,
+   "deployed_n": null,
+   "deployed_is_a_grid_selection": null
+  },
+  {
+   "task": "swimmer_velocity",
+   "level": "a40",
+   "cert_rate_500": 0.77,
+   "modal_share_of_certified": 0.6025974025974026,
+   "top3_share_of_certified": 1.0,
+   "n_distinct_reported": 3,
+   "deployed_n": 253,
+   "deployed_is_a_grid_selection": true
+  },
+  {
+   "task": "walker2d_velocity",
+   "level": "a40",
+   "cert_rate_500": 0.976,
+   "modal_share_of_certified": 0.4323770491803279,
+   "top3_share_of_certified": 0.9344262295081968,
+   "n_distinct_reported": 3,
+   "deployed_n": 955,
+   "deployed_is_a_grid_selection": true
+  }
+ ]
+}

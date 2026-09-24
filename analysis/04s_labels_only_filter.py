@@ -75,6 +75,27 @@ def main() -> None:
     # labeled trajectory, shrinking the effective weak-label count while
     # holding the trajectory-label budget fixed.
     state_frac = float(os.environ.get("STATE_FRAC", 1.0))
+    # LABEL_MODE (default "binary") selects what the 200 labels carry.
+    #   binary   -- the over-budget indicator, i.e. one bit per trajectory. This is
+    #               the supervisor our calibration sample also assumes.
+    #   cardinal -- the numeric episodic cost, i.e. a magnitude per trajectory. This
+    #               is the strictly stronger supervisor the paper attributes to
+    #               labels-only, and which no arm in the study actually consumed.
+    # Pre-registered prediction, recorded before the first cardinal run: if safety on
+    # this benchmark is decodable from the ordering alone, cardinal supervision buys
+    # no additional safe tasks over binary at matched budget.
+    label_mode = os.environ.get("LABEL_MODE", "binary")
+    if label_mode not in ("binary", "cardinal"):
+        raise SystemExit(f"LABEL_MODE must be binary or cardinal, got {label_mode}")
+    # The score is only ever used to RANK trajectories, so the cardinal target is
+    # standardised and negated: higher stays safer and the selection code below is
+    # untouched. Standardising also keeps MSE well conditioned, since episodic cost
+    # spans [0, ~1000] while the binary target spans [0, 1] at the same learning rate.
+    if label_mode == "cardinal":
+        cal_costs = costs[cal_idx]
+        c_mu = float(cal_costs.mean())
+        c_sd = float(cal_costs.std()) or 1.0
+        print(f"[cardinal] target = -(cost - {c_mu:.2f}) / {c_sd:.2f}", flush=True)
     sub_rng = np.random.default_rng(4200 + seed)
     Xs, ys = [], []
     for i in cal_idx:
@@ -84,7 +105,11 @@ def main() -> None:
             sel_states = sub_rng.choice(len(o), size=m_states, replace=False)
             o = o[sel_states]
         Xs.append(torch.as_tensor(o, dtype=torch.float32))
-        ys.append(torch.full((len(o),), float(1 - unsafe[i])))
+        if label_mode == "cardinal":
+            tgt = -(float(costs[i]) - c_mu) / c_sd
+        else:
+            tgt = float(1 - unsafe[i])
+        ys.append(torch.full((len(o),), tgt))
     X = torch.cat(Xs).to(device)
     y = torch.cat(ys).to(device)
     obs_dim = X.shape[1]
@@ -99,7 +124,8 @@ def main() -> None:
         for i in range(0, n, batch_size):
             idx = perm[i:i + batch_size]
             logit = net.forward_all(X[idx]).squeeze(0)
-            loss = F.binary_cross_entropy_with_logits(logit, y[idx])
+            loss = (F.mse_loss(logit, y[idx]) if label_mode == "cardinal"
+                    else F.binary_cross_entropy_with_logits(logit, y[idx]))
             opt.zero_grad(); loss.backward(); opt.step()
             tot += loss.item() * len(idx)
         if ep % 10 == 0 or ep == 1:

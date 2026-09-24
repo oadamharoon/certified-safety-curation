@@ -1,0 +1,6 @@
+ok: halfcheetah_velocity seed1
+ok: halfcheetah_velocity seed4
+ok: halfcheetah_velocity seed3
+ok: pointgoal1_dsrl seed3
+ok: pointgoal1_dsrl seed0
+ok: cargoal1_dsrl seed3

@@ -3,6 +3,20 @@
 # Stage 1 (GPU): retrain full-data CDT, 15 DSRL tasks x 3 seeds, cost_limit = budget.
 # Stage 2 (CPU): eval each checkpoint at sub-budget targets, 100 eps/target.
 # Stage 3 (CPU): bullet eval-only on existing checkpoints at {2,5,10}.
+# --- paths: set CSC_WORKSPACE or the individual roots; see the README ---
+_csc_root () { local d; d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$d" != "/" ]; do [ -e "$d/.csc-root" ] && { printf %s "$d"; return; }; d="$(dirname "$d")"; done
+  (cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd); }
+CSC_REPO="${CSC_REPO:-$(_csc_root)}"
+CSC_WORKSPACE="${CSC_WORKSPACE:-$(dirname "$CSC_REPO")}"
+CSC_WORK="${CSC_WORK:-$CSC_WORKSPACE/vlm-with-cpl/new_data}"
+CSC_RUNS="${CSC_RUNS:-$CSC_WORKSPACE/runs}"
+CSC_OSRL="${CSC_OSRL:-$CSC_WORKSPACE/osrl}"
+CSC_PAPER="${CSC_PAPER:-$CSC_REPO/paper}"
+CSC_PAPER_DATA="${CSC_PAPER_DATA:-$CSC_PAPER/data}"
+PYTHON="${PYTHON:-python}"
+# ------------------------------------------------------------------------
+
 set -u
 S=/tmp/claude-1001/-home-omniverse-workspace-safevlmcpl/cbe3ff25-bd02-4cf4-9f36-173bf5fa270c/scratchpad
 LOGDIR=$S/cdtsweep_logs
@@ -16,8 +30,8 @@ train_one () {
   local env=$1 seed=$2 lim=$3
   local tag="cdtsw_${env}_s${seed}"
   [ -f "$LOGDIR/done_${tag}" ] && return 0
-  cd /home/omniverse/workspace/safevlmcpl/osrl
-  env PYTHONNOUSERSITE=1 PYTHONPATH=/home/omniverse/workspace/safevlmcpl/osrl \
+  cd ${CSC_OSRL}
+  env PYTHONNOUSERSITE=1 PYTHONPATH=${CSC_OSRL} \
     conda run -n safevlmcpl --no-capture-output \
     python examples/train/train_cdt.py --task "$env" --seed "$seed" \
     --cost_limit "$lim" --device cuda --logdir "$LOGDIR/runs" \
