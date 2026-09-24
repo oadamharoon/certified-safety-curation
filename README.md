@@ -53,7 +53,9 @@ Certified Safety Curation for LLM Fine-Tuning*, released separately.
     paper/       scripts/ regenerates every table and figure and runs the audit;
                  data/ holds the archived evaluation records they read;
                  figures/ the rendered figures; paper.tex the source the audit
-                 reads to check that every guarded value still appears in it.
+                 reads to check that every guarded value still appears in it
+                 (it ships to be read, not to be built: the ICLR class files it
+                 needs are not here).
     runs/        the 2000-episode evaluation logs behind the deployment
                  certificate, and the selection summary the tables read. The rest
                  of the campaign output is raw training data and is not tracked.

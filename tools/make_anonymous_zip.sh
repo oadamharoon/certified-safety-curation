@@ -39,11 +39,21 @@ EOF
 # value no longer in the text has to fail here too, or the archive's gate is weaker than ours.
 mkdir -p "$DEST/paper"
 python - "$ROOT/paper/paper.tex" "$DEST/paper/paper.tex" <<'EOF'
-import re, sys
+import sys
+
 t = open(sys.argv[1], encoding="utf-8").read()
-t = re.sub(r"\\author\{.*?\n\}", "\\\\author{Anonymous authors\\\\\\\\Paper under double-blind review}",
-           t, count=1, flags=re.S)
-t = re.sub(r"\\thanks\{[^{}]*\}", "", t)
+# Brace-matched, not a regex: the author block nests \thanks{\texttt{...}} and closes with
+# "}}" on its own line, which every simple pattern for it gets wrong in one direction.
+i = t.index("\\author{")
+j = i + len("\\author{")
+depth = 1
+while depth:
+    if t[j] == "{":
+        depth += 1
+    elif t[j] == "}":
+        depth -= 1
+    j += 1
+t = t[:i] + "\\author{Anonymous authors \\\\\nPaper under double-blind review}" + t[j:]
 open(sys.argv[2], "w", encoding="utf-8").write(t)
 EOF
 
