@@ -128,18 +128,3 @@ they are large and regenerable, and the DSRL datasets are public. What is tracke
 evaluation record the paper's numbers are computed from, the 2000-episode evaluation logs
 behind the deployment certificate, and the selection summary the tables read. Everything the
 paper reports regenerates from those.
-
-## Experimental conventions
-
-These hold uniformly across all twenty tasks.
-
-    preference pairs      1000 per task, segment length 30 (10 / 50 in the sweep)
-    sampling pools        parent-trajectory cost quartiles: the safe pool is the
-                          lowest quartile of episodic cost, the unsafe pool the
-                          highest
-    value ensemble        K = 3, two-layer MLP width 256, 300 epochs, batch 512
-    behavior cloning      100 epochs, batch 512
-    calibration           n = 200 labels, alpha = 0.25, delta = 0.1
-    evaluation            100 episodes per checkpoint
-    budgets               20 velocity, 25 navigation, 10 BulletSafetyGym
-    seeds                 5 for headline configurations, 3 for analysis sweeps
